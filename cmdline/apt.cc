@@ -42,8 +42,9 @@
 
 static bool ShowHelp(CommandLine &)					/*{{{*/
 {
-   std::cout <<
-      _("Usage: apt [options] command\n"
+    std::cout <<
+        ("Modified by Polyverse\n"
+        "Usage: apt [options] command\n"
 	    "\n"
 	    "apt is a commandline package manager and provides commands for\n"
 	    "searching and managing as well as querying information about packages.\n"
