@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: pkgcache.cc,v 1.37 2003/02/10 01:40:58 doogie Exp $
 /* ######################################################################
    
    Package Cache - Accessor code for the cache
@@ -10,7 +11,7 @@
    This is the general utility functions for cache management. They provide
    a complete set of accessor functions for the cache. The cacheiterators
    header contains the STL-like iterators that can be used to easially
-   navigate the cache as well as seamlessly dereference the mmap'd
+   navigate the cache as well as seemlessly dereference the mmap'd 
    indexes. Use these always.
    
    The main class provides for ways to get package indexes and some
@@ -125,6 +126,7 @@ bool pkgCache::Header::CheckSizes(Header &Against) const
 // Cache::pkgCache - Constructor					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
+APT_IGNORE_DEPRECATED_PUSH
 pkgCache::pkgCache(MMap *Map, bool DoMap) : Map(*Map), VS(nullptr), d(NULL)
 {
    // call getArchitectures() with cached=false to ensure that the 
@@ -134,6 +136,7 @@ pkgCache::pkgCache(MMap *Map, bool DoMap) : Map(*Map), VS(nullptr), d(NULL)
    if (DoMap == true)
       ReMap();
 }
+APT_IGNORE_DEPRECATED_POP
 									/*}}}*/
 // Cache::ReMap - Reopen the cache file					/*{{{*/
 // ---------------------------------------------------------------------
@@ -229,58 +232,10 @@ map_id_t pkgCache::sHash(const char *Str) const
    return Hash % HeaderP->GetHashTableSize();
 }
 
-#if defined(HAVE_FMV_SSE42_AND_CRC32)
-
-#ifdef HAVE_FMV_SSE42_AND_CRC32
-__attribute__((target("sse4.2"))) static uint32_t hash32(uint32_t crc32, const unsigned char *input, size_t size)
-{
-   if (input == nullptr)
-      return 0;
-
-   crc32 ^= 0xffffffffU;
-#ifdef HAVE_FMV_SSE42_AND_CRC32DI
-   while (size >= 8) {
-      crc32 = __builtin_ia32_crc32di(crc32, *(uint64_t *)input);
-      input += 8;
-      size -= 8;
-   }
-
-   if (size >= 4) {
-#else
-   while (size >= 4) {
-#endif
-      crc32 = __builtin_ia32_crc32si(crc32, *(uint32_t *)input);
-      input += 4;
-      size -= 4;
-   }
-
-   if (size >= 2) {
-      crc32 = __builtin_ia32_crc32hi(crc32, *(uint16_t *)input);
-      input += 2;
-      size -= 2;
-   }
-
-   if (size >= 1) {
-      crc32 = __builtin_ia32_crc32qi(crc32, *(uint8_t *)input);
-      input += 1;
-      size -= 1;
-   }
-   crc32 ^= 0xffffffffU;
-   return crc32;
-}
-#endif
-
-__attribute__((target("default")))
-#endif
-static uint32_t hash32(uint32_t crc32, const unsigned char *input, size_t size)
-{
-   return adler32(crc32, input, size);
-}
-
 uint32_t pkgCache::CacheHash()
 {
    pkgCache::Header header = {};
-   uLong adler = hash32(0L, Z_NULL, 0);
+   uLong adler = adler32(0L, Z_NULL, 0);
 
    if (Map.Size() < sizeof(header))
       return adler;
@@ -289,14 +244,14 @@ uint32_t pkgCache::CacheHash()
    header.Dirty = false;
    header.CacheFileSize = 0;
 
-   adler = hash32(adler,
-		  reinterpret_cast<const unsigned char *>(&header),
-		  sizeof(header));
+   adler = adler32(adler,
+		   reinterpret_cast<const unsigned char *>(&header),
+		   sizeof(header));
 
    if (Map.Size() > sizeof(header)) {
-      adler = hash32(adler,
-		     static_cast<const unsigned char *>(GetMap().Data()) + sizeof(header),
-		     GetMap().Size() - sizeof(header));
+      adler = adler32(adler,
+		      static_cast<const unsigned char *>(GetMap().Data()) + sizeof(header),
+		      GetMap().Size() - sizeof(header));
    }
 
    return adler;
@@ -560,6 +515,19 @@ pkgCache::PkgIterator::OkState pkgCache::PkgIterator::State() const
    return NeedsNothing;
 }
 									/*}}}*/
+// PkgIterator::CandVersion - Returns the candidate version string	/*{{{*/
+// ---------------------------------------------------------------------
+/* Return string representing of the candidate version. */
+const char *
+pkgCache::PkgIterator::CandVersion() const
+{
+  //TargetVer is empty, so don't use it.
+  VerIterator version = pkgPolicy(Owner).GetCandidateVer(*this);
+  if (version.IsGood())
+    return version.VerStr();
+  return 0;
+}
+									/*}}}*/
 // PkgIterator::CurVersion - Returns the current version string		/*{{{*/
 // ---------------------------------------------------------------------
 /* Return string representing of the current version. */
@@ -585,10 +553,15 @@ operator<<(std::ostream& out, pkgCache::PkgIterator Pkg)
       return out << "invalid package";
 
    string current = string(Pkg.CurVersion() == 0 ? "none" : Pkg.CurVersion());
+APT_IGNORE_DEPRECATED_PUSH
+   string candidate = string(Pkg.CandVersion() == 0 ? "none" : Pkg.CandVersion());
+APT_IGNORE_DEPRECATED_POP
    string newest = string(Pkg.VersionList().end() ? "none" : Pkg.VersionList().VerStr());
 
    out << Pkg.Name() << " [ " << Pkg.Arch() << " ] < " << current;
-   if ( newest != "none")
+   if (current != candidate)
+      out << " -> " << candidate;
+   if ( newest != "none" && candidate != newest)
       out << " | " << newest;
    if (Pkg->VersionList == 0)
       out << " > ( none )";
@@ -989,6 +962,23 @@ const char * pkgCache::VerIterator::MultiArchType() const
    return "none";
 }
 									/*}}}*/
+// RlsFileIterator::IsOk - Checks if the cache is in sync with the file	/*{{{*/
+// ---------------------------------------------------------------------
+/* This stats the file and compares its stats with the ones that were
+   stored during generation. Date checks should probably also be
+   included here. */
+bool pkgCache::RlsFileIterator::IsOk()
+{
+   struct stat Buf;
+   if (stat(FileName(),&Buf) != 0)
+      return false;
+
+   if (Buf.st_size != (signed)S->Size || Buf.st_mtime != S->mtime)
+      return false;
+
+   return true;
+}
+									/*}}}*/
 // RlsFileIterator::RelStr - Return the release string			/*{{{*/
 string pkgCache::RlsFileIterator::RelStr()
 {
@@ -1004,6 +994,23 @@ string pkgCache::RlsFileIterator::RelStr()
    if (Label() != 0)
       Res = Res + (Res.empty() == true?"l=":",l=")  + Label();
    return Res;
+}
+									/*}}}*/
+// PkgFileIterator::IsOk - Checks if the cache is in sync with the file	/*{{{*/
+// ---------------------------------------------------------------------
+/* This stats the file and compares its stats with the ones that were
+   stored during generation. Date checks should probably also be
+   included here. */
+bool pkgCache::PkgFileIterator::IsOk()
+{
+   struct stat Buf;
+   if (stat(FileName(),&Buf) != 0)
+      return false;
+
+   if (Buf.st_size != (signed)S->Size || Buf.st_mtime != S->mtime)
+      return false;
+
+   return true;
 }
 									/*}}}*/
 string pkgCache::PkgFileIterator::RelStr()				/*{{{*/

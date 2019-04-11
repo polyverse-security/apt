@@ -20,7 +20,6 @@
 #include <array>
 #include <iostream>
 #include <iterator>
-#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -95,34 +94,24 @@ struct Signer {
    std::string note;
 };
 static bool IsTheSameKey(std::string const &validsig, std::string const &goodsig) {
-   // VALIDSIG reports a fingerprint (40 = 24 + 16), GOODSIG can be longid (16) or
-   // fingerprint according to documentation in DETAILS.gz
-   if (goodsig.length() == 40 + strlen("GOODSIG "))
-      return validsig.compare(0, 40, goodsig, strlen("GOODSIG "), 40) == 0;
+   // VALIDSIG reports a keyid (40 = 24 + 16), GOODSIG is a longid (16) only
    return validsig.compare(24, 16, goodsig, strlen("GOODSIG "), 16) == 0;
 }
 
-struct APT_HIDDEN SignersStorage {
-   std::vector<std::string> Good;
-   std::vector<std::string> Bad;
-   std::vector<std::string> Worthless;
-   // a worthless signature is a expired or revoked one
-   std::vector<Signer> SoonWorthless;
-   std::vector<std::string> NoPubKey;
-   std::vector<std::string> Valid;
-   std::vector<std::string> SignedBy;
-};
 class GPGVMethod : public aptMethod
 {
    private:
    string VerifyGetSigners(const char *file, const char *outfile,
-				vector<string> const &keyFpts,
-				vector<string> const &keyFiles,
-				SignersStorage &Signers);
+				std::string const &key,
+				vector<string> &GoodSigners,
+                                vector<string> &BadSigners,
+                                vector<string> &WorthlessSigners,
+                                vector<Signer> &SoonWorthlessSigners,
+				vector<string> &NoPubKeySigners);
    protected:
    virtual bool URIAcquire(std::string const &Message, FetchItem *Itm) APT_OVERRIDE;
    public:
-   GPGVMethod() : aptMethod("gpgv", "1.1", SingleInstance | SendConfig){};
+   GPGVMethod() : aptMethod("gpgv","1.0",SingleInstance | SendConfig) {};
 };
 static void PushEntryWithKeyID(std::vector<std::string> &Signers, char * const buffer, bool const Debug)
 {
@@ -152,18 +141,13 @@ static void PushEntryWithUID(std::vector<std::string> &Signers, char * const buf
       std::clog << "Got " << msg << " !" << std::endl;
    Signers.push_back(msg);
 }
-static void implodeVector(std::vector<std::string> const &vec, std::ostream &out, char const * const sep)
-{
-   if (vec.empty())
-      return;
-   std::copy(vec.begin(), std::prev(vec.end()), std::ostream_iterator<std::string>(out, sep));
-   out << *vec.rbegin();
-   return;
-}
 string GPGVMethod::VerifyGetSigners(const char *file, const char *outfile,
-					 vector<string> const &keyFpts,
-					 vector<string> const &keyFiles,
-					 SignersStorage &Signers)
+					 std::string const &key,
+					 vector<string> &GoodSigners,
+					 vector<string> &BadSigners,
+					 vector<string> &WorthlessSigners,
+					 vector<Signer> &SoonWorthlessSigners,
+					 vector<string> &NoPubKeySigners)
 {
    bool const Debug = DebugEnabled();
 
@@ -171,6 +155,7 @@ string GPGVMethod::VerifyGetSigners(const char *file, const char *outfile,
       std::clog << "inside VerifyGetSigners" << std::endl;
 
    int fd[2];
+   bool const keyIsID = (key.empty() == false && key[0] != '/');
 
    if (pipe(fd) < 0)
       return "Couldn't create pipe";
@@ -179,18 +164,14 @@ string GPGVMethod::VerifyGetSigners(const char *file, const char *outfile,
    if (pid < 0)
       return string("Couldn't spawn new process") + strerror(errno);
    else if (pid == 0)
-   {
-      std::ostringstream keys;
-      implodeVector(keyFiles, keys, ",");
-      ExecGPGV(outfile, file, 3, fd, keys.str());
-   }
+      ExecGPGV(outfile, file, 3, fd, (keyIsID ? "" : key));
    close(fd[1]);
 
    FILE *pipein = fdopen(fd[0], "r");
 
    // Loop over the output of apt-key (which really is gnupg), and check the signatures.
+   std::vector<std::string> ValidSigners;
    std::vector<std::string> ErrSigners;
-   std::map<std::string, std::vector<std::string>> SubKeyMapping;
    size_t buffersize = 0;
    char *buffer = NULL;
    bool gotNODATA = false;
@@ -206,25 +187,25 @@ string GPGVMethod::VerifyGetSigners(const char *file, const char *outfile,
       // if we improve the apt method communication stuff later
       // it will be better.
       if (strncmp(buffer, GNUPGBADSIG, sizeof(GNUPGBADSIG)-1) == 0)
-	 PushEntryWithUID(Signers.Bad, buffer, Debug);
+	 PushEntryWithUID(BadSigners, buffer, Debug);
       else if (strncmp(buffer, GNUPGERRSIG, sizeof(GNUPGERRSIG)-1) == 0)
 	 PushEntryWithKeyID(ErrSigners, buffer, Debug);
       else if (strncmp(buffer, GNUPGNOPUBKEY, sizeof(GNUPGNOPUBKEY)-1) == 0)
       {
-	 PushEntryWithKeyID(Signers.NoPubKey, buffer, Debug);
+	 PushEntryWithKeyID(NoPubKeySigners, buffer, Debug);
 	 ErrSigners.erase(std::remove_if(ErrSigners.begin(), ErrSigners.end(), [&](std::string const &errsig) {
 		  return errsig.compare(strlen("ERRSIG "), 16, buffer, sizeof(GNUPGNOPUBKEY), 16) == 0;  }), ErrSigners.end());
       }
       else if (strncmp(buffer, GNUPGNODATA, sizeof(GNUPGNODATA)-1) == 0)
 	 gotNODATA = true;
       else if (strncmp(buffer, GNUPGEXPKEYSIG, sizeof(GNUPGEXPKEYSIG)-1) == 0)
-	 PushEntryWithUID(Signers.Worthless, buffer, Debug);
+	 PushEntryWithUID(WorthlessSigners, buffer, Debug);
       else if (strncmp(buffer, GNUPGEXPSIG, sizeof(GNUPGEXPSIG)-1) == 0)
-	 PushEntryWithUID(Signers.Worthless, buffer, Debug);
+	 PushEntryWithUID(WorthlessSigners, buffer, Debug);
       else if (strncmp(buffer, GNUPGREVKEYSIG, sizeof(GNUPGREVKEYSIG)-1) == 0)
-	 PushEntryWithUID(Signers.Worthless, buffer, Debug);
+	 PushEntryWithUID(WorthlessSigners, buffer, Debug);
       else if (strncmp(buffer, GNUPGGOODSIG, sizeof(GNUPGGOODSIG)-1) == 0)
-	 PushEntryWithKeyID(Signers.Good, buffer, Debug);
+	 PushEntryWithKeyID(GoodSigners, buffer, Debug);
       else if (strncmp(buffer, GNUPGVALIDSIG, sizeof(GNUPGVALIDSIG)-1) == 0)
       {
          std::istringstream iss(buffer + sizeof(GNUPGVALIDSIG));
@@ -237,16 +218,16 @@ string GPGVMethod::VerifyGetSigners(const char *file, const char *outfile,
          case Digest::State::Weak:
             // Treat them like an expired key: For that a message about expiry
             // is emitted, a VALIDSIG, but no GOODSIG.
-            Signers.SoonWorthless.push_back({sig, digest.name});
+            SoonWorthlessSigners.push_back({sig, digest.name});
 	    if (Debug == true)
 	       std::clog << "Got weak VALIDSIG, key ID: " << sig << std::endl;
             break;
          case Digest::State::Untrusted:
             // Treat them like an expired key: For that a message about expiry
             // is emitted, a VALIDSIG, but no GOODSIG.
-            Signers.Worthless.push_back(sig);
-            Signers.Good.erase(std::remove_if(Signers.Good.begin(), Signers.Good.end(), [&](std::string const &goodsig) {
-		     return IsTheSameKey(sig, goodsig); }), Signers.Good.end());
+            WorthlessSigners.push_back(sig);
+            GoodSigners.erase(std::remove_if(GoodSigners.begin(), GoodSigners.end(), [&](std::string const &goodsig) {
+		     return IsTheSameKey(sig, goodsig); }), GoodSigners.end());
 	    if (Debug == true)
 	       std::clog << "Got untrusted VALIDSIG, key ID: " << sig << std::endl;
             break;
@@ -257,10 +238,7 @@ string GPGVMethod::VerifyGetSigners(const char *file, const char *outfile,
             break;
          }
 
-	 Signers.Valid.push_back(sig);
-
-	 if (tokens.size() > 9 && sig != tokens[9])
-	    SubKeyMapping[tokens[9]].emplace_back(sig);
+         ValidSigners.push_back(sig);
       }
       else if (strncmp(buffer, APTKEYWARNING, sizeof(APTKEYWARNING)-1) == 0)
          Warning("%s", buffer + sizeof(APTKEYWARNING));
@@ -269,87 +247,54 @@ string GPGVMethod::VerifyGetSigners(const char *file, const char *outfile,
    }
    fclose(pipein);
    free(buffer);
-   std::move(ErrSigners.begin(), ErrSigners.end(), std::back_inserter(Signers.Worthless));
+   std::move(ErrSigners.begin(), ErrSigners.end(), std::back_inserter(WorthlessSigners));
 
    // apt-key has a --keyid parameter, but this requires gpg, so we call it without it
    // and instead check after the fact which keyids where used for verification
-   if (keyFpts.empty() == false)
+   if (keyIsID == true)
    {
       if (Debug == true)
+	 std::clog << "GoodSigs needs to be limited to keyid " << key << std::endl;
+      bool foundGood = false;
+      for (auto const &k: VectorizeString(key, ','))
       {
-	 std::clog << "GoodSigs needs to be limited to keyid(s): ";
-	 implodeVector(keyFpts, std::clog, ", ");
-	 std::clog << "\n";
-      }
-      std::vector<std::string> filteredGood;
-      for (auto &&good: Signers.Good)
-      {
+	 if (std::find(ValidSigners.begin(), ValidSigners.end(), k) == ValidSigners.end())
+	    continue;
+	 // we look for GOODSIG here as well as an expired sig is a valid sig as well (but not a good one)
+	 std::string const goodfingerprint = "GOODSIG " + k;
+	 std::string const goodlongkeyid = "GOODSIG " + k.substr(24, 16);
+	 foundGood = std::find(GoodSigners.begin(), GoodSigners.end(), goodfingerprint) != GoodSigners.end();
 	 if (Debug == true)
-	    std::clog << "Key " << good << " is good sig, is it also a valid and allowed one? ";
-	 bool found = false;
-	 for (auto l : keyFpts)
+	    std::clog << "Key " << k << " is valid sig, is " << goodfingerprint << " also a good one? " << (foundGood ? "yes" : "no") << std::endl;
+	 std::string goodsig;
+	 if (foundGood == false)
 	 {
-	    bool exactKey = false;
-	    if (APT::String::Endswith(l, "!"))
-	    {
-	       exactKey = true;
-	       l.erase(l.length() - 1);
-	    }
-	    if (IsTheSameKey(l, good))
-	    {
-	       // GOODSIG might be "just" a longid, so we check VALIDSIG which is always a fingerprint
-	       if (std::find(Signers.Valid.cbegin(), Signers.Valid.cend(), l) == Signers.Valid.cend())
-		  continue;
-	       found = true;
-	       Signers.SignedBy.push_back(l + "!");
-	       break;
-	    }
-	    else if (exactKey == false)
-	    {
-	       auto const master = SubKeyMapping.find(l);
-	       if (master == SubKeyMapping.end())
-		  continue;
-	       for (auto const &sub : master->second)
-		  if (IsTheSameKey(sub, good))
-		  {
-		     if (std::find(Signers.Valid.cbegin(), Signers.Valid.cend(), sub) == Signers.Valid.cend())
-			continue;
-		     found = true;
-		     Signers.SignedBy.push_back(l);
-		     Signers.SignedBy.push_back(sub + "!");
-		     break;
-		  }
-	       if (found)
-		  break;
-	    }
+	    foundGood = std::find(GoodSigners.begin(), GoodSigners.end(), goodlongkeyid) != GoodSigners.end();
+	    if (Debug == true)
+	       std::clog << "Key " << k << " is valid sig, is " << goodlongkeyid << " also a good one? " << (foundGood ? "yes" : "no") << std::endl;
+	    goodsig = goodlongkeyid;
 	 }
-	 if (Debug)
-	    std::clog << (found ? "yes" : "no") << "\n";
-	 if (found)
-	    filteredGood.emplace_back(std::move(good));
 	 else
-	    Signers.NoPubKey.emplace_back(std::move(good));
+	    goodsig = goodfingerprint;
+	 if (foundGood == false)
+	    continue;
+	 std::copy(GoodSigners.begin(), GoodSigners.end(), std::back_insert_iterator<std::vector<std::string> >(NoPubKeySigners));
+	 GoodSigners.clear();
+	 GoodSigners.push_back(goodsig);
+	 NoPubKeySigners.erase(
+	    std::remove(NoPubKeySigners.begin(),
+	       std::remove(NoPubKeySigners.begin(), NoPubKeySigners.end(), goodfingerprint),
+	       goodlongkeyid),
+	    NoPubKeySigners.end()
+	 );
+	 break;
       }
-      Signers.Good= std::move(filteredGood);
+      if (foundGood == false)
+      {
+	 std::copy(GoodSigners.begin(), GoodSigners.end(), std::back_insert_iterator<std::vector<std::string> >(NoPubKeySigners));
+	 GoodSigners.clear();
+      }
    }
-   else
-   {
-      // for gpg an expired key is valid, too, but we want only the valid & good ones
-      for (auto const &v : Signers.Valid)
-		if (std::any_of(Signers.Good.begin(), Signers.Good.end(),
-					 [&v](std::string const &g) { return IsTheSameKey(v, g); }))
-		   Signers.SignedBy.push_back(v + "!");
-      for (auto sub : SubKeyMapping)
-	 if (std::any_of(sub.second.begin(), sub.second.end(),
-			 [&](std::string const &s) {
-			    if (std::find(Signers.Valid.begin(), Signers.Valid.end(), s) == Signers.Valid.end())
-			       return false;
-			    return std::any_of(Signers.Good.begin(), Signers.Good.end(),
-					       [&s](std::string const &g) { return IsTheSameKey(s, g); });
-			 }))
-	    Signers.SignedBy.push_back(sub.first);
-   }
-   std::sort(Signers.SignedBy.begin(), Signers.SignedBy.end());
 
    int status;
    waitpid(pid, &status, 0);
@@ -360,20 +305,16 @@ string GPGVMethod::VerifyGetSigners(const char *file, const char *outfile,
 
    if (Debug)
    {
-      std::cerr << "Summary:\n  Good: ";
-      implodeVector(Signers.Good, std::cerr, ", ");
-      std::cerr << "\n  Valid: ";
-      implodeVector(Signers.Valid, std::cerr, ", ");
-      std::cerr << "\n  Bad: ";
-      implodeVector(Signers.Bad, std::cerr, ", ");
-      std::cerr << "\n  Worthless: ";
-      implodeVector(Signers.Worthless, std::cerr, ", ");
-      std::cerr << "\n  SoonWorthless: ";
-      std::for_each(Signers.SoonWorthless.begin(), Signers.SoonWorthless.end(), [](Signer const &sig) { std::cerr << sig.key << ", "; });
-      std::cerr << "\n  NoPubKey: ";
-      implodeVector(Signers.NoPubKey, std::cerr, ", ");
-      std::cerr << "\n  Signed-By: ";
-      implodeVector(Signers.SignedBy, std::cerr, ", ");
+      std::cerr << "Summary:" << std::endl << "  Good: ";
+      std::copy(GoodSigners.begin(), GoodSigners.end(), std::ostream_iterator<std::string>(std::cerr, ", "));
+      std::cerr << std::endl << "  Bad: ";
+      std::copy(BadSigners.begin(), BadSigners.end(), std::ostream_iterator<std::string>(std::cerr, ", "));
+      std::cerr << std::endl << "  Worthless: ";
+      std::copy(WorthlessSigners.begin(), WorthlessSigners.end(), std::ostream_iterator<std::string>(std::cerr, ", "));
+      std::cerr << std::endl << "  SoonWorthless: ";
+      std::for_each(SoonWorthlessSigners.begin(), SoonWorthlessSigners.end(), [](Signer const &sig) { std::cerr << sig.key << ", "; });
+      std::cerr << std::endl << "  NoPubKey: ";
+      std::copy(NoPubKeySigners.begin(), NoPubKeySigners.end(), std::ostream_iterator<std::string>(std::cerr, ", "));
       std::cerr << std::endl << "  NODATA: " << (gotNODATA ? "yes" : "no") << std::endl;
    }
 
@@ -395,16 +336,16 @@ string GPGVMethod::VerifyGetSigners(const char *file, const char *outfile,
    }
    else if (WEXITSTATUS(status) == 0)
    {
-      if (keyFpts.empty() == false)
+      if (keyIsID)
       {
 	 // gpgv will report success, but we want to enforce a certain keyring
 	 // so if we haven't found the key the valid we found is in fact invalid
-	 if (Signers.Good.empty())
+	 if (GoodSigners.empty())
 	    return _("At least one invalid signature was encountered.");
       }
       else
       {
-	 if (Signers.Good.empty())
+	 if (GoodSigners.empty())
 	    return _("Internal error: Good signature, but could not determine key fingerprint?!");
       }
       return "";
@@ -421,93 +362,82 @@ bool GPGVMethod::URIAcquire(std::string const &Message, FetchItem *Itm)
 {
    URI const Get = Itm->Uri;
    string const Path = Get.Host + Get.Path; // To account for relative paths
-   SignersStorage Signers;
-
-   std::vector<std::string> keyFpts, keyFiles;
-   for (auto &&key : VectorizeString(LookupTag(Message, "Signed-By"), ','))
-      if (key.empty() == false && key[0] == '/')
-	 keyFiles.emplace_back(std::move(key));
-      else
-	 keyFpts.emplace_back(std::move(key));
+   std::string const key = LookupTag(Message, "Signed-By");
+   vector<string> GoodSigners;
+   vector<string> BadSigners;
+   // a worthless signature is a expired or revoked one
+   vector<string> WorthlessSigners;
+   vector<Signer> SoonWorthlessSigners;
+   vector<string> NoPubKeySigners;
+   
+   FetchResult Res;
+   Res.Filename = Itm->DestFile;
+   URIStart(Res);
 
    // Run apt-key on file, extract contents and get the key ID of the signer
-   string const msg = VerifyGetSigners(Path.c_str(), Itm->DestFile.c_str(), keyFpts, keyFiles, Signers);
+   string const msg = VerifyGetSigners(Path.c_str(), Itm->DestFile.c_str(), key,
+                                 GoodSigners, BadSigners, WorthlessSigners,
+                                 SoonWorthlessSigners, NoPubKeySigners);
    if (_error->PendingError())
       return false;
 
    // Check if all good signers are soon worthless and warn in that case
-   if (std::all_of(Signers.Good.begin(), Signers.Good.end(), [&](std::string const &good) {
-	    return std::any_of(Signers.SoonWorthless.begin(), Signers.SoonWorthless.end(), [&](Signer const &weak) {
+   if (std::all_of(GoodSigners.begin(), GoodSigners.end(), [&](std::string const &good) {
+	    return std::any_of(SoonWorthlessSigners.begin(), SoonWorthlessSigners.end(), [&](Signer const &weak) {
 		  return IsTheSameKey(weak.key, good);
 		  });
 	    }))
    {
-      for (auto const & Signer : Signers.SoonWorthless)
+      for (auto const & Signer : SoonWorthlessSigners)
          // TRANSLATORS: The second %s is the reason and is untranslated for repository owners.
          Warning(_("Signature by key %s uses weak digest algorithm (%s)"), Signer.key.c_str(), Signer.note.c_str());
    }
 
-   if (Signers.Good.empty() || !Signers.Bad.empty() || !Signers.NoPubKey.empty())
+   if (GoodSigners.empty() || !BadSigners.empty() || !NoPubKeySigners.empty())
    {
       string errmsg;
       // In this case, something bad probably happened, so we just go
       // with what the other method gave us for an error message.
-      if (Signers.Bad.empty() && Signers.Worthless.empty() && Signers.NoPubKey.empty())
+      if (BadSigners.empty() && WorthlessSigners.empty() && NoPubKeySigners.empty())
          errmsg = msg;
       else
       {
-         if (!Signers.Bad.empty())
+         if (!BadSigners.empty())
          {
             errmsg += _("The following signatures were invalid:\n");
-            for (auto const &I : Signers.Bad)
-               errmsg.append(I).append("\n");
+            for (vector<string>::iterator I = BadSigners.begin();
+		 I != BadSigners.end(); ++I)
+               errmsg += (*I + "\n");
          }
-         if (!Signers.Worthless.empty())
+         if (!WorthlessSigners.empty())
          {
             errmsg += _("The following signatures were invalid:\n");
-            for (auto const &I : Signers.Worthless)
-               errmsg.append(I).append("\n");
+            for (vector<string>::iterator I = WorthlessSigners.begin();
+		 I != WorthlessSigners.end(); ++I)
+               errmsg += (*I + "\n");
          }
-         if (!Signers.NoPubKey.empty())
+         if (!NoPubKeySigners.empty())
          {
              errmsg += _("The following signatures couldn't be verified because the public key is not available:\n");
-            for (auto const &I : Signers.NoPubKey)
-               errmsg.append(I).append("\n");
+            for (vector<string>::iterator I = NoPubKeySigners.begin();
+		 I != NoPubKeySigners.end(); ++I)
+               errmsg += (*I + "\n");
          }
       }
       // this is only fatal if we have no good sigs or if we have at
       // least one bad signature. good signatures and NoPubKey signatures
       // happen easily when a file is signed with multiple signatures
-      if (Signers.Good.empty() or !Signers.Bad.empty())
-	 return _error->Error("%s", errmsg.c_str());
+      if(GoodSigners.empty() or !BadSigners.empty())
+      	 return _error->Error("%s", errmsg.c_str());
    }
-
-   std::unordered_map<std::string, std::string> fields;
-   fields.emplace("URI", Itm->Uri);
-   fields.emplace("Filename", Itm->DestFile);
-   if (Signers.SignedBy.empty() == false)
-   {
-      std::ostringstream out;
-      implodeVector(Signers.SignedBy, out, "\n");
-      fields.emplace("Signed-By", out.str());
-   }
-   {
-      // Just pass the raw output up, because passing it as a real data
-      // structure is too difficult with the method stuff.  We keep it
-      // as three separate vectors for future extensibility.
-      std::vector<std::string> gpgvoutput;
-      std::move(Signers.Good.begin(), Signers.Good.end(), std::back_inserter(gpgvoutput));
-      std::move(Signers.Bad.begin(), Signers.Bad.end(), std::back_inserter(gpgvoutput));
-      std::move(Signers.NoPubKey.begin(), Signers.NoPubKey.end(), std::back_inserter(gpgvoutput));
-      if (gpgvoutput.empty() == false)
-      {
-	 std::ostringstream out;
-	 implodeVector(gpgvoutput, out, "\n");
-	 fields.emplace("GPGVOutput", out.str());
-      }
-   }
-   SendMessage("201 URI Done", std::move(fields));
-   Dequeue();
+      
+   // Just pass the raw output up, because passing it as a real data
+   // structure is too difficult with the method stuff.  We keep it
+   // as three separate vectors for future extensibility.
+   Res.GPGVOutput = GoodSigners;
+   std::move(BadSigners.begin(), BadSigners.end(), std::back_inserter(Res.GPGVOutput));
+   std::move(NoPubKeySigners.begin(), NoPubKeySigners.end(), std::back_inserter(Res.GPGVOutput));
+   URIDone(Res);
 
    if (DebugEnabled())
       std::clog << "apt-key succeeded\n";

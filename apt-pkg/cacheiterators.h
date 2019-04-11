@@ -164,6 +164,9 @@ class pkgCache::PkgIterator: public Iterator<Package, PkgIterator> {
 
 	// Accessors
 	inline const char *Name() const { return Group().Name(); }
+	// Versions have sections - and packages can have different versions with different sections
+	// so this interface is broken by design. Run as fast as you can to Version.Section().
+	APT_DEPRECATED_MSG("Use the .Section method of VerIterator instead") inline const char *Section() const;
 	inline bool Purge() const {return S->CurrentState == pkgCache::State::Purge ||
 		(S->CurrentVer == 0 && S->CurrentState == pkgCache::State::NotInstalled);}
 	inline const char *Arch() const {return S->Arch == 0?0:Owner->StrP + S->Arch;}
@@ -174,6 +177,7 @@ class pkgCache::PkgIterator: public Iterator<Package, PkgIterator> {
 	inline DepIterator RevDependsList() const APT_PURE;
 	inline PrvIterator ProvidesList() const APT_PURE;
 	OkState State() const APT_PURE;
+	APT_DEPRECATED_MSG("This method does not respect apt_preferences! Use pkgDepCache::GetCandidateVersion(Pkg)") const char *CandVersion() const APT_PURE;
 	const char *CurVersion() const APT_PURE;
 
 	//Nice printable representation
@@ -418,6 +422,7 @@ class pkgCache::RlsFileIterator : public Iterator<ReleaseFile, RlsFileIterator> 
 	inline const char *Site() const {return S->Site == 0?0:Owner->StrP + S->Site;}
 	inline bool Flagged(pkgCache::Flag::ReleaseFileFlags const flag) const {return (S->Flags & flag) == flag; }
 
+	bool IsOk();
 	std::string RelStr();
 
 	// Constructors
@@ -452,6 +457,7 @@ class pkgCache::PkgFileIterator : public Iterator<PackageFile, PkgFileIterator> 
 	inline const char *Architecture() const {return S->Architecture == 0?0:Owner->StrP + S->Architecture;}
 	inline const char *IndexType() const {return S->IndexType == 0?0:Owner->StrP + S->IndexType;}
 
+	bool IsOk();
 	std::string RelStr();
 
 	// Constructors
@@ -517,5 +523,7 @@ inline pkgCache::VerFileIterator pkgCache::VerIterator::FileList() const
        {return VerFileIterator(*Owner,Owner->VerFileP + S->FileList);}
 inline pkgCache::DescFileIterator pkgCache::DescIterator::FileList() const
        {return DescFileIterator(*Owner,Owner->DescFileP + S->FileList);}
+APT_DEPRECATED_MSG("Use the .Section method of VerIterator instead") inline const char * pkgCache::PkgIterator::Section() const
+       {return S->VersionList == 0 ? 0 : VersionList().Section();}
 									/*}}}*/
 #endif

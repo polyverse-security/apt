@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: apt-cache.cc,v 1.72 2004/04/30 04:34:03 mdz Exp $
 /* ######################################################################
    
    apt-cache - Manages the cache files
@@ -33,6 +34,7 @@
 #include <apt-pkg/policy.h>
 #include <apt-pkg/progress.h>
 #include <apt-pkg/sourcelist.h>
+#include <apt-pkg/sptr.h>
 #include <apt-pkg/srcrecords.h>
 #include <apt-pkg/strutl.h>
 #include <apt-pkg/tagfile.h>
@@ -181,7 +183,7 @@ static void ShowHashTableStats(std::string Type,
 static bool Stats(CommandLine &CmdL)
 {
    if (CmdL.FileSize() > 1) {
-      _error->Error(_("%s does not take any arguments"), "apt-cache stats");
+      _error->Error(_("apt-cache stats does not take any arguments"));
       return false;
    }
 
@@ -469,7 +471,12 @@ static bool DumpAvail(CommandLine &)
    for (pkgCache::VerFile **J = VFList; *J != 0;)
    {
       pkgCache::PkgFileIterator File(*Cache,(*J)->File + Cache->PkgFileP);
-      // FIXME: Add support for volatile/with-source files
+      if (File.IsOk() == false)
+      {
+	 _error->Error(_("Package file %s is out of sync."),File.FileName());
+	 break;
+      }
+
       FileFd PkgF(File.FileName(),FileFd::ReadOnly, FileFd::Extension);
       if (_error->PendingError() == true)
 	 break;

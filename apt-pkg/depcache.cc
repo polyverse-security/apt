@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: depcache.cc,v 1.25 2001/05/27 05:36:04 jgg Exp $
 /* ######################################################################
 
    Dependency Cache - Caches Dependency information.
@@ -413,7 +414,7 @@ bool pkgDepCache::CheckDep(DepIterator const &Dep,int const Type,PkgIterator &Re
 									/*}}}*/
 // DepCache::AddSizes - Add the packages sizes to the counters		/*{{{*/
 // ---------------------------------------------------------------------
-/* Call with Inverse = true to perform the inverse operation */
+/* Call with Inverse = true to preform the inverse opration */
 void pkgDepCache::AddSizes(const PkgIterator &Pkg, bool const Inverse)
 {
    StateCache &P = PkgState[Pkg->ID];
@@ -479,10 +480,10 @@ void pkgDepCache::AddSizes(const PkgIterator &Pkg, bool const Inverse)
 									/*}}}*/
 // DepCache::AddStates - Add the package to the state counter		/*{{{*/
 // ---------------------------------------------------------------------
-/* This routine is tricky to use, you must make sure that it is never
+/* This routine is tricky to use, you must make sure that it is never 
    called twice for the same package. This means the Remove/Add section
-   should be as short as possible and not encompass any code that will
-   call Remove/Add itself. Remember, dependencies can be circular so
+   should be as short as possible and not encompass any code that will 
+   calld Remove/Add itself. Remember, dependencies can be circular so
    while processing a dep for Pkg it is possible that Add/Remove
    will be called on Pkg */
 void pkgDepCache::AddStates(const PkgIterator &Pkg, bool const Invert)
@@ -599,7 +600,7 @@ unsigned char pkgDepCache::VersionState(DepIterator D, unsigned char const Check
 // DepCache::DependencyState - Compute the 3 results for a dep		/*{{{*/
 // ---------------------------------------------------------------------
 /* This is the main dependency computation bit. It computes the 3 main
-   results for a dependency: Now, Install and Candidate. Callers must
+   results for a dependencys, Now, Install and Candidate. Callers must
    invert the result if dealing with conflicts. */
 unsigned char pkgDepCache::DependencyState(DepIterator const &D)
 {
@@ -1723,6 +1724,21 @@ void pkgDepCache::StateCache::Update(PkgIterator Pkg,pkgCache &Cache)
      Status = 2;      
 }
 									/*}}}*/
+// StateCache::StripEpoch - Remove the epoch specifier from the version	/*{{{*/
+// ---------------------------------------------------------------------
+/* */
+const char *pkgDepCache::StateCache::StripEpoch(const char *Ver)
+{
+   if (Ver == 0)
+      return 0;
+
+   // Strip any epoch
+   char const * const I = strchr(Ver, ':');
+   if (I == nullptr)
+      return Ver;
+   return I + 1;
+}
+									/*}}}*/
 // Policy::GetCandidateVer - Returns the Candidate install version	/*{{{*/
 // ---------------------------------------------------------------------
 /* The default just returns the highest available version that is not
@@ -1858,29 +1874,28 @@ bool pkgDepCache::MarkRequired(InRootSetFunc &userFunc)
       if (PkgState[P->ID].Marked || IsPkgInBoringState(P, PkgState))
 	 continue;
 
-      const char *reason = nullptr;
-
       if ((PkgState[P->ID].Flags & Flag::Auto) == 0)
-	 reason = "Manual-Installed";
-      else if (P->Flags & Flag::Essential)
-	 reason = "Essential";
-      else if (P->Flags & Flag::Important)
-	 reason = "Important";
+	 ;
+      else if ((P->Flags & Flag::Essential) || (P->Flags & Flag::Important))
+	 ;
+      // be nice even then a required package violates the policy (#583517)
+      // and do the full mark process also for required packages
       else if (P->CurrentVer != 0 && P.CurrentVer()->Priority == pkgCache::State::Required)
-	 reason = "Required";
+	 ;
       else if (userFunc.InRootSet(P))
-	 reason = "Blacklisted [APT::NeverAutoRemove]";
+	 ;
+      // packages which can't be changed (like holds) can't be garbage
       else if (IsModeChangeOk(ModeGarbage, P, 0, false) == false)
-	 reason = "Hold";
+	 ;
       else
 	 continue;
 
       if (PkgState[P->ID].Install())
 	 MarkPackage(P, PkgState[P->ID].InstVerIter(*this),
-	       follow_recommends, follow_suggests, reason);
+	       follow_recommends, follow_suggests);
       else
 	 MarkPackage(P, P.CurrentVer(),
-	       follow_recommends, follow_suggests, reason);
+	       follow_recommends, follow_suggests);
    }
 
    return true;
@@ -1890,8 +1905,7 @@ bool pkgDepCache::MarkRequired(InRootSetFunc &userFunc)
 void pkgDepCache::MarkPackage(const pkgCache::PkgIterator &Pkg,
 			      const pkgCache::VerIterator &Ver,
 			      bool const &follow_recommends,
-			      bool const &follow_suggests,
-			      const char *reason)
+			      bool const &follow_suggests)
 {
    {
       pkgDepCache::StateCache &state = PkgState[Pkg->ID];
@@ -1906,8 +1920,7 @@ void pkgDepCache::MarkPackage(const pkgCache::PkgIterator &Pkg,
 
    bool const debug_autoremove = _config->FindB("Debug::pkgAutoRemove", false);
    if(debug_autoremove)
-      std::clog << "Marking: " << Pkg.FullName() << " " << Ver.VerStr()
-		<< " (" << reason << ")" << std::endl;
+      std::clog << "Marking: " << Pkg.FullName() << " " << Ver.VerStr() << std::endl;
 
    for (auto D = Ver.DependsList(); D.end() == false; ++D)
    {
@@ -1964,7 +1977,7 @@ void pkgDepCache::MarkPackage(const pkgCache::PkgIterator &Pkg,
 	       std::clog << "Following dep: " << APT::PrettyDep(this, D)
 		  << ", provided by " << PP.FullName() << " " << PV.VerStr()
 		  << " (" << providers.size() << "/" << prvsize << ")"<< std::endl;
-	    MarkPackage(PP, PV, follow_recommends, follow_suggests, "Provider");
+	    MarkPackage(PP, PV, follow_recommends, follow_suggests);
 	 }
       }
 
@@ -1979,7 +1992,7 @@ void pkgDepCache::MarkPackage(const pkgCache::PkgIterator &Pkg,
 
       if (debug_autoremove)
 	 std::clog << "Following dep: " << APT::PrettyDep(this, D) << std::endl;
-      MarkPackage(T, TV, follow_recommends, follow_suggests, "Dependency");
+      MarkPackage(T, TV, follow_recommends, follow_suggests);
    }
 }
 									/*}}}*/

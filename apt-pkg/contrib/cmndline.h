@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: cmndline.h,v 1.7 1999/10/31 06:32:28 jgg Exp $
 /* ######################################################################
 
    Command Line Class - Sophisticated command line parser

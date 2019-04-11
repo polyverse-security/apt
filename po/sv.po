@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apt 1.0.5\n"
 "Report-Msgid-Bugs-To: APT Development Team <deity@lists.debian.org>\n"
-"POT-Creation-Date: 2019-02-04 15:34+0100\n"
+"POT-Creation-Date: 2019-03-01 10:02+0100\n"
 "PO-Revision-Date: 2015-08-19 21:33+0200\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <debian-l10n-swedish@debian.org>\n"
@@ -410,13 +410,6 @@ msgstr "Ändringslogg för %s (%s)"
 
 #: apt-pkg/acquire-worker.cc
 #, c-format
-msgid ""
-"The method '%s' is unsupported and disabled by default. Consider switching "
-"to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."
-msgstr ""
-
-#: apt-pkg/acquire-worker.cc
-#, c-format
 msgid "The method '%s' is explicitly disabled via configuration."
 msgstr ""
 
@@ -483,6 +476,8 @@ msgstr ""
 msgid "Clean of %s is not supported"
 msgstr "Rensning av %s stöds inte"
 
+#. only show the ETA if it makes sense
+#. two days
 #: apt-pkg/acquire.cc
 #, c-format
 msgid "Retrieving file %li of %li (%s remaining)"
@@ -931,12 +926,12 @@ msgstr "Problem med att byta namn på filen %s till %s"
 msgid "Problem syncing the file"
 msgstr "Problem med att synkronisera filen"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to mkstemp %s"
 msgstr "Kunde inte anropa mkstemp för %s"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to write to %s"
 msgstr "Kunde inte skriva till %s"
@@ -1155,23 +1150,23 @@ msgstr "Inte låst"
 #. we don't care for the difference
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing %s"
-msgstr "Förbereder %s"
+msgid "Installing %s"
+msgstr "Installerar %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to configure %s"
-msgstr "Förbereder konfigurering av %s"
+msgid "Configuring %s"
+msgstr "Konfigurerar %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing for removal of %s"
-msgstr "Förbereder borttagning av %s"
+msgid "Removing %s"
+msgstr "Tar bort %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to completely remove %s"
-msgstr "Förbereder borttagning av hela %s"
+msgid "Completely removing %s"
+msgstr "Tar bort hela %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1188,11 +1183,6 @@ msgstr "Kör efterinstallationsutlösare %s"
 msgid "Installed %s"
 msgstr "Installerade %s"
 
-#: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Configuring %s"
-msgstr "Konfigurerar %s"
-
 #. FIXME: use a better string after freeze
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1206,23 +1196,33 @@ msgstr "Kunde inte öppna filen ”%s”"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
+msgid "Preparing %s"
+msgstr "Förbereder %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
 msgid "Unpacking %s"
 msgstr "Packar upp %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Installing %s"
-msgstr "Installerar %s"
+msgid "Preparing to configure %s"
+msgstr "Förbereder konfigurering av %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Removing %s"
-msgstr "Tar bort %s"
+msgid "Preparing for removal of %s"
+msgstr "Förbereder borttagning av %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Completely removing %s"
-msgstr "Tar bort hela %s"
+msgid "Removed %s"
+msgstr "Tog bort %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
+msgid "Preparing to completely remove %s"
+msgstr "Förbereder borttagning av hela %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1621,7 +1621,7 @@ msgstr "Rad %u i källistan %s har fel format (typ)"
 msgid "Type '%s' is not known on stanza %u in source list %s"
 msgstr "Typen ”%s” är inte känd i post %u i källistan %s"
 
-#: apt-pkg/sourcelist.cc apt-private/private-install.cc
+#: apt-pkg/sourcelist.cc
 #, c-format
 msgid "Unsupported file %s given on commandline"
 msgstr ""
@@ -1842,8 +1842,8 @@ msgid ""
 "instead."
 msgstr ""
 
-#: apt-private/private-depends.cc apt-private/private-download.cc
-#: apt-private/private-show.cc cmdline/apt-mark.cc
+#: apt-private/private-depends.cc apt-private/private-show.cc
+#: cmdline/apt-mark.cc
 msgid "No packages found"
 msgstr "Inga paket hittades"
 
@@ -2014,7 +2014,7 @@ msgstr ""
 msgid "Abort."
 msgstr "Avbryter."
 
-#: apt-private/private-install.cc cmdline/apt-mark.cc
+#: apt-private/private-install.cc
 msgid "Do you want to continue?"
 msgstr "Vill du fortsätta?"
 
@@ -2346,6 +2346,11 @@ msgstr "Du måste ange minst ett sökmönster"
 msgid "Full Text Search"
 msgstr "Fulltextsökning"
 
+#: apt-private/private-show.cc cmdline/apt-cache.cc
+#, c-format
+msgid "Package file %s is out of sync."
+msgstr "Paketfilen %s är inte synkroniserad."
+
 #: apt-private/private-show.cc
 #, c-format
 msgid "There is %i additional record. Please use the '-a' switch to see it"
@@ -2508,6 +2513,10 @@ msgid "%s has no build depends.\n"
 msgstr "%s har inga byggberoenden.\n"
 
 #: apt-private/private-source.cc
+msgid "Must specify at least one package to check builddeps for"
+msgstr "Du måste ange minst ett paket att kontrollera byggberoenden för"
+
+#: apt-private/private-source.cc
 #, c-format
 msgid ""
 "No architecture information available for %s. See apt.conf(5) APT::"
@@ -2515,10 +2524,6 @@ msgid ""
 msgstr ""
 "Ingen arkitekturinformation tillgänglig för %s. Se apt.conf(5) APT::"
 "Architectures för inställning"
-
-#: apt-private/private-source.cc
-msgid "Must specify at least one package to check builddeps for"
-msgstr "Du måste ange minst ett paket att kontrollera byggberoenden för"
 
 #: apt-private/private-source.cc
 #, c-format
@@ -2541,8 +2546,8 @@ msgstr "Misslyckades med att tolka %s. Redigera igen? "
 
 #: apt-private/private-sources.cc
 #, c-format
-msgid "Your '%s' file changed, please run 'apt-get update'.\n"
-msgstr "Din ”%s”-fil ändrades, kör ”apt-get update”.\n"
+msgid "Your '%s' file changed, please run 'apt-get update'."
+msgstr "Din ”%s”-fil ändrades, kör ”apt-get update”."
 
 #: apt-private/private-unmet.cc
 #, fuzzy, c-format
@@ -2576,9 +2581,9 @@ msgstr[1] ""
 msgid "All packages are up to date."
 msgstr "Alla paket är uppdaterade."
 
-#: cmdline/apt-cache.cc cmdline/apt-mark.cc
-#, fuzzy, c-format
-msgid "%s does not take any arguments"
+#: cmdline/apt-cache.cc
+#, fuzzy
+msgid "apt-cache stats does not take any arguments"
 msgstr "Uppdateringskommandot tar inga argument"
 
 #: cmdline/apt-cache.cc
@@ -2844,12 +2849,6 @@ msgid "Install new packages (pkg is libc6 not libc6.deb)"
 msgstr "Installera nya paket (paket är libc6, inte libc6.deb)"
 
 #: cmdline/apt-get.cc
-#, fuzzy
-#| msgid "Install new packages (pkg is libc6 not libc6.deb)"
-msgid "Reinstall packages (pkg is libc6 not libc6.deb)"
-msgstr "Installera nya paket (paket är libc6, inte libc6.deb)"
-
-#: cmdline/apt-get.cc
 msgid "Remove packages"
 msgstr "Ta bort paket"
 
@@ -3011,16 +3010,6 @@ msgid "%s was already set to automatically installed.\n"
 msgstr "%s var redan satt till automatiskt installerad.\n"
 
 #: cmdline/apt-mark.cc
-msgid "No changes necessary"
-msgstr ""
-
-#: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "The following NEW packages will be installed:"
-msgid "The following packages will be marked as automatically installed:"
-msgstr "Följande NYA paket kommer att installeras:"
-
-#: cmdline/apt-mark.cc
 #, c-format
 msgid "%s was already set on hold.\n"
 msgstr "%s var redan tillbakahållet.\n"
@@ -3084,12 +3073,6 @@ msgid "Mark the given packages as manually installed"
 msgstr "Markera de angivna paketen som manuellt installerade"
 
 #: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "Mark the given packages as automatically installed"
-msgid "Mark all dependencies of meta packages as automatically installed."
-msgstr "Markera de angivna paketen som automatiskt installerade"
-
-#: cmdline/apt-mark.cc
 msgid "Mark a package as held back"
 msgstr "Markera ett paket som tillbakahållet"
 
@@ -3106,7 +3089,7 @@ msgid "Print the list of manually installed packages"
 msgstr "Visa listan över manuellt installerade paket"
 
 #: cmdline/apt-mark.cc
-msgid "Print the list of packages on hold"
+msgid "Print the list of package on hold"
 msgstr "Visa listan över tillbakahållna paket"
 
 #: cmdline/apt-sortpkgs.cc
@@ -3149,12 +3132,6 @@ msgstr "visa detaljer för paket"
 #. package stuff
 #: cmdline/apt.cc
 msgid "install packages"
-msgstr "installera paket"
-
-#: cmdline/apt.cc
-#, fuzzy
-#| msgid "install packages"
-msgid "reinstall packages"
 msgstr "installera paket"
 
 #: cmdline/apt.cc
@@ -3916,11 +3893,11 @@ msgstr "Anslutningen stängdes i förtid"
 msgid "Empty files can't be valid archives"
 msgstr "Tomma filer kan inte vara giltiga arkiv"
 
-#~ msgid "Removed %s"
-#~ msgstr "Tog bort %s"
+#~ msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+#~ msgstr "Din ”%s”-fil ändrades, kör ”apt-get update”.\n"
 
-#~ msgid "Package file %s is out of sync."
-#~ msgstr "Paketfilen %s är inte synkroniserad."
+#~ msgid "Print the list of packages on hold"
+#~ msgstr "Visa listan över tillbakahållna paket"
 
 #~ msgid ""
 #~ "The package index files are corrupted. No Filename: field for package %s."

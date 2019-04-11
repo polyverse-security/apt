@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apt 1.2.X\n"
 "Report-Msgid-Bugs-To: APT Development Team <deity@lists.debian.org>\n"
-"POT-Creation-Date: 2019-02-04 15:34+0100\n"
+"POT-Creation-Date: 2019-03-01 10:02+0100\n"
 "PO-Revision-Date: 2009-01-28 10:41+0800\n"
 "Last-Translator: Tetralet <tetralet@gmail.com>\n"
 "Language-Team: Debian-user in Chinese [Big5] <debian-chinese-big5@lists."
@@ -397,13 +397,6 @@ msgstr "正和 %s (%s) 連線"
 
 #: apt-pkg/acquire-worker.cc
 #, c-format
-msgid ""
-"The method '%s' is unsupported and disabled by default. Consider switching "
-"to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."
-msgstr ""
-
-#: apt-pkg/acquire-worker.cc
-#, c-format
 msgid "The method '%s' is explicitly disabled via configuration."
 msgstr ""
 
@@ -465,6 +458,8 @@ msgstr ""
 msgid "Clean of %s is not supported"
 msgstr "不被支援的索引檔類型 '%s'"
 
+#. only show the ETA if it makes sense
+#. two days
 #: apt-pkg/acquire.cc
 #, c-format
 msgid "Retrieving file %li of %li (%s remaining)"
@@ -895,12 +890,12 @@ msgstr "在同步檔案時發生問題"
 msgid "Problem syncing the file"
 msgstr "在同步檔案時發生問題"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, fuzzy, c-format
 msgid "Unable to mkstemp %s"
 msgstr "無法取得 %s 的狀態"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to write to %s"
 msgstr "無法寫入 %s"
@@ -1110,23 +1105,23 @@ msgstr ""
 #. we don't care for the difference
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing %s"
-msgstr "正在準備 %s"
+msgid "Installing %s"
+msgstr "正在安裝 %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to configure %s"
-msgstr "正在準備設定 %s"
+msgid "Configuring %s"
+msgstr "正在設定 %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing for removal of %s"
-msgstr "正在準備移除 %s"
+msgid "Removing %s"
+msgstr "正在移除 %s"
 
 #: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Preparing to completely remove %s"
-msgstr "正在準備完整移除 %s"
+#, fuzzy, c-format
+msgid "Completely removing %s"
+msgstr "已完整移除 %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1143,11 +1138,6 @@ msgstr "正在執行安裝後套件後續處理程式 %s"
 msgid "Installed %s"
 msgstr "已安裝 %s"
 
-#: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Configuring %s"
-msgstr "正在設定 %s"
-
 #. FIXME: use a better string after freeze
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1161,23 +1151,33 @@ msgstr "無法開啟檔案 %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
+msgid "Preparing %s"
+msgstr "正在準備 %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
 msgid "Unpacking %s"
 msgstr "正在解開 %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Installing %s"
-msgstr "正在安裝 %s"
+msgid "Preparing to configure %s"
+msgstr "正在準備設定 %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Removing %s"
-msgstr "正在移除 %s"
+msgid "Preparing for removal of %s"
+msgstr "正在準備移除 %s"
 
 #: apt-pkg/deb/dpkgpm.cc
-#, fuzzy, c-format
-msgid "Completely removing %s"
-msgstr "已完整移除 %s"
+#, c-format
+msgid "Removed %s"
+msgstr "已移除 %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
+msgid "Preparing to completely remove %s"
+msgstr "正在準備完整移除 %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1549,7 +1549,7 @@ msgstr "來源列表 %2$s 中的第 %1$u 行的格式錯誤（類型）"
 msgid "Type '%s' is not known on stanza %u in source list %s"
 msgstr "未知的類型 '%1$s'，位於在來源列表 %3$s 中的第 %2$u 行"
 
-#: apt-pkg/sourcelist.cc apt-private/private-install.cc
+#: apt-pkg/sourcelist.cc
 #, c-format
 msgid "Unsupported file %s given on commandline"
 msgstr ""
@@ -1766,8 +1766,8 @@ msgid ""
 "instead."
 msgstr ""
 
-#: apt-private/private-depends.cc apt-private/private-download.cc
-#: apt-private/private-show.cc cmdline/apt-mark.cc
+#: apt-private/private-depends.cc apt-private/private-show.cc
+#: cmdline/apt-mark.cc
 msgid "No packages found"
 msgstr "未找到套件"
 
@@ -1931,7 +1931,7 @@ msgstr ""
 msgid "Abort."
 msgstr "放棄執行。"
 
-#: apt-private/private-install.cc cmdline/apt-mark.cc
+#: apt-private/private-install.cc
 msgid "Do you want to continue?"
 msgstr "是否繼續進行 [Y/n]？"
 
@@ -2248,6 +2248,11 @@ msgstr "您必須明確得給定一個樣式"
 msgid "Full Text Search"
 msgstr ""
 
+#: apt-private/private-show.cc cmdline/apt-cache.cc
+#, c-format
+msgid "Package file %s is out of sync."
+msgstr "套件檔 %s 未同步。"
+
 #: apt-private/private-show.cc
 #, c-format
 msgid "There is %i additional record. Please use the '-a' switch to see it"
@@ -2403,15 +2408,15 @@ msgid "%s has no build depends.\n"
 msgstr "%s 沒有編譯相依關係。\n"
 
 #: apt-private/private-source.cc
+msgid "Must specify at least one package to check builddeps for"
+msgstr "在檢查編譯相依關係時必須至少指定一個套件"
+
+#: apt-private/private-source.cc
 #, c-format
 msgid ""
 "No architecture information available for %s. See apt.conf(5) APT::"
 "Architectures for setup"
 msgstr ""
-
-#: apt-private/private-source.cc
-msgid "Must specify at least one package to check builddeps for"
-msgstr "在檢查編譯相依關係時必須至少指定一個套件"
 
 #: apt-private/private-source.cc
 #, c-format
@@ -2434,7 +2439,7 @@ msgstr "無法將 %s 更名為 %s"
 
 #: apt-private/private-sources.cc
 #, c-format
-msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+msgid "Your '%s' file changed, please run 'apt-get update'."
 msgstr ""
 
 #: apt-private/private-unmet.cc
@@ -2466,9 +2471,9 @@ msgstr[1] ""
 msgid "All packages are up to date."
 msgstr ""
 
-#: cmdline/apt-cache.cc cmdline/apt-mark.cc
-#, fuzzy, c-format
-msgid "%s does not take any arguments"
+#: cmdline/apt-cache.cc
+#, fuzzy
+msgid "apt-cache stats does not take any arguments"
 msgstr "update 指令不需任何參數"
 
 #: cmdline/apt-cache.cc
@@ -2729,12 +2734,6 @@ msgid "Install new packages (pkg is libc6 not libc6.deb)"
 msgstr "安裝新套件（套件名稱是 libc6 而不是 libc6.deb）"
 
 #: cmdline/apt-get.cc
-#, fuzzy
-#| msgid "Install new packages (pkg is libc6 not libc6.deb)"
-msgid "Reinstall packages (pkg is libc6 not libc6.deb)"
-msgstr "安裝新套件（套件名稱是 libc6 而不是 libc6.deb）"
-
-#: cmdline/apt-get.cc
 msgid "Remove packages"
 msgstr "移除套件"
 
@@ -2890,16 +2889,6 @@ msgid "%s was already set to automatically installed.\n"
 msgstr "%s 被設定為手動安裝。\n"
 
 #: cmdline/apt-mark.cc
-msgid "No changes necessary"
-msgstr ""
-
-#: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "The following NEW packages will be installed:"
-msgid "The following packages will be marked as automatically installed:"
-msgstr "下列【新】套件將會被安裝："
-
-#: cmdline/apt-mark.cc
 #, fuzzy, c-format
 msgid "%s was already set on hold.\n"
 msgstr "%s 已經是最新版本了。\n"
@@ -2959,11 +2948,6 @@ msgid "Mark the given packages as manually installed"
 msgstr "請檢查是否已安裝了 'dpkg-dev' 套件。\n"
 
 #: cmdline/apt-mark.cc
-#, fuzzy
-msgid "Mark all dependencies of meta packages as automatically installed."
-msgstr "%s 被設定為手動安裝。\n"
-
-#: cmdline/apt-mark.cc
 msgid "Mark a package as held back"
 msgstr ""
 
@@ -2982,7 +2966,7 @@ msgid "Print the list of manually installed packages"
 msgstr "%s 被設定為手動安裝。\n"
 
 #: cmdline/apt-mark.cc
-msgid "Print the list of packages on hold"
+msgid "Print the list of package on hold"
 msgstr ""
 
 #: cmdline/apt-sortpkgs.cc
@@ -3027,11 +3011,6 @@ msgstr ""
 #: cmdline/apt.cc
 #, fuzzy
 msgid "install packages"
-msgstr "鎖定的套件："
-
-#: cmdline/apt.cc
-#, fuzzy
-msgid "reinstall packages"
 msgstr "鎖定的套件："
 
 #: cmdline/apt.cc
@@ -3771,12 +3750,6 @@ msgstr "連線突然終止"
 #: methods/store.cc
 msgid "Empty files can't be valid archives"
 msgstr ""
-
-#~ msgid "Removed %s"
-#~ msgstr "已移除 %s"
-
-#~ msgid "Package file %s is out of sync."
-#~ msgstr "套件檔 %s 未同步。"
 
 #~ msgid ""
 #~ "The package index files are corrupted. No Filename: field for package %s."

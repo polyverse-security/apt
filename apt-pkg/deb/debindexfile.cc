@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: debindexfile.cc,v 1.5.2.3 2004/01/04 19:11:00 mdz Exp $
 /* ######################################################################
 
    Debian Specific sources.list types and the three sorts of Debian
@@ -185,22 +186,28 @@ bool debDebPkgFileIndex::GetContent(std::ostream &content, std::string const &de
    if(Popen((const char**)&Args[0], PipeFd, Child, FileFd::ReadOnly) == false)
       return _error->Error("Popen failed");
 
-   std::string line;
+   content << "Filename: " << debfile << "\n";
+   content << "Size: " << std::to_string(Buf.st_size) << "\n";
    bool first_line_seen = false;
-   while (PipeFd.ReadLine(line))
-   {
+   char buffer[1024];
+   do {
+      unsigned long long actual = 0;
+      if (PipeFd.Read(buffer, sizeof(buffer)-1, &actual) == false)
+	 return _error->Errno("read", "Failed to read dpkg pipe");
+      if (actual == 0)
+	 break;
+      buffer[actual] = '\0';
+      char const * b = buffer;
       if (first_line_seen == false)
       {
-	 if (line.empty())
+	 for (; *b != '\0' && (*b == '\n' || *b == '\r'); ++b)
+	    /* skip over leading newlines */;
+	 if (*b == '\0')
 	    continue;
 	 first_line_seen = true;
       }
-      else if (line.empty())
-	 break;
-      content << line << "\n";
-   }
-   content << "Filename: " << debfile << "\n";
-   content << "Size: " << std::to_string(Buf.st_size) << "\n";
+      content << b;
+   } while(true);
    ExecWait(Child, "Popen");
 
    return true;
@@ -315,10 +322,13 @@ const pkgIndexFile::Type *debStringPackageIndex::GetType() const
 debStringPackageIndex::debStringPackageIndex(std::string const &content) :
    pkgDebianIndexRealFile("", false), d(NULL)
 {
-   FileFd fd;
-   GetTempFile("apt-tmp-index", false, &fd);
-   fd.Write(content.data(), content.length());
-   File = fd.Name();
+   char fn[1024];
+   std::string const tempdir = GetTempDir();
+   snprintf(fn, sizeof(fn), "%s/%s.XXXXXX", tempdir.c_str(), "apt-tmp-index");
+   int const fd = mkstemp(fn);
+   File = fn;
+   FileFd::Write(fd, content.data(), content.length());
+   close(fd);
 }
 debStringPackageIndex::~debStringPackageIndex()
 {

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apt 1.0.5\n"
 "Report-Msgid-Bugs-To: APT Development Team <deity@lists.debian.org>\n"
-"POT-Creation-Date: 2019-02-04 15:34+0100\n"
+"POT-Creation-Date: 2019-03-01 10:02+0100\n"
 "PO-Revision-Date: 2006-06-12 14:35+0545\n"
 "Last-Translator: Shiva Pokharel <pokharelshiva@hotmail.com>\n"
 "Language-Team: Nepali <info@mpp.org.np>\n"
@@ -395,13 +395,6 @@ msgstr "%s (%s) मा जडान गरिदैछ"
 
 #: apt-pkg/acquire-worker.cc
 #, c-format
-msgid ""
-"The method '%s' is unsupported and disabled by default. Consider switching "
-"to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."
-msgstr ""
-
-#: apt-pkg/acquire-worker.cc
-#, c-format
 msgid "The method '%s' is explicitly disabled via configuration."
 msgstr ""
 
@@ -463,6 +456,8 @@ msgstr ""
 msgid "Clean of %s is not supported"
 msgstr "अनुक्रमणिका फाइल प्रकार '%s' समर्थित छैन"
 
+#. only show the ETA if it makes sense
+#. two days
 #: apt-pkg/acquire.cc
 #, c-format
 msgid "Retrieving file %li of %li (%s remaining)"
@@ -894,12 +889,12 @@ msgstr "फाइल गुप्तिकरण गर्दा समस्य
 msgid "Problem syncing the file"
 msgstr "फाइल गुप्तिकरण गर्दा समस्या"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, fuzzy, c-format
 msgid "Unable to mkstemp %s"
 msgstr "%s स्थिर गर्न असक्षम भयो"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to write to %s"
 msgstr " %s मा लेख्न असक्षम"
@@ -1107,24 +1102,24 @@ msgstr ""
 
 #. we don't care for the difference
 #: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Preparing %s"
-msgstr " %s तयार गरिदैछ"
+#, fuzzy, c-format
+msgid "Installing %s"
+msgstr " %s स्थापना भयो"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to configure %s"
-msgstr " %s कनफिगर गर्न तयार गरिदैछ"
+msgid "Configuring %s"
+msgstr " %s कनफिगर गरिदैछ"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing for removal of %s"
-msgstr " %s हटाउन तयार गरिदैछ"
+msgid "Removing %s"
+msgstr " %s हटाइदैछ"
 
 #: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Preparing to completely remove %s"
-msgstr " %s पूर्ण रुपले हटाउन तयार गरिदैछ"
+#, fuzzy, c-format
+msgid "Completely removing %s"
+msgstr " %s पूर्ण रुपले हट्यो"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1141,11 +1136,6 @@ msgstr ""
 msgid "Installed %s"
 msgstr " %s स्थापना भयो"
 
-#: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Configuring %s"
-msgstr " %s कनफिगर गरिदैछ"
-
 #. FIXME: use a better string after freeze
 #: apt-pkg/deb/dpkgpm.cc
 #, fuzzy, c-format
@@ -1159,23 +1149,33 @@ msgstr "फाइल %s खोल्न सकिएन"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
+msgid "Preparing %s"
+msgstr " %s तयार गरिदैछ"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
 msgid "Unpacking %s"
 msgstr " %s अनप्याक गरिदैछ"
 
 #: apt-pkg/deb/dpkgpm.cc
-#, fuzzy, c-format
-msgid "Installing %s"
-msgstr " %s स्थापना भयो"
+#, c-format
+msgid "Preparing to configure %s"
+msgstr " %s कनफिगर गर्न तयार गरिदैछ"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Removing %s"
-msgstr " %s हटाइदैछ"
+msgid "Preparing for removal of %s"
+msgstr " %s हटाउन तयार गरिदैछ"
 
 #: apt-pkg/deb/dpkgpm.cc
-#, fuzzy, c-format
-msgid "Completely removing %s"
-msgstr " %s पूर्ण रुपले हट्यो"
+#, c-format
+msgid "Removed %s"
+msgstr " %s हट्यो"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
+msgid "Preparing to completely remove %s"
+msgstr " %s पूर्ण रुपले हटाउन तयार गरिदैछ"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1550,7 +1550,7 @@ msgstr "वैरुप्य लाइन %u स्रोत सूचिमा
 msgid "Type '%s' is not known on stanza %u in source list %s"
 msgstr "स्रोत सूची %s भित्र %u लाइनमा टाइप '%s' ज्ञात छैन"
 
-#: apt-pkg/sourcelist.cc apt-private/private-install.cc
+#: apt-pkg/sourcelist.cc
 #, c-format
 msgid "Unsupported file %s given on commandline"
 msgstr ""
@@ -1772,8 +1772,8 @@ msgid ""
 "instead."
 msgstr ""
 
-#: apt-private/private-depends.cc apt-private/private-download.cc
-#: apt-private/private-show.cc cmdline/apt-mark.cc
+#: apt-private/private-depends.cc apt-private/private-show.cc
+#: cmdline/apt-mark.cc
 msgid "No packages found"
 msgstr "कुनै प्याकेजहरू फेला परेन"
 
@@ -1941,7 +1941,7 @@ msgstr ""
 msgid "Abort."
 msgstr "परित्याग गर्नुहोस् ।"
 
-#: apt-private/private-install.cc cmdline/apt-mark.cc
+#: apt-private/private-install.cc
 #, fuzzy
 msgid "Do you want to continue?"
 msgstr "के तपाईँ निरन्तरता दिन चाहनुहुन्छ [Y/n]? "
@@ -2259,6 +2259,11 @@ msgstr "तपाईँले एउटा वास्तविक बान्
 msgid "Full Text Search"
 msgstr ""
 
+#: apt-private/private-show.cc cmdline/apt-cache.cc
+#, c-format
+msgid "Package file %s is out of sync."
+msgstr "प्याकेज फाइल %s sync भन्दा बाहिर छ ।"
+
 #: apt-private/private-show.cc
 #, c-format
 msgid "There is %i additional record. Please use the '-a' switch to see it"
@@ -2414,15 +2419,15 @@ msgid "%s has no build depends.\n"
 msgstr "%s कुनै निर्माणमा आधारित हुदैन ।\n"
 
 #: apt-private/private-source.cc
+msgid "Must specify at least one package to check builddeps for"
+msgstr "को लागि builddeps जाँच्न कम्तिमा एउटा प्याकेज निर्दष्ट गर्नुपर्छ"
+
+#: apt-private/private-source.cc
 #, c-format
 msgid ""
 "No architecture information available for %s. See apt.conf(5) APT::"
 "Architectures for setup"
 msgstr ""
-
-#: apt-private/private-source.cc
-msgid "Must specify at least one package to check builddeps for"
-msgstr "को लागि builddeps जाँच्न कम्तिमा एउटा प्याकेज निर्दष्ट गर्नुपर्छ"
 
 #: apt-private/private-source.cc
 #, c-format
@@ -2445,7 +2450,7 @@ msgstr " %s मा  %s  पुन:नामकरण असफल भयो"
 
 #: apt-private/private-sources.cc
 #, c-format
-msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+msgid "Your '%s' file changed, please run 'apt-get update'."
 msgstr ""
 
 #: apt-private/private-unmet.cc
@@ -2477,9 +2482,9 @@ msgstr[1] ""
 msgid "All packages are up to date."
 msgstr ""
 
-#: cmdline/apt-cache.cc cmdline/apt-mark.cc
-#, fuzzy, c-format
-msgid "%s does not take any arguments"
+#: cmdline/apt-cache.cc
+#, fuzzy
+msgid "apt-cache stats does not take any arguments"
 msgstr "अद्यावधिक आदेशले कुनै तर्कहरू लिदैन"
 
 #: cmdline/apt-cache.cc
@@ -2742,12 +2747,6 @@ msgid "Install new packages (pkg is libc6 not libc6.deb)"
 msgstr "प्याकेजहरू स्थापना गर्नुहोस् (pkg libc6 हो libc6.deb होइन)"
 
 #: cmdline/apt-get.cc
-#, fuzzy
-#| msgid "Install new packages (pkg is libc6 not libc6.deb)"
-msgid "Reinstall packages (pkg is libc6 not libc6.deb)"
-msgstr "प्याकेजहरू स्थापना गर्नुहोस् (pkg libc6 हो libc6.deb होइन)"
-
-#: cmdline/apt-get.cc
 msgid "Remove packages"
 msgstr ""
 
@@ -2904,16 +2903,6 @@ msgid "%s was already set to automatically installed.\n"
 msgstr "तर %s स्थापना हुनुपर्यो"
 
 #: cmdline/apt-mark.cc
-msgid "No changes necessary"
-msgstr ""
-
-#: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "The following NEW packages will be installed:"
-msgid "The following packages will be marked as automatically installed:"
-msgstr "निम्न नयाँ प्याकेजहरू स्थापना हुनेछन्:"
-
-#: cmdline/apt-mark.cc
 #, fuzzy, c-format
 msgid "%s was already set on hold.\n"
 msgstr "%s पहिल्यै नयाँ संस्करण हो ।\n"
@@ -2973,11 +2962,6 @@ msgid "Mark the given packages as manually installed"
 msgstr "जाँच्नुहोस् यदि 'dpkg-dev' प्याकेज स्थापना भयो ।\n"
 
 #: cmdline/apt-mark.cc
-#, fuzzy
-msgid "Mark all dependencies of meta packages as automatically installed."
-msgstr "तर %s स्थापना हुनुपर्यो"
-
-#: cmdline/apt-mark.cc
 msgid "Mark a package as held back"
 msgstr ""
 
@@ -2996,7 +2980,7 @@ msgid "Print the list of manually installed packages"
 msgstr "तर %s स्थापना हुनुपर्यो"
 
 #: cmdline/apt-mark.cc
-msgid "Print the list of packages on hold"
+msgid "Print the list of package on hold"
 msgstr ""
 
 #: cmdline/apt-sortpkgs.cc
@@ -3041,11 +3025,6 @@ msgstr ""
 #: cmdline/apt.cc
 #, fuzzy
 msgid "install packages"
-msgstr "पिन गरिएका प्याकेजहरू:"
-
-#: cmdline/apt.cc
-#, fuzzy
-msgid "reinstall packages"
 msgstr "पिन गरिएका प्याकेजहरू:"
 
 #: cmdline/apt.cc
@@ -3792,12 +3771,6 @@ msgstr "जडान असमायिक बन्द भयो"
 #: methods/store.cc
 msgid "Empty files can't be valid archives"
 msgstr ""
-
-#~ msgid "Removed %s"
-#~ msgstr " %s हट्यो"
-
-#~ msgid "Package file %s is out of sync."
-#~ msgstr "प्याकेज फाइल %s sync भन्दा बाहिर छ ।"
 
 #~ msgid ""
 #~ "The package index files are corrupted. No Filename: field for package %s."

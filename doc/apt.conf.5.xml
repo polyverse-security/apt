@@ -19,7 +19,7 @@
    &apt-email;
    &apt-product;
    <!-- The last update date -->
-   <date>2018-12-10T00:00:00Z</date>
+   <date>2018-08-20T00:00:00Z</date>
  </refentryinfo>
  
  <refmeta>
@@ -182,7 +182,7 @@ DPkg::Pre-Install-Pkgs {"/usr/sbin/dpkg-preconfigure --apt";};
      would allow apt to download and uncompress as well as create and store
      files with the low-cost <literal>.reversed</literal> file extension which
      it will pass to the command <command>rev</command> without additional
-     commandline parameters for compression and uncompression:</para>
+     commandline parameters for compression and uncompression:
 <informalexample><programlisting>
 APT::Compressor::rev {
 	Name "rev";
@@ -193,7 +193,7 @@ APT::Compressor::rev {
 	Cost "10";
 };
 </programlisting></informalexample>
-     </listitem>
+     </para></listitem>
      </varlistentry>
 
      <varlistentry><term><option>Build-Profiles</option></term>
@@ -254,7 +254,7 @@ APT::Compressor::rev {
      with this option disabled you should try to explicitly
      <literal>install</literal> the package APT is unable to configure
      immediately; but please make sure you also report your problem to your
-     distribution and to the APT team with the bug link below, so they can
+     distribution and to the APT team with the buglink below, so they can
      work on improving or correcting the upgrade process.
      </para></listitem>
      </varlistentry>
@@ -431,7 +431,7 @@ APT::Compressor::rev {
      </varlistentry>
 
      <varlistentry><term><option>http</option> <option>https</option></term>
-     <listitem><para>The options in these scopes configure APT's acquire transports for the protocols
+     <listitem><para>The options in these scopes configure APTs acquire transports for the protocols
      HTTP and HTTPS and are documented in the &apt-transport-http; and &apt-transport-https;
      manpages respectively.</para></listitem>
      </varlistentry>
@@ -525,7 +525,7 @@ APT::Compressor::rev {
      This will not override the defined list; it will only prefix the list with this type.</para>
      <para>The special type <literal>uncompressed</literal> can be used to give uncompressed files a
      preference, but note that most archives don't provide uncompressed files so this is mostly only
-     usable for local mirrors.</para></listitem>
+     useable for local mirrors.</para></listitem>
      </varlistentry>
 
      <varlistentry><term><option>GzipIndexes</option></term>
@@ -722,7 +722,7 @@ APT::Compressor::rev {
    <para>
       The <literal>Ignore-Files-Silently</literal> list can be used to specify
       which files APT should silently ignore while parsing the files in the
-      fragment directories. Per default a file which ends with <literal>.disabled</literal>,
+      fragment directories. Per default a file which end with <literal>.disabled</literal>,
       <literal>~</literal>, <literal>.bak</literal> or <literal>.dpkg-[a-z]+</literal>
       is silently ignored. As seen in the last default value these patterns can use regular
       expression syntax.
@@ -775,13 +775,6 @@ APT::Compressor::rev {
      <listitem><para>This is a list of options to pass to &dpkg;. The options must be specified
      using the list notation and each list item is passed as a single argument
      to &dpkg;.</para></listitem>
-     </varlistentry>
-
-     <varlistentry><term><option>Path</option></term>
-     <listitem><para>This is a string that defines the <envar>PATH</envar>
-     environment variable used when running dpkg. It may be set to any
-     valid value of that environment variable; or the empty string, in
-     which case the variable is not changed.</para></listitem>
      </varlistentry>
      
      <varlistentry><term><option>Pre-Invoke</option></term><term><option>Post-Invoke</option></term>

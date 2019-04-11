@@ -29,8 +29,6 @@ _apt()
         --allow-insecure-repositories
         --install-recommends
         --install-suggests
-        --no-install-recommends
-        --no-install-suggests
         --fix-policy
     '
 

@@ -38,8 +38,6 @@ find_package(Iconv REQUIRED)
 
 find_package(Perl REQUIRED)
 
-find_program(TRIEHASH_EXECUTABLE NAMES triehash)
-
 if(USE_NLS)
   find_package(Intl REQUIRED)
   link_libraries(${Intl_LIBRARIES})
@@ -52,7 +50,7 @@ add_definitions(${LFS_DEFINITIONS})
 link_libraries(${LFS_LIBRARIES})
 
 # Set compiler flags
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
@@ -70,7 +68,6 @@ add_optional_compile_options(Wmissing-include-dirs)
 add_optional_compile_options(Wnoexcept)
 add_optional_compile_options(Wsign-promo)
 add_optional_compile_options(Wundef)
-add_optional_compile_options(Wdouble-promotion)
 
 # apt-ftparchive dependencies
 find_package(BerkeleyDB REQUIRED)
@@ -182,16 +179,10 @@ else()
     set(RESOLV_LIBRARIES -lresolv)
 endif()
 
-# Check multiversioning
-include(CheckCxxTarget)
-check_cxx_target(HAVE_FMV_SSE42_AND_CRC32 "sse4.2" "__builtin_ia32_crc32si(0, 1llu);")
-check_cxx_target(HAVE_FMV_SSE42_AND_CRC32DI "sse4.2" "__builtin_ia32_crc32di(0, 1llu);")
-
 # Configure some variables like package, version and architecture.
 set(PACKAGE ${PROJECT_NAME})
 set(PACKAGE_MAIL "APT Development Team <deity@lists.debian.org>")
-set(PACKAGE_VERSION "1.8.0")
-string(REGEX MATCH "^[0-9.]+" PROJECT_VERSION ${PACKAGE_VERSION})
+set(PACKAGE_VERSION "1.6.10")
 
 if (NOT DEFINED DPKG_DATADIR)
   execute_process(COMMAND ${PERL_EXECUTABLE} -MDpkg -e "print $Dpkg::DATADIR;"

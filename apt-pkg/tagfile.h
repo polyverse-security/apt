@@ -133,7 +133,7 @@ class pkgTagSection
     * @param MaxLength is the size of valid data in the stream pointed to by Start
     * @param Restart if enabled internal state will be cleared, otherwise it is
     *  assumed that now more data is available in the stream and the parsing will
-    *  start were it encountered insufficient data the last time.
+    *  start were it encountered insufficent data the last time.
     *
     * @return \b true if section end was found, \b false otherwise.
     *  Beware that internal state will be inconsistent if \b false is returned!
@@ -187,6 +187,11 @@ class pkgTagSection
 };
 
 
+class APT_DEPRECATED_MSG("Use pkgTagFile with the SUPPORT_COMMENTS flag instead") pkgUserTagSection : public pkgTagSection
+{
+   virtual void TrimRecord(bool BeforeRecord, const char* &End) APT_OVERRIDE;
+};
+
 /** \class pkgTagFile reads and prepares a deb822 formatted file for parsing
  * via #pkgTagSection. The default mode tries to be as fast as possible and
  * assumes perfectly valid (machine generated) files like Packages. Support
@@ -221,5 +226,16 @@ public:
 
 extern const char **TFRewritePackageOrder;
 extern const char **TFRewriteSourceOrder;
+
+APT_IGNORE_DEPRECATED_PUSH
+struct APT_DEPRECATED_MSG("Use pkgTagSection::Tag and pkgTagSection::Write() instead") TFRewriteData
+{
+   const char *Tag;
+   const char *Rewrite;
+   const char *NewTag;
+};
+APT_DEPRECATED_MSG("Use pkgTagSection::Tag and pkgTagSection::Write() instead") bool TFRewrite(FILE *Output,pkgTagSection const &Tags,const char *Order[],
+	       TFRewriteData *Rewrite);
+APT_IGNORE_DEPRECATED_POP
 
 #endif

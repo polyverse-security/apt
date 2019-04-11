@@ -138,8 +138,6 @@ SHA256-Download:
 	mkdir -p "${BYHASH}"
 	find "${NORMAL}/" -maxdepth 1 -name "Index*" -exec mv '{}' "$BYHASH" \;
 	ln -s "${BYHASH}/Index.gz" "${BYHASH}/$(sha256sum "${BYHASH}/Index.gz" | cut -f1 -d' ')"
-	echo 'foobar' > "${BYHASH}/$(sha256sum "$PATCHFILE" | cut -f1 -d' ')"
-	echo 'foobar' > "${BYHASH}/$(sha256sum "${PATCHFILE}.gz" | cut -f1 -d' ')"
 	rm -rf rootdir/var/lib/apt/lists
 	cp -a rootdir/var/lib/apt/lists-bak rootdir/var/lib/apt/lists
 	wasmergeused "$@" -o Acquire::By-Hash=force
@@ -251,13 +249,7 @@ SHA256-Download:
 	cp Packages-future aptarchive/Packages
 	rm -f rootdir/var/lib/apt/lists/*_Contents-*
 	webserverconfig 'aptwebserver::overwrite::.*Contents-.*::filename' '/hacked-i386.gz'
-	# This should work in at least 4% of the cases...
-	for i in $(seq 25); do
-		testfailure apt update "$@"
-		if ! grep 'rred:600' rootdir/tmp/testfailure.output; then
-			break
-		fi
-	done
+	testfailure apt update "$@"
 	webserverconfig 'aptwebserver::overwrite::.*Contents-.*::filename' '/Contents-i386.gz'
 	cp rootdir/tmp/testfailure.output patchdownload.output
 	testfailure grep 'rred:600' patchdownload.output
@@ -406,8 +398,7 @@ testcase -o Acquire::IndexTargets::deb::Packages::KeepCompressed=true
 
 
 partialleftovers() { generatepartialleftovers "redirectme_Packages.${LOWCOSTEXT}" "redirectme_Packages-patched.${LOWCOSTEXT}"; }
-# redirect the InRelease file only – the other files are auto-redirected by apt
-webserverconfig 'aptwebserver::redirect::replace::/redirectme/I' "http://0.0.0.0:${APTHTTPPORT}/I"
+webserverconfig 'aptwebserver::redirect::replace::/redirectme/' "http://0.0.0.0:${APTHTTPPORT}/"
 rewritesourceslist "http://localhost:${APTHTTPPORT}/redirectme"
 aptautotest_apt_update() {
 	aptautotest_aptget_update "$@"

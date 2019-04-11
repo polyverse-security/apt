@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: cachedb.cc,v 1.7 2004/05/08 19:41:01 mdz Exp $
 /* ######################################################################
 
    CacheDB
@@ -401,7 +402,7 @@ bool CacheDB::LoadContents(bool const &GenOnly)
    return true;
 }
 									/*}}}*/
-// CacheDB::GetHashes - Get the hashes					/*{{{*/
+// CacheDB::GetHashes - Get the hashs					/*{{{*/
 static std::string bytes2hex(uint8_t *bytes, size_t length) {
    char buf[3];
    std::string space;

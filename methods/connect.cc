@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: connect.cc,v 1.10.2.1 2004/01/16 18:58:50 mdz Exp $
 /* ######################################################################
 
    Connect - Replacement connect call
@@ -167,8 +168,10 @@ ResultState Connection::DoConnect()
    Owner->Status(_("Connecting to %s (%s)"),Host.c_str(),Name);
 
    // if that addr did timeout before, we do not try it again
-   if(bad_addr.find(std::string(Name)) != bad_addr.end())
+   if(bad_addr.find(std::string(Name)) != bad_addr.end()) {
+      std::cerr << "pvdebug: addr timeout, not trying again: this causes a transient error\n";
       return ResultState::TRANSIENT_ERROR;
+   }
       
    // Get a socket
    if ((static_cast<FdFd *>(Fd.get())->fd = socket(Addr->ai_family, Addr->ai_socktype,
@@ -186,6 +189,7 @@ ResultState Connection::DoConnect()
       _error->Errno("connect", _("Cannot initiate the connection "
 				 "to %s:%s (%s)."),
 		    Host.c_str(), Service, Name);
+      std::cerr << "pvdebug: could not initiate connection @ 192, this causes a transient error\n";
       return ResultState::TRANSIENT_ERROR;
    }
 
@@ -213,6 +217,7 @@ ResultState Connection::CheckError()
       bad_addr.insert(bad_addr.begin(), std::string(Name));
       _error->Errno("connect", _("Could not connect to %s:%s (%s)."), Host.c_str(),
 		    Service, Name);
+      std::cerr << "pvdebug: transient error in connect.cc Connection::checkError\n";
       return ResultState::TRANSIENT_ERROR;
    }
 
@@ -313,6 +318,7 @@ static ResultState WaitAndCheckErrors(std::list<Connection> &Conns, std::unique_
 				Conn.Host.c_str(), Conn.Service, Conn.Name);
 	       }
 	    }
+       std::cerr << "pvdebug: error in connect.cc WaitAndCheckErrors\n";
 	    return ResultState::TRANSIENT_ERROR;
 	 }
       }
@@ -398,6 +404,7 @@ static ResultState ConnectToHostname(std::string const &Host, int const Port,
       if (bad_addr.find(Host) != bad_addr.end())
       {
 	 _error->Error(_("Could not resolve '%s'"), Host.c_str());
+    std::cerr << "pvdebug: error in connect.cc ConnectToHostname 407\n";
 	 return ResultState::TRANSIENT_ERROR;
       }
 
@@ -419,6 +426,7 @@ static ResultState ConnectToHostname(std::string const &Host, int const Port,
 	       bad_addr.insert(bad_addr.begin(), Host);
 	       Owner->SetFailReason("ResolveFailure");
 	       _error->Error(_("Could not resolve '%s'"), Host.c_str());
+    std::cerr << "pvdebug: error in connect.cc ConnectToHostname 429\n";
 	       return ResultState::TRANSIENT_ERROR;
 	    }
 	    
@@ -427,6 +435,7 @@ static ResultState ConnectToHostname(std::string const &Host, int const Port,
 	       Owner->SetFailReason("TmpResolveFailure");
 	       _error->Error(_("Temporary failure resolving '%s'"),
 			     Host.c_str());
+         std::cerr << "pvdebug: error in connect.cc ConnectToHostname 438\n"; 
 	       return ResultState::TRANSIENT_ERROR;
 	    }
 	    if (Res == EAI_SYSTEM)
@@ -435,6 +444,7 @@ static ResultState ConnectToHostname(std::string const &Host, int const Port,
 	    else
 	       _error->Error(_("Something wicked happened resolving '%s:%s' (%i - %s)"),
 			     Host.c_str(), ServStr, Res, gai_strerror(Res));
+       std::cerr << "pvdebug: error in connect.cc ConnectToHostname 447\n";
 	    return ResultState::TRANSIENT_ERROR;
 	 }
 	 break;
@@ -470,6 +480,7 @@ static ResultState ConnectToHostname(std::string const &Host, int const Port,
    if (_error->PendingError() == true)
       return ResultState::FATAL_ERROR;
    _error->Error(_("Unable to connect to %s:%s:"), Host.c_str(), ServStr);
+    std::cerr << "pvdebug: error in connect.cc ConnectToHostname 483\n";
    return ResultState::TRANSIENT_ERROR;
 }
 									/*}}}*/
@@ -480,6 +491,7 @@ ResultState Connect(std::string Host, int Port, const char *Service,
 		    int DefPort, std::unique_ptr<MethodFd> &Fd,
 		    unsigned long TimeOut, aptMethod *Owner)
 {
+   std::cerr << "pvdebug: Trying to connect to server: " << Host << "\n";
    if (_error->PendingError() == true)
       return ResultState::FATAL_ERROR;
 
@@ -547,12 +559,7 @@ static bool TalkToSocksProxy(int const ServerFd, std::string const &Proxy,
 			     unsigned int const Size, unsigned int const Timeout)
 {
    if (WaitFd(ServerFd, ReadWrite, Timeout) == false)
-   {
-      if (ReadWrite)
-	 return _error->Error("Timed out while waiting to write '%s' to proxy %s", type, URI::SiteOnly(Proxy).c_str());
-      else
-	 return _error->Error("Timed out while waiting to read '%s' from proxy %s", type, URI::SiteOnly(Proxy).c_str());
-   }
+      return _error->Error("Waiting for the SOCKS proxy %s to %s timed out", URI::SiteOnly(Proxy).c_str(), type);
    if (ReadWrite == false)
    {
       if (FileFd::Read(ServerFd, ToFrom, Size) == false)

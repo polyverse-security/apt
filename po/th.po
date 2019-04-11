@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apt 1.0.5\n"
 "Report-Msgid-Bugs-To: APT Development Team <deity@lists.debian.org>\n"
-"POT-Creation-Date: 2019-02-04 15:34+0100\n"
+"POT-Creation-Date: 2019-03-01 10:02+0100\n"
 "PO-Revision-Date: 2014-12-12 13:00+0700\n"
 "Last-Translator: Theppitak Karoonboonyanan <thep@debian.org>\n"
 "Language-Team: Thai <thai-l10n@googlegroups.com>\n"
@@ -403,13 +403,6 @@ msgstr "ปูมการแก้ไขสำหรับ %s (%s)"
 
 #: apt-pkg/acquire-worker.cc
 #, c-format
-msgid ""
-"The method '%s' is unsupported and disabled by default. Consider switching "
-"to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."
-msgstr ""
-
-#: apt-pkg/acquire-worker.cc
-#, c-format
 msgid "The method '%s' is explicitly disabled via configuration."
 msgstr ""
 
@@ -471,6 +464,8 @@ msgstr ""
 msgid "Clean of %s is not supported"
 msgstr "ไม่รองรับการล้างข้อมูลที่ %s"
 
+#. only show the ETA if it makes sense
+#. two days
 #: apt-pkg/acquire.cc
 #, c-format
 msgid "Retrieving file %li of %li (%s remaining)"
@@ -904,12 +899,12 @@ msgstr "เกิดปัญหาขณะเปลี่ยนชื่อแ
 msgid "Problem syncing the file"
 msgstr "เกิดปัญหาขณะ sync แฟ้ม"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to mkstemp %s"
 msgstr "ไม่สามารถ mkstemp %s"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to write to %s"
 msgstr "ไม่สามารถเขียนลงแฟ้ม %s"
@@ -1121,23 +1116,23 @@ msgstr "ไม่ได้ล็อคอยู่"
 #. we don't care for the difference
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing %s"
-msgstr "กำลังเตรียม %s"
+msgid "Installing %s"
+msgstr "กำลังติดตั้ง %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to configure %s"
-msgstr "กำลังเตรียมตั้งค่า %s"
+msgid "Configuring %s"
+msgstr "กำลังตั้งค่า %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing for removal of %s"
-msgstr "กำลังเตรียมถอดถอน %s"
+msgid "Removing %s"
+msgstr "กำลังถอดถอน %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to completely remove %s"
-msgstr "กำลังเตรียมถอดถอน %s อย่างสมบูรณ์"
+msgid "Completely removing %s"
+msgstr "กำลังถอดถอน %s อย่างสมบูรณ์"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1154,11 +1149,6 @@ msgstr "กำลังเรียกการสะกิด %s หลัง�
 msgid "Installed %s"
 msgstr "ติดตั้ง %s แล้ว"
 
-#: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Configuring %s"
-msgstr "กำลังตั้งค่า %s"
-
 #. FIXME: use a better string after freeze
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1172,23 +1162,33 @@ msgstr "ไม่สามารถเปิดแฟ้ม '%s'"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
+msgid "Preparing %s"
+msgstr "กำลังเตรียม %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
 msgid "Unpacking %s"
 msgstr "กำลังแตกแพกเกจ %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Installing %s"
-msgstr "กำลังติดตั้ง %s"
+msgid "Preparing to configure %s"
+msgstr "กำลังเตรียมตั้งค่า %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Removing %s"
-msgstr "กำลังถอดถอน %s"
+msgid "Preparing for removal of %s"
+msgstr "กำลังเตรียมถอดถอน %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Completely removing %s"
-msgstr "กำลังถอดถอน %s อย่างสมบูรณ์"
+msgid "Removed %s"
+msgstr "ถอดถอน %s แล้ว"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
+msgid "Preparing to completely remove %s"
+msgstr "กำลังเตรียมถอดถอน %s อย่างสมบูรณ์"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1571,7 +1571,7 @@ msgstr "บรรทัด %u ในแฟ้มรายชื่อแหล�
 msgid "Type '%s' is not known on stanza %u in source list %s"
 msgstr "ไม่รู้จักชนิด '%s' ที่วรรคที่ %u ในแฟ้มรายชื่อแหล่งแพกเกจ %s"
 
-#: apt-pkg/sourcelist.cc apt-private/private-install.cc
+#: apt-pkg/sourcelist.cc
 #, c-format
 msgid "Unsupported file %s given on commandline"
 msgstr ""
@@ -1788,8 +1788,8 @@ msgid ""
 "instead."
 msgstr ""
 
-#: apt-private/private-depends.cc apt-private/private-download.cc
-#: apt-private/private-show.cc cmdline/apt-mark.cc
+#: apt-private/private-depends.cc apt-private/private-show.cc
+#: cmdline/apt-mark.cc
 msgid "No packages found"
 msgstr "ไม่พบแพกเกจ"
 
@@ -1954,7 +1954,7 @@ msgstr ""
 msgid "Abort."
 msgstr "เลิกทำ"
 
-#: apt-private/private-install.cc cmdline/apt-mark.cc
+#: apt-private/private-install.cc
 msgid "Do you want to continue?"
 msgstr "คุณต้องการจะดำเนินการต่อไปหรือไม่?"
 
@@ -2268,6 +2268,11 @@ msgstr "คุณต้องระบุแพตเทิร์นสำหร
 msgid "Full Text Search"
 msgstr "ค้นทั่วทั้งเนื้อความ"
 
+#: apt-private/private-show.cc cmdline/apt-cache.cc
+#, c-format
+msgid "Package file %s is out of sync."
+msgstr "ข้อมูลแฟ้ม Package %s ไม่ตรงกับความเป็นจริง"
+
 #: apt-private/private-show.cc
 #, c-format
 msgid "There is %i additional record. Please use the '-a' switch to see it"
@@ -2427,16 +2432,16 @@ msgid "%s has no build depends.\n"
 msgstr "%s ไม่ต้องการสิ่งใดสำหรับ build\n"
 
 #: apt-private/private-source.cc
+msgid "Must specify at least one package to check builddeps for"
+msgstr "ต้องระบุแพกเกจอย่างน้อยหนึ่งแพกเกจที่จะตรวจสอบสิ่งที่ต้องการสำหรับการ build"
+
+#: apt-private/private-source.cc
 #, c-format
 msgid ""
 "No architecture information available for %s. See apt.conf(5) APT::"
 "Architectures for setup"
 msgstr ""
 "ไม่มีข้อมูลสถาปัตยกรรมสำหรับ %s ดูวิธีตั้งค่าที่หัวข้อ APT::Architectures ของ apt.conf(5)"
-
-#: apt-private/private-source.cc
-msgid "Must specify at least one package to check builddeps for"
-msgstr "ต้องระบุแพกเกจอย่างน้อยหนึ่งแพกเกจที่จะตรวจสอบสิ่งที่ต้องการสำหรับการ build"
 
 #: apt-private/private-source.cc
 #, c-format
@@ -2459,8 +2464,8 @@ msgstr "แจง %s ไม่สำเร็จ จะแก้ไขอีก�
 
 #: apt-private/private-sources.cc
 #, c-format
-msgid "Your '%s' file changed, please run 'apt-get update'.\n"
-msgstr "แฟ้ม '%s' ของคุณมีการเปลี่ยนแปลง กรุณาเรียก 'apt-get update'\n"
+msgid "Your '%s' file changed, please run 'apt-get update'."
+msgstr "แฟ้ม '%s' ของคุณมีการเปลี่ยนแปลง กรุณาเรียก 'apt-get update'"
 
 #: apt-private/private-unmet.cc
 #, c-format
@@ -2491,9 +2496,9 @@ msgstr[0] ""
 msgid "All packages are up to date."
 msgstr "ปรับรุ่นทุกแพกเกจเป็นรุ่นล่าสุดแล้ว"
 
-#: cmdline/apt-cache.cc cmdline/apt-mark.cc
-#, fuzzy, c-format
-msgid "%s does not take any arguments"
+#: cmdline/apt-cache.cc
+#, fuzzy
+msgid "apt-cache stats does not take any arguments"
 msgstr "คำสั่ง update ไม่รับอาร์กิวเมนต์เพิ่ม"
 
 #: cmdline/apt-cache.cc
@@ -2755,12 +2760,6 @@ msgid "Install new packages (pkg is libc6 not libc6.deb)"
 msgstr "ติดตั้งแพกเกจใหม่ (pkg อยู่ในรูปเช่น libc6 ไม่ใช่ libc6.deb)"
 
 #: cmdline/apt-get.cc
-#, fuzzy
-#| msgid "Install new packages (pkg is libc6 not libc6.deb)"
-msgid "Reinstall packages (pkg is libc6 not libc6.deb)"
-msgstr "ติดตั้งแพกเกจใหม่ (pkg อยู่ในรูปเช่น libc6 ไม่ใช่ libc6.deb)"
-
-#: cmdline/apt-get.cc
 msgid "Remove packages"
 msgstr "ถอดถอนแพกเกจ"
 
@@ -2922,16 +2921,6 @@ msgid "%s was already set to automatically installed.\n"
 msgstr "%s ถูกกำหนดให้เป็นการติดตั้งแบบอัตโนมัติอยู่ก่อนแล้ว\n"
 
 #: cmdline/apt-mark.cc
-msgid "No changes necessary"
-msgstr ""
-
-#: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "The following NEW packages will be installed:"
-msgid "The following packages will be marked as automatically installed:"
-msgstr "จะติดตั้งแพกเกจ *ใหม่* ต่อไปนี้:"
-
-#: cmdline/apt-mark.cc
 #, c-format
 msgid "%s was already set on hold.\n"
 msgstr "%s ถูกกำหนดให้คงรุ่นอยู่ก่อนแล้ว\n"
@@ -2994,12 +2983,6 @@ msgid "Mark the given packages as manually installed"
 msgstr "ทำเครื่องหมายแพกเกจที่กำหนดให้เป็นการติดตั้งแบบเลือกเอง"
 
 #: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "Mark the given packages as automatically installed"
-msgid "Mark all dependencies of meta packages as automatically installed."
-msgstr "ทำเครื่องหมายแพกเกจที่กำหนดให้เป็นการติดตั้งแบบอัตโนมัติ"
-
-#: cmdline/apt-mark.cc
 msgid "Mark a package as held back"
 msgstr "ทำเครื่องหมายแพกเกจที่กำหนดให้เป็นการคงรุ่น"
 
@@ -3016,7 +2999,7 @@ msgid "Print the list of manually installed packages"
 msgstr "แสดงรายชื่อของแพกเกจที่ติดตั้งแบบเลือกเอง"
 
 #: cmdline/apt-mark.cc
-msgid "Print the list of packages on hold"
+msgid "Print the list of package on hold"
 msgstr "แสดงรายชื่อของแพกเกจที่คงรุ่นอยู่"
 
 #: cmdline/apt-sortpkgs.cc
@@ -3059,12 +3042,6 @@ msgstr "แสดงรายละเอียดของแพกเกจ"
 #. package stuff
 #: cmdline/apt.cc
 msgid "install packages"
-msgstr "ติดตั้งแพกเกจ"
-
-#: cmdline/apt.cc
-#, fuzzy
-#| msgid "install packages"
-msgid "reinstall packages"
 msgstr "ติดตั้งแพกเกจ"
 
 #: cmdline/apt.cc
@@ -3796,11 +3773,11 @@ msgstr "การเชื่อมต่อถูกปิดก่อนเว
 msgid "Empty files can't be valid archives"
 msgstr "แฟ้มว่างเปล่าไม่สามารถเป็นแฟ้มจัดเก็บที่ใช้การได้"
 
-#~ msgid "Removed %s"
-#~ msgstr "ถอดถอน %s แล้ว"
+#~ msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+#~ msgstr "แฟ้ม '%s' ของคุณมีการเปลี่ยนแปลง กรุณาเรียก 'apt-get update'\n"
 
-#~ msgid "Package file %s is out of sync."
-#~ msgstr "ข้อมูลแฟ้ม Package %s ไม่ตรงกับความเป็นจริง"
+#~ msgid "Print the list of packages on hold"
+#~ msgstr "แสดงรายชื่อของแพกเกจที่คงรุ่นอยู่"
 
 #~ msgid ""
 #~ "The package index files are corrupted. No Filename: field for package %s."

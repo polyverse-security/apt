@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: hashes.cc,v 1.1 2001/03/06 07:15:29 jgg Exp $
 /* ######################################################################
 
    Hashes - Simple wrapper around the hash functions
@@ -207,7 +208,9 @@ unsigned long long HashStringList::FileSize() const			/*{{{*/
 									/*}}}*/
 bool HashStringList::FileSize(unsigned long long const Size)		/*{{{*/
 {
-   return push_back(HashString("Checksum-FileSize", std::to_string(Size)));
+   std::string size;
+   strprintf(size, "%llu", Size);
+   return push_back(HashString("Checksum-FileSize", size));
 }
 									/*}}}*/
 bool HashStringList::supported(char const * const type)			/*{{{*/
@@ -312,6 +315,7 @@ bool Hashes::Add(const unsigned char * const Data, unsigned long long const Size
    if (Size == 0)
       return true;
    bool Res = true;
+APT_IGNORE_DEPRECATED_PUSH
    if ((d->CalcHashes & MD5SUM) == MD5SUM)
       Res &= MD5.Add(Data, Size);
    if ((d->CalcHashes & SHA1SUM) == SHA1SUM)
@@ -320,8 +324,14 @@ bool Hashes::Add(const unsigned char * const Data, unsigned long long const Size
       Res &= SHA256.Add(Data, Size);
    if ((d->CalcHashes & SHA512SUM) == SHA512SUM)
       Res &= SHA512.Add(Data, Size);
+APT_IGNORE_DEPRECATED_POP
    d->FileSize += Size;
    return Res;
+}
+bool Hashes::Add(const unsigned char * const Data, unsigned long long const Size, unsigned int const Hashes)
+{
+   d->CalcHashes = Hashes;
+   return Add(Data, Size);
 }
 bool Hashes::AddFD(int const Fd,unsigned long long Size)
 {
@@ -341,6 +351,11 @@ bool Hashes::AddFD(int const Fd,unsigned long long Size)
 	 return false;
    }
    return true;
+}
+bool Hashes::AddFD(int const Fd,unsigned long long Size, unsigned int const Hashes)
+{
+   d->CalcHashes = Hashes;
+   return AddFD(Fd, Size);
 }
 bool Hashes::AddFD(FileFd &Fd,unsigned long long Size)
 {
@@ -366,10 +381,16 @@ bool Hashes::AddFD(FileFd &Fd,unsigned long long Size)
    }
    return true;
 }
+bool Hashes::AddFD(FileFd &Fd,unsigned long long Size, unsigned int const Hashes)
+{
+   d->CalcHashes = Hashes;
+   return AddFD(Fd, Size);
+}
 									/*}}}*/
 HashStringList Hashes::GetHashStringList()
 {
    HashStringList hashes;
+APT_IGNORE_DEPRECATED_PUSH
    if ((d->CalcHashes & MD5SUM) == MD5SUM)
       hashes.push_back(HashString("MD5Sum", MD5.Result().Value()));
    if ((d->CalcHashes & SHA1SUM) == SHA1SUM)
@@ -378,10 +399,13 @@ HashStringList Hashes::GetHashStringList()
       hashes.push_back(HashString("SHA256", SHA256.Result().Value()));
    if ((d->CalcHashes & SHA512SUM) == SHA512SUM)
       hashes.push_back(HashString("SHA512", SHA512.Result().Value()));
+APT_IGNORE_DEPRECATED_POP
    hashes.FileSize(d->FileSize);
    return hashes;
 }
+APT_IGNORE_DEPRECATED_PUSH
 Hashes::Hashes() : d(new PrivateHashes(~0)) { }
 Hashes::Hashes(unsigned int const Hashes) : d(new PrivateHashes(Hashes)) {}
 Hashes::Hashes(HashStringList const &Hashes) : d(new PrivateHashes(Hashes)) {}
 Hashes::~Hashes() { delete d; }
+APT_IGNORE_DEPRECATED_POP

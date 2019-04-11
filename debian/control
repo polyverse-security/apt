@@ -8,7 +8,7 @@ Uploaders: Michael Vogt <mvo@debian.org>,
 Rules-Requires-Root: no
 Standards-Version: 4.1.1
 Build-Depends: cmake (>= 3.4),
-               debhelper-compat (= 12),
+               debhelper (>= 10),
                docbook-xml,
                docbook-xsl,
                dpkg-dev (>= 1.17.14),
@@ -16,6 +16,7 @@ Build-Depends: cmake (>= 3.4),
                gettext (>= 0.12),
                googletest <!nocheck> | libgtest-dev <!nocheck>,
                libbz2-dev,
+               libcurl4-gnutls-dev (>= 7.19.4~),
                libdb-dev,
                libgnutls28-dev (>= 3.4.6),
                liblz4-dev (>= 0.0~r126),
@@ -23,10 +24,8 @@ Build-Depends: cmake (>= 3.4),
                libseccomp-dev [amd64 arm64 armel armhf i386 mips mips64el mipsel ppc64el s390x hppa powerpc powerpcspe ppc64 x32],
                libudev-dev [linux-any],
                libzstd-dev (>= 1.0),
-               ninja-build,
                pkg-config,
                po4a (>= 0.34-2),
-               triehash,
                xsltproc,
                zlib1g-dev
 Build-Depends-Indep: doxygen, graphviz, w3m
@@ -37,7 +36,6 @@ Package: apt
 Architecture: any
 Depends: adduser,
          gpgv | gpgv2 | gpgv1,
-         libapt-pkg6.0 (>= ${binary:Version}),
          ${apt:keyring},
          ${misc:Depends},
          ${shlibs:Depends}
@@ -67,13 +65,13 @@ Description: commandline package manager
   * apt-config as an interface to the configuration settings
   * apt-key as an interface to manage authentication keys
 
-Package: libapt-pkg6.0
+Package: libapt-pkg5.0
 Architecture: any
 Multi-Arch: same
 Priority: optional
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Breaks: appstream (<< 0.9.0-3~), apt (<< 1.6~), aptitude (<< 0.8.9), libapt-inst1.5 (<< 0.9.9~)
+Breaks: appstream (<< 0.9.0-3~), apt (<< 1.1~exp14), libapt-inst1.5 (<< 0.9.9~)
 Recommends: apt (>= ${binary:Version})
 Section: libs
 Provides: libapt-pkg (= ${binary:Version})
@@ -93,7 +91,7 @@ Description: package management runtime library
     http(s), rsh as well as an interface to add more transports like
     tor+http(s) (apt-transport-tor).
 
-Package: libapt-inst3.0
+Package: libapt-inst2.0
 Architecture: any
 Multi-Arch: same
 Priority: optional
@@ -144,10 +142,7 @@ Description: documentation for APT development
 
 Package: apt-utils
 Architecture: any
-Depends: apt (= ${binary:Version}),
-         libapt-inst3.0 (>= ${binary:Version}),
-         ${misc:Depends},
-         ${shlibs:Depends}
+Depends: apt (= ${binary:Version}), ${misc:Depends}, ${shlibs:Depends}
 Description: package management related utility programs
  This package contains some less used commandline utilities related
  to package management with APT.
@@ -160,7 +155,6 @@ Description: package management related utility programs
 
 Package: apt-transport-https
 Architecture: all
-Multi-Arch: foreign
 Depends: apt (>= 1.5~alpha4), ${misc:Depends}
 Priority: optional
 Section: oldlibs

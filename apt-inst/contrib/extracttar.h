@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: extracttar.h,v 1.2 2001/02/20 07:03:17 jgg Exp $
 /* ######################################################################
 
    Extract a Tar - Tar Extractor
@@ -48,6 +49,7 @@ class ExtractTar
    // Fork and reap gzip
    bool StartGzip();
    bool Done();
+   APT_DEPRECATED_MSG("Parameter Force is ignored, use Done() instead.") bool Done(bool Force);
 
    public:
 

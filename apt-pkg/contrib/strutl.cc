@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: strutl.cc,v 1.48 2003/07/18 14:15:11 mdz Exp $
 /* ######################################################################
 
    String Util - Some useful string functions.
@@ -691,7 +692,7 @@ int stringcasecmp(string::const_iterator A,string::const_iterator AEnd,
 }
 #endif
 									/*}}}*/
-// LookupTag - Lookup the value of a tag in a tagged string		/*{{{*/
+// LookupTag - Lookup the value of a tag in a taged string		/*{{{*/
 // ---------------------------------------------------------------------
 /* The format is like those used in package files and the method
    communication system */
@@ -772,7 +773,7 @@ std::string LookupTag(const std::string &Message, const char *TagC, const char *
 // StringToBool - Converts a string into a boolean			/*{{{*/
 // ---------------------------------------------------------------------
 /* This inspects the string to see if it is true or if it is false and
-   then returns the result. Several variants on true/false are checked. */
+   then returns the result. Several varients on true/false are checked. */
 int StringToBool(const string &Text,int Default)
 {
    char *ParseEnd;
@@ -806,6 +807,10 @@ int StringToBool(const string &Text,int Default)
 // ---------------------------------------------------------------------
 /* This converts a time_t into a string time representation that is
    year 2000 compliant and timezone neutral */
+string TimeRFC1123(time_t Date)
+{
+   return TimeRFC1123(Date, false);
+}
 string TimeRFC1123(time_t Date, bool const NumericTimezone)
 {
    struct tm Conv;
@@ -985,7 +990,7 @@ static time_t timegm(struct tm *t)
 }
 #endif
 									/*}}}*/
-// RFC1123StrToTime - Converts an HTTP1.1 full date strings into a time_t	/*{{{*/
+// RFC1123StrToTime - Converts a HTTP1.1 full date strings into a time_t	/*{{{*/
 // ---------------------------------------------------------------------
 /* tries to parses a full date as specified in RFC7231 §7.1.1.1
    with one exception: HTTP/1.1 valid dates need to have GMT as timezone.
@@ -996,7 +1001,7 @@ static time_t timegm(struct tm *t)
 bool RFC1123StrToTime(const char* const str,time_t &time)
 {
    unsigned short day = 0;
-   signed int year = 0; // yes, Y23K problem – we going to worry then…
+   signed int year = 0; // yes, Y23K problem – we gonna worry then…
    std::string weekday, month, datespec, timespec, zone;
    std::istringstream ss(str);
    auto const &posix = std::locale::classic();
@@ -1092,6 +1097,57 @@ bool FTPMDTMStrToTime(const char* const str,time_t &time)
       return false;
 
    time = timegm(&Tm);
+   return true;
+}
+									/*}}}*/
+// StrToTime - Converts a string into a time_t				/*{{{*/
+// ---------------------------------------------------------------------
+/* This handles all 3 popular time formats including RFC 1123, RFC 1036
+   and the C library asctime format. It requires the GNU library function
+   'timegm' to convert a struct tm in UTC to a time_t. For some bizzar
+   reason the C library does not provide any such function :< This also
+   handles the weird, but unambiguous FTP time format*/
+bool StrToTime(const string &Val,time_t &Result)
+{
+   struct tm Tm;
+   char Month[10];
+
+   // Skip the day of the week
+   const char *I = strchr(Val.c_str(), ' ');
+
+   // Handle RFC 1123 time
+   Month[0] = 0;
+   if (sscanf(I," %2d %3s %4d %2d:%2d:%2d GMT",&Tm.tm_mday,Month,&Tm.tm_year,
+	      &Tm.tm_hour,&Tm.tm_min,&Tm.tm_sec) != 6)
+   {
+      // Handle RFC 1036 time
+      if (sscanf(I," %2d-%3s-%3d %2d:%2d:%2d GMT",&Tm.tm_mday,Month,
+		 &Tm.tm_year,&Tm.tm_hour,&Tm.tm_min,&Tm.tm_sec) == 6)
+	 Tm.tm_year += 1900;
+      else
+      {
+	 // asctime format
+	 if (sscanf(I," %3s %2d %2d:%2d:%2d %4d",Month,&Tm.tm_mday,
+		    &Tm.tm_hour,&Tm.tm_min,&Tm.tm_sec,&Tm.tm_year) != 6)
+	 {
+	    // 'ftp' time
+	    if (sscanf(Val.c_str(),"%4d%2d%2d%2d%2d%2d",&Tm.tm_year,&Tm.tm_mon,
+		       &Tm.tm_mday,&Tm.tm_hour,&Tm.tm_min,&Tm.tm_sec) != 6)
+	       return false;
+	    Tm.tm_mon--;
+	 }	 
+      }
+   }
+   
+   Tm.tm_isdst = 0;
+   if (Month[0] != 0)
+      Tm.tm_mon = MonthConv(Month);
+   else
+      Tm.tm_mon = 0; // we don't have a month, so pick something
+   Tm.tm_year -= 1900;
+   
+   // Convert to local time and then to GMT
+   Result = timegm(&Tm);
    return true;
 }
 									/*}}}*/

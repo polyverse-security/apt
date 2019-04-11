@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: netrc.c,v 1.38 2007-11-07 09:21:35 bagder Exp $
 /* ######################################################################
 
    netrc file parser - returns the login and password of a give host in
@@ -140,6 +141,15 @@ bool MaybeAddAuth(FileFd &NetRCFile, URI &Uri)
       std::clog << ") for " << (std::string)Uri << " from " << NetRCFile.Name() << std::endl;
    }
    return false;
+}
+
+void maybe_add_auth(URI &Uri, std::string NetRCFile)
+{
+   if (FileExists(NetRCFile) == false)
+      return;
+   FileFd fd;
+   if (fd.Open(NetRCFile, FileFd::ReadOnly))
+      MaybeAddAuth(fd, Uri);
 }
 
 /* Check if we are authorized. */

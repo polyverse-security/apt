@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: apt-cdrom.cc,v 1.45 2003/11/19 23:50:51 mdz Exp $
 /* ######################################################################
    
    APT CDROM - Tool for handling APT's CDROM database.

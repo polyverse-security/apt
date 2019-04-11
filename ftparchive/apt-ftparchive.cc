@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: apt-ftparchive.cc,v 1.8.2.3 2004/01/02 22:01:48 mdz Exp $
 /* ######################################################################
 
    apt-ftparchive - Efficient work-alike for dpkg-scanpackages
@@ -23,7 +24,6 @@
 #include <apt-private/private-output.h>
 
 #include <algorithm>
-#include <chrono>
 #include <climits>
 #include <functional>
 #include <iostream>
@@ -34,7 +34,6 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <time.h>
-#include <math.h>
 
 #include "apt-ftparchive.h"
 #include "cachedb.h"
@@ -47,15 +46,6 @@
 
 using namespace std;
 unsigned Quiet = 0;
-
-static struct timeval GetTimevalFromSteadyClock()			/*{{{*/
-{
-   auto const Time = std::chrono::steady_clock::now().time_since_epoch();
-   auto const Time_sec = std::chrono::duration_cast<std::chrono::seconds>(Time);
-   auto const Time_usec = std::chrono::duration_cast<std::chrono::microseconds>(Time - Time_sec);
-   return { Time_sec.count(), Time_usec.count() };
-}
-									/*}}}*/
 
 // struct PackageMap - List of all package files in the config file	/*{{{*/
 // ---------------------------------------------------------------------
@@ -184,8 +174,9 @@ bool PackageMap::GenPackages(Configuration &Setup,struct CacheDB::Stats &Stats)
    string OverrideDir = Setup.FindDir("Dir::OverrideDir");
    string CacheDir = Setup.FindDir("Dir::CacheDir");
 
-   struct timeval StartTime = GetTimevalFromSteadyClock();
-
+   struct timeval StartTime;
+   gettimeofday(&StartTime,0);   
+   
    PkgDone = true;
    
    // Create a package writer object.
@@ -242,15 +233,15 @@ bool PackageMap::GenPackages(Configuration &Setup,struct CacheDB::Stats &Stats)
    else
       c0out << ' ';
    
-   struct timeval NewTime = GetTimevalFromSteadyClock();
-   std::chrono::duration<double> Delta =
-      std::chrono::seconds(NewTime.tv_sec - StartTime.tv_sec) +
-      std::chrono::microseconds(NewTime.tv_sec - StartTime.tv_usec);
+   struct timeval NewTime;
+   gettimeofday(&NewTime,0);
+   double Delta = NewTime.tv_sec - StartTime.tv_sec + 
+                  (NewTime.tv_usec - StartTime.tv_usec)/1000000.0;
 
    c0out << Packages.Stats.Packages << " files " <<
 /*      SizeToStr(Packages.Stats.MD5Bytes) << "B/" << */
       SizeToStr(Packages.Stats.Bytes) << "B " <<
-      TimeToStr(llround(Delta.count())) << endl;
+      TimeToStr((long)Delta) << endl;
 
    if(_config->FindB("APT::FTPArchive::ShowCacheMisses", false) == true)
      c0out << " Misses in Cache: " << Packages.Stats.Misses<< endl;
@@ -274,7 +265,9 @@ bool PackageMap::GenSources(Configuration &Setup,struct CacheDB::Stats &Stats)
    string OverrideDir = Setup.FindDir("Dir::OverrideDir");
    string CacheDir = Setup.FindDir("Dir::CacheDir");
 
-   struct timeval StartTime = GetTimevalFromSteadyClock();
+   struct timeval StartTime;
+   gettimeofday(&StartTime,0);   
+   
    SrcDone = true;
    
    // Create a package writer object.
@@ -328,13 +321,13 @@ bool PackageMap::GenSources(Configuration &Setup,struct CacheDB::Stats &Stats)
    else
       c0out << ' ';
    
-   struct timeval NewTime = GetTimevalFromSteadyClock();
-   std::chrono::duration<double> Delta =
-      std::chrono::seconds(NewTime.tv_sec - StartTime.tv_sec) +
-      std::chrono::microseconds(NewTime.tv_sec - StartTime.tv_usec);
+   struct timeval NewTime;
+   gettimeofday(&NewTime,0);
+   double Delta = NewTime.tv_sec - StartTime.tv_sec +
+                  (NewTime.tv_usec - StartTime.tv_usec)/1000000.0;
    
    c0out << Sources.Stats.Packages << " pkgs in " <<
-      TimeToStr(llround(Delta.count())) << endl;
+      TimeToStr((long)Delta) << endl;
 
    if(_config->FindB("APT::FTPArchive::ShowCacheMisses", false) == true)
      c0out << " Misses in Cache: " << Sources.Stats.Misses << endl;
@@ -364,9 +357,10 @@ bool PackageMap::GenContents(Configuration &Setup,
    string ArchiveDir = Setup.FindDir("Dir::ArchiveDir");
    string CacheDir = Setup.FindDir("Dir::CacheDir");
    string OverrideDir = Setup.FindDir("Dir::OverrideDir");
-
-   struct timeval StartTime = GetTimevalFromSteadyClock();
-
+   
+   struct timeval StartTime;
+   gettimeofday(&StartTime,0);   
+   
    // Create a package writer object.
    MultiCompress Comp(flCombine(ArchiveDir,this->Contents),
 		      CntCompress,Permissions);
@@ -444,17 +438,17 @@ bool PackageMap::GenContents(Configuration &Setup,
    else
       c0out << ' ';
    
-   struct timeval NewTime = GetTimevalFromSteadyClock();
-   std::chrono::duration<double> Delta =
-      std::chrono::seconds(NewTime.tv_sec - StartTime.tv_sec) +
-      std::chrono::microseconds(NewTime.tv_sec - StartTime.tv_usec);
+   struct timeval NewTime;
+   gettimeofday(&NewTime,0);   
+   double Delta = NewTime.tv_sec - StartTime.tv_sec + 
+                  (NewTime.tv_usec - StartTime.tv_usec)/1000000.0;
    
    if(_config->FindB("APT::FTPArchive::ShowCacheMisses", false) == true)
      c0out << " Misses in Cache: " << Contents.Stats.Misses<< endl;
 
    c0out << Contents.Stats.Packages << " files " <<
       SizeToStr(Contents.Stats.Bytes) << "B " <<
-      TimeToStr(llround(Delta.count())) << endl;
+      TimeToStr((long)Delta) << endl;
    
    return true;
 }
@@ -933,7 +927,8 @@ static bool Generate(CommandLine &CmdL)
    if (CmdL.FileSize() < 2)
       return ShowHelp(CmdL);
 
-   struct timeval StartTime = GetTimevalFromSteadyClock();
+   struct timeval StartTime;
+   gettimeofday(&StartTime,0);
    struct CacheDB::Stats Stats;
    
    // Read the configuration file.
@@ -970,12 +965,12 @@ static bool Generate(CommandLine &CmdL)
 	 return false;
       }
 
-   struct timeval NewTime = GetTimevalFromSteadyClock();
-   std::chrono::duration<double> Delta =
-      std::chrono::seconds(NewTime.tv_sec - StartTime.tv_sec) +
-      std::chrono::microseconds(NewTime.tv_sec - StartTime.tv_usec);
+   struct timeval NewTime;
+   gettimeofday(&NewTime,0);
+   double Delta = NewTime.tv_sec - StartTime.tv_sec +
+                  (NewTime.tv_usec - StartTime.tv_usec)/1000000.0;
    c1out << "Done. " << SizeToStr(Stats.Bytes) << "B in " << Stats.Packages
-         << " archives. Took " << TimeToStr(llround(Delta.count())) << endl;
+         << " archives. Took " << TimeToStr((long)Delta) << endl;
 
    UnloadTree(TransList);
    return true;

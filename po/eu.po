@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apt 1.0.5\n"
 "Report-Msgid-Bugs-To: APT Development Team <deity@lists.debian.org>\n"
-"POT-Creation-Date: 2019-02-04 15:34+0100\n"
+"POT-Creation-Date: 2019-03-01 10:02+0100\n"
 "PO-Revision-Date: 2009-05-17 00:41+0200\n"
 "Last-Translator: Piarres Beobide <pi@beobide.net>\n"
 "Language-Team: Euskara <debian-l10n-basque@lists.debian.org>\n"
@@ -395,13 +395,6 @@ msgstr "Konektatzen -> %s.(%s)"
 
 #: apt-pkg/acquire-worker.cc
 #, c-format
-msgid ""
-"The method '%s' is unsupported and disabled by default. Consider switching "
-"to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."
-msgstr ""
-
-#: apt-pkg/acquire-worker.cc
-#, c-format
 msgid "The method '%s' is explicitly disabled via configuration."
 msgstr ""
 
@@ -463,6 +456,8 @@ msgstr ""
 msgid "Clean of %s is not supported"
 msgstr "'%s' motako indize fitxategirik ez da onartzen"
 
+#. only show the ETA if it makes sense
+#. two days
 #: apt-pkg/acquire.cc
 #, c-format
 msgid "Retrieving file %li of %li (%s remaining)"
@@ -900,12 +895,12 @@ msgstr "Arazoa fitxategia sinkronizatzean"
 msgid "Problem syncing the file"
 msgstr "Arazoa fitxategia sinkronizatzean"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, fuzzy, c-format
 msgid "Unable to mkstemp %s"
 msgstr "Ezin da daturik lortu %s(e)tik"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to write to %s"
 msgstr "%s : ezin da idatzi"
@@ -1115,23 +1110,23 @@ msgstr ""
 #. we don't care for the difference
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing %s"
-msgstr "%s prestatzen"
+msgid "Installing %s"
+msgstr "%s Instalatzen"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to configure %s"
-msgstr "%s konfiguratzeko prestatzen"
+msgid "Configuring %s"
+msgstr "%s konfiguratzen"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing for removal of %s"
-msgstr "%s kentzeko prestatzen"
+msgid "Removing %s"
+msgstr "%s kentzen"
 
 #: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Preparing to completely remove %s"
-msgstr "%s guztiz ezabatzeko prestatzen"
+#, fuzzy, c-format
+msgid "Completely removing %s"
+msgstr "%s guztiz ezabatu da"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1148,11 +1143,6 @@ msgstr "Inbstalazio-ondorengo %s abiarazlea exekutatzen"
 msgid "Installed %s"
 msgstr "%s Instalatuta"
 
-#: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Configuring %s"
-msgstr "%s konfiguratzen"
-
 #. FIXME: use a better string after freeze
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1166,23 +1156,33 @@ msgstr "%s fitxategia ezin izan da ireki"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
+msgid "Preparing %s"
+msgstr "%s prestatzen"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
 msgid "Unpacking %s"
 msgstr "%s irekitzen"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Installing %s"
-msgstr "%s Instalatzen"
+msgid "Preparing to configure %s"
+msgstr "%s konfiguratzeko prestatzen"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Removing %s"
-msgstr "%s kentzen"
+msgid "Preparing for removal of %s"
+msgstr "%s kentzeko prestatzen"
 
 #: apt-pkg/deb/dpkgpm.cc
-#, fuzzy, c-format
-msgid "Completely removing %s"
-msgstr "%s guztiz ezabatu da"
+#, c-format
+msgid "Removed %s"
+msgstr "%s kendurik"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
+msgid "Preparing to completely remove %s"
+msgstr "%s guztiz ezabatzeko prestatzen"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1557,7 +1557,7 @@ msgstr "Gaizki osatutako %u lerroa %s Iturburu zerrendan (type)"
 msgid "Type '%s' is not known on stanza %u in source list %s"
 msgstr "'%s' mota ez da ezagutzen %u lerroan %s Iturburu zerrendan"
 
-#: apt-pkg/sourcelist.cc apt-private/private-install.cc
+#: apt-pkg/sourcelist.cc
 #, c-format
 msgid "Unsupported file %s given on commandline"
 msgstr ""
@@ -1779,8 +1779,8 @@ msgid ""
 "instead."
 msgstr ""
 
-#: apt-private/private-depends.cc apt-private/private-download.cc
-#: apt-private/private-show.cc cmdline/apt-mark.cc
+#: apt-private/private-depends.cc apt-private/private-show.cc
+#: cmdline/apt-mark.cc
 msgid "No packages found"
 msgstr "Ez da paketerik aurkitu"
 
@@ -1948,7 +1948,7 @@ msgstr ""
 msgid "Abort."
 msgstr "Abortatu."
 
-#: apt-private/private-install.cc cmdline/apt-mark.cc
+#: apt-private/private-install.cc
 msgid "Do you want to continue?"
 msgstr "Aurrera jarraitu nahi al duzu?"
 
@@ -2274,6 +2274,11 @@ msgstr "Zehazki eredu bat eman behar duzu."
 msgid "Full Text Search"
 msgstr ""
 
+#: apt-private/private-show.cc cmdline/apt-cache.cc
+#, c-format
+msgid "Package file %s is out of sync."
+msgstr "%s pakete fitxategia ez dago sinkronizatuta."
+
 #: apt-private/private-show.cc
 #, c-format
 msgid "There is %i additional record. Please use the '-a' switch to see it"
@@ -2432,16 +2437,16 @@ msgid "%s has no build depends.\n"
 msgstr "%s: ez du eraikitze mendekotasunik.\n"
 
 #: apt-private/private-source.cc
+msgid "Must specify at least one package to check builddeps for"
+msgstr ""
+"Gutxienez pakete bat zehaztu behar duzu eraikitze mendekotasunak egiaztatzeko"
+
+#: apt-private/private-source.cc
 #, c-format
 msgid ""
 "No architecture information available for %s. See apt.conf(5) APT::"
 "Architectures for setup"
 msgstr ""
-
-#: apt-private/private-source.cc
-msgid "Must specify at least one package to check builddeps for"
-msgstr ""
-"Gutxienez pakete bat zehaztu behar duzu eraikitze mendekotasunak egiaztatzeko"
 
 #: apt-private/private-source.cc
 #, c-format
@@ -2464,7 +2469,7 @@ msgstr "Huts egin du %s izenaren ordez %s ipintzean"
 
 #: apt-private/private-sources.cc
 #, c-format
-msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+msgid "Your '%s' file changed, please run 'apt-get update'."
 msgstr ""
 
 #: apt-private/private-unmet.cc
@@ -2496,9 +2501,9 @@ msgstr[1] ""
 msgid "All packages are up to date."
 msgstr ""
 
-#: cmdline/apt-cache.cc cmdline/apt-mark.cc
-#, fuzzy, c-format
-msgid "%s does not take any arguments"
+#: cmdline/apt-cache.cc
+#, fuzzy
+msgid "apt-cache stats does not take any arguments"
 msgstr "Eguneratzeko komandoak ez du argumenturik hartzen"
 
 #: cmdline/apt-cache.cc
@@ -2761,12 +2766,6 @@ msgid "Install new packages (pkg is libc6 not libc6.deb)"
 msgstr "Instalatu pakete berriak (paketea libc6 da, eta ez libc6.deb)"
 
 #: cmdline/apt-get.cc
-#, fuzzy
-#| msgid "Install new packages (pkg is libc6 not libc6.deb)"
-msgid "Reinstall packages (pkg is libc6 not libc6.deb)"
-msgstr "Instalatu pakete berriak (paketea libc6 da, eta ez libc6.deb)"
-
-#: cmdline/apt-get.cc
 msgid "Remove packages"
 msgstr "Kendu paketeak"
 
@@ -2922,16 +2921,6 @@ msgid "%s was already set to automatically installed.\n"
 msgstr "%s eskuz instalatua bezala ezarri.\n"
 
 #: cmdline/apt-mark.cc
-msgid "No changes necessary"
-msgstr ""
-
-#: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "The following NEW packages will be installed:"
-msgid "The following packages will be marked as automatically installed:"
-msgstr "Ondorengo pakete BERRIAK instalatuko dira:"
-
-#: cmdline/apt-mark.cc
 #, fuzzy, c-format
 msgid "%s was already set on hold.\n"
 msgstr "%s bertsiorik berriena da jada.\n"
@@ -2991,11 +2980,6 @@ msgid "Mark the given packages as manually installed"
 msgstr "Egiaztatu 'dpkg-dev' paketea instalaturik dagoen.\n"
 
 #: cmdline/apt-mark.cc
-#, fuzzy
-msgid "Mark all dependencies of meta packages as automatically installed."
-msgstr "%s eskuz instalatua bezala ezarri.\n"
-
-#: cmdline/apt-mark.cc
 msgid "Mark a package as held back"
 msgstr ""
 
@@ -3014,7 +2998,7 @@ msgid "Print the list of manually installed packages"
 msgstr "%s eskuz instalatua bezala ezarri.\n"
 
 #: cmdline/apt-mark.cc
-msgid "Print the list of packages on hold"
+msgid "Print the list of package on hold"
 msgstr ""
 
 #: cmdline/apt-sortpkgs.cc
@@ -3059,11 +3043,6 @@ msgstr ""
 #: cmdline/apt.cc
 #, fuzzy
 msgid "install packages"
-msgstr "Pin duten Paketeak:"
-
-#: cmdline/apt.cc
-#, fuzzy
-msgid "reinstall packages"
 msgstr "Pin duten Paketeak:"
 
 #: cmdline/apt.cc
@@ -3817,12 +3796,6 @@ msgstr "Konexioa behar baino lehenago itxi da"
 #: methods/store.cc
 msgid "Empty files can't be valid archives"
 msgstr ""
-
-#~ msgid "Removed %s"
-#~ msgstr "%s kendurik"
-
-#~ msgid "Package file %s is out of sync."
-#~ msgstr "%s pakete fitxategia ez dago sinkronizatuta."
 
 #~ msgid ""
 #~ "The package index files are corrupted. No Filename: field for package %s."

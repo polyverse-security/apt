@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: writer.cc,v 1.14 2004/03/24 01:40:43 mdz Exp $
 /* ######################################################################
 
    Writer 
@@ -291,7 +292,7 @@ bool FTWScanner::Delink(string &FileName,const char *OriginalPath,
 			unsigned long long &DeLinkBytes,
 			unsigned long long const &FileSize)
 {
-   // See if this isn't an internally prefix'd file name.
+   // See if this isn't an internaly prefix'd file name.
    if (InternalPrefix.empty() == false &&
        InternalPrefix.length() < FileName.length() && 
        stringcmp(FileName.begin(),FileName.begin() + InternalPrefix.length(),
@@ -429,7 +430,7 @@ bool PackagesWriter::DoPackage(string FileName)
    string Architecture;
    // if we generate a Packages file for a given arch, we use it to
    // look for overrides. if we run in "simple" mode without the 
-   // "Architectures" variable in the config we use the architecture value
+   // "Architecures" variable in the config we use the architecture value
    // from the deb file
    if(Arch != "")
       Architecture = Arch;

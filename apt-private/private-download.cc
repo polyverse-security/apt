@@ -248,7 +248,7 @@ bool DoChangelog(CommandLine &CmdL)
    APT::VersionList verset = APT::VersionList::FromCommandLine(Cache,
 		CmdL.FileList + 1, APT::CacheSetHelper::CANDIDATE, helper);
    if (verset.empty() == true)
-      return _error->Error(_("No packages found"));
+      return false;
 
    bool const downOnly = _config->FindB("APT::Get::Download-Only", false);
    bool const printOnly = _config->FindB("APT::Get::Print-URIs", false);
@@ -339,7 +339,7 @@ bool DoClean(CommandLine &)
 // ---------------------------------------------------------------------
 /* This is similar to clean but it only purges things that cannot be 
    downloaded, that is old versions of cached packages. */
- class LogCleaner : public pkgArchiveCleaner
+ class LogCleaner : public pkgArchiveCleaner2
 {
    protected:
       virtual void Erase(int const dirfd, char const * const File, std::string const &Pkg, std::string const &Ver,struct stat const &St) APT_OVERRIDE

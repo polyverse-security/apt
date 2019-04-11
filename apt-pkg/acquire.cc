@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: acquire.cc,v 1.50 2004/03/17 05:17:11 mdz Exp $
 /* ######################################################################
 
    Acquire - File Acquiration
@@ -23,7 +24,6 @@
 #include <apt-pkg/strutl.h>
 
 #include <algorithm>
-#include <chrono>
 #include <iomanip>
 #include <iostream>
 #include <memory>
@@ -126,6 +126,25 @@ static bool SetupAPTPartialDirectory(std::string const &grand, std::string const
    _error->RevertToStack();
 
    return true;
+}
+bool pkgAcquire::Setup(pkgAcquireStatus *Progress, string const &Lock)
+{
+   Log = Progress;
+   if (Lock.empty())
+   {
+      string const listDir = _config->FindDir("Dir::State::lists");
+      if (SetupAPTPartialDirectory(_config->FindDir("Dir::State"), listDir, "partial", 0700) == false)
+	 return _error->Errno("Acquire", _("List directory %s is missing."), (listDir + "partial").c_str());
+      if (SetupAPTPartialDirectory(_config->FindDir("Dir::State"), listDir, "auxfiles", 0755) == false)
+      {
+	 // not being able to create lists/auxfiles isn't critical as we will use a tmpdir then
+      }
+      string const archivesDir = _config->FindDir("Dir::Cache::Archives");
+      if (SetupAPTPartialDirectory(_config->FindDir("Dir::Cache"), archivesDir, "partial", 0700) == false)
+	 return _error->Errno("Acquire", _("Archives directory %s is missing."), (archivesDir + "partial").c_str());
+      return true;
+   }
+   return GetLock(Lock);
 }
 bool pkgAcquire::GetLock(std::string const &Lock)
 {
@@ -1238,13 +1257,6 @@ pkgAcquireStatus::pkgAcquireStatus() : d(NULL), Percent(-1), Update(true), MoreP
 /* This computes some internal state variables for the derived classes to
    use. It generates the current downloaded bytes and total bytes to download
    as well as the current CPS estimate. */
-static struct timeval GetTimevalFromSteadyClock()
-{
-   auto const Time = std::chrono::steady_clock::now().time_since_epoch();
-   auto const Time_sec = std::chrono::duration_cast<std::chrono::seconds>(Time);
-   auto const Time_usec = std::chrono::duration_cast<std::chrono::microseconds>(Time - Time_sec);
-   return { Time_sec.count(), Time_usec.count() };
-}
 bool pkgAcquireStatus::Pulse(pkgAcquire *Owner)
 {
    TotalBytes = 0;
@@ -1303,22 +1315,21 @@ bool pkgAcquireStatus::Pulse(pkgAcquire *Owner)
       CurrentBytes = TotalBytes;
 
    // Compute the CPS
-   struct timeval NewTime = GetTimevalFromSteadyClock();
-
+   struct timeval NewTime;
+   gettimeofday(&NewTime,0);
    if ((NewTime.tv_sec - Time.tv_sec == 6 && NewTime.tv_usec > Time.tv_usec) ||
        NewTime.tv_sec - Time.tv_sec > 6)
-   {
-      std::chrono::duration<double> Delta =
-	 std::chrono::seconds(NewTime.tv_sec - Time.tv_sec) +
-	 std::chrono::microseconds(NewTime.tv_usec - Time.tv_usec);
-
+   {    
+      double Delta = NewTime.tv_sec - Time.tv_sec + 
+	             (NewTime.tv_usec - Time.tv_usec)/1000000.0;
+      
       // Compute the CPS value
-      if (Delta < std::chrono::milliseconds(10))
+      if (Delta < 0.01)
 	 CurrentCPS = 0;
       else
-	 CurrentCPS = ((CurrentBytes - ResumeSize) - LastBytes)/ Delta.count();
+	 CurrentCPS = ((CurrentBytes - ResumeSize) - LastBytes)/Delta;
       LastBytes = CurrentBytes - ResumeSize;
-      ElapsedTime = llround(Delta.count());
+      ElapsedTime = std::llround(Delta);
       Time = NewTime;
    }
 
@@ -1350,21 +1361,21 @@ bool pkgAcquireStatus::Pulse(pkgAcquire *Owner)
       return true;
 
    int fd = _config->FindI("APT::Status-Fd",-1);
-   if(fd > 0)
+   if(fd > 0) 
    {
       ostringstream status;
 
+      char msg[200];
+      long i = CurrentItems < TotalItems ? CurrentItems + 1 : CurrentItems;
       unsigned long long ETA = 0;
-      if(CurrentCPS > 0 && TotalBytes > CurrentBytes)
+      if(CurrentCPS > 0)
          ETA = (TotalBytes - CurrentBytes) / CurrentCPS;
 
-      std::string msg;
-      long i = CurrentItems < TotalItems ? CurrentItems + 1 : CurrentItems;
       // only show the ETA if it makes sense
-      if (ETA > 0 && ETA < std::chrono::seconds(std::chrono::hours(24 * 2)).count())
-	 strprintf(msg, _("Retrieving file %li of %li (%s remaining)"), i, TotalItems, TimeToStr(ETA).c_str());
+      if (ETA > 0 && ETA < 172800 /* two days */ )
+	 snprintf(msg,sizeof(msg), _("Retrieving file %li of %li (%s remaining)"), i, TotalItems, TimeToStr(ETA).c_str());
       else
-	 strprintf(msg, _("Retrieving file %li of %li"), i, TotalItems);
+	 snprintf(msg,sizeof(msg), _("Retrieving file %li of %li"), i, TotalItems);
 
       // build the status str
       std::ostringstream str;
@@ -1383,7 +1394,8 @@ bool pkgAcquireStatus::Pulse(pkgAcquire *Owner)
 /* We just reset the counters */
 void pkgAcquireStatus::Start()
 {
-   Time = StartTime = GetTimevalFromSteadyClock();
+   gettimeofday(&Time,0);
+   gettimeofday(&StartTime,0);
    LastBytes = 0;
    CurrentCPS = 0;
    CurrentBytes = 0;
@@ -1400,19 +1412,19 @@ void pkgAcquireStatus::Start()
 void pkgAcquireStatus::Stop()
 {
    // Compute the CPS and elapsed time
-   struct timeval NewTime = GetTimevalFromSteadyClock();
-
-   std::chrono::duration<double> Delta =
-      std::chrono::seconds(NewTime.tv_sec - StartTime.tv_sec) +
-      std::chrono::microseconds(NewTime.tv_usec - StartTime.tv_usec);
-
+   struct timeval NewTime;
+   gettimeofday(&NewTime,0);
+   
+   double Delta = NewTime.tv_sec - StartTime.tv_sec + 
+                  (NewTime.tv_usec - StartTime.tv_usec)/1000000.0;
+   
    // Compute the CPS value
-   if (Delta < std::chrono::milliseconds(10))
+   if (Delta < 0.01)
       CurrentCPS = 0;
    else
-      CurrentCPS = FetchedBytes / Delta.count();
+      CurrentCPS = FetchedBytes/Delta;
    LastBytes = CurrentBytes;
-   ElapsedTime = llround(Delta.count());
+   ElapsedTime = std::llround(Delta);
 }
 									/*}}}*/
 // AcquireStatus::Fetched - Called when a byte set has been fetched	/*{{{*/
@@ -1425,8 +1437,9 @@ void pkgAcquireStatus::Fetched(unsigned long long Size,unsigned long long Resume
 									/*}}}*/
 bool pkgAcquireStatus::ReleaseInfoChanges(metaIndex const * const LastRelease, metaIndex const * const CurrentRelease, std::vector<ReleaseInfoChange> &&Changes)/*{{{*/
 {
-   (void) LastRelease;
-   (void) CurrentRelease;
+   auto const virt = dynamic_cast<pkgAcquireStatus2*>(this);
+   if (virt != nullptr)
+      return virt->ReleaseInfoChanges(LastRelease, CurrentRelease, std::move(Changes));
    return ReleaseInfoChangesAsGlobalErrors(std::move(Changes));
 }
 									/*}}}*/
@@ -1444,6 +1457,12 @@ bool pkgAcquireStatus::ReleaseInfoChangesAsGlobalErrors(std::vector<ReleaseInfoC
    return AllOkay;
 }
 									/*}}}*/
+bool pkgAcquireStatus2::ReleaseInfoChanges(metaIndex const * const, metaIndex const * const, std::vector<ReleaseInfoChange> &&Changes)
+{
+   return ReleaseInfoChangesAsGlobalErrors(std::move(Changes));
+}
+pkgAcquireStatus2::pkgAcquireStatus2() : pkgAcquireStatus() {}
+pkgAcquireStatus2::~pkgAcquireStatus2() {}
 
 
 pkgAcquire::UriIterator::UriIterator(pkgAcquire::Queue *Q) : d(NULL), CurQ(Q), CurItem(0)

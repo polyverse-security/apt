@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apt 0.7.18\n"
 "Report-Msgid-Bugs-To: APT Development Team <deity@lists.debian.org>\n"
-"POT-Creation-Date: 2019-02-04 15:34+0100\n"
+"POT-Creation-Date: 2019-03-01 10:02+0100\n"
 "PO-Revision-Date: 2010-10-02 23:35+0100\n"
 "Last-Translator: Iñigo Varela <ivarela@softastur.org>\n"
 "Language-Team: Asturian (ast)\n"
@@ -394,13 +394,6 @@ msgstr "Coneutando a %s (%s)"
 
 #: apt-pkg/acquire-worker.cc
 #, c-format
-msgid ""
-"The method '%s' is unsupported and disabled by default. Consider switching "
-"to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."
-msgstr ""
-
-#: apt-pkg/acquire-worker.cc
-#, c-format
 msgid "The method '%s' is explicitly disabled via configuration."
 msgstr ""
 
@@ -462,6 +455,8 @@ msgstr ""
 msgid "Clean of %s is not supported"
 msgstr "La triba de ficheru d'indiz '%s' nun ta sofitada"
 
+#. only show the ETA if it makes sense
+#. two days
 #: apt-pkg/acquire.cc
 #, c-format
 msgid "Retrieving file %li of %li (%s remaining)"
@@ -909,12 +904,12 @@ msgstr "Hai problemes al renomar el ficheru %s a %s"
 msgid "Problem syncing the file"
 msgstr "Hai problemes al sincronizar el ficheru"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, fuzzy, c-format
 msgid "Unable to mkstemp %s"
 msgstr "Nun ye a lleer %s"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to write to %s"
 msgstr "Nun se pue escribir en %s"
@@ -1135,23 +1130,23 @@ msgstr "Non bloquiáu"
 #. we don't care for the difference
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing %s"
-msgstr "Preparando %s"
+msgid "Installing %s"
+msgstr "Instalando %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to configure %s"
-msgstr "Preparándose pa configurar %s"
+msgid "Configuring %s"
+msgstr "Configurando %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing for removal of %s"
-msgstr "Preparándose pa desinstalar %s"
+msgid "Removing %s"
+msgstr "Desinstalando %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to completely remove %s"
-msgstr "Preparándose pa desinstalar dafechu %s"
+msgid "Completely removing %s"
+msgstr "Desinstalóse dafechu %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1168,11 +1163,6 @@ msgstr "Executando activador de post-instalación de %s"
 msgid "Installed %s"
 msgstr "%s instaláu"
 
-#: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Configuring %s"
-msgstr "Configurando %s"
-
 #. FIXME: use a better string after freeze
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1186,23 +1176,33 @@ msgstr "Nun pudo abrise'l ficheru '%s'"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
+msgid "Preparing %s"
+msgstr "Preparando %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
 msgid "Unpacking %s"
 msgstr "Desempaquetando %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Installing %s"
-msgstr "Instalando %s"
+msgid "Preparing to configure %s"
+msgstr "Preparándose pa configurar %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Removing %s"
-msgstr "Desinstalando %s"
+msgid "Preparing for removal of %s"
+msgstr "Preparándose pa desinstalar %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Completely removing %s"
-msgstr "Desinstalóse dafechu %s"
+msgid "Removed %s"
+msgstr "%s desinstaláu"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
+msgid "Preparing to completely remove %s"
+msgstr "Preparándose pa desinstalar dafechu %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1592,7 +1592,7 @@ msgstr "Llinia %u mal formada na llista d'oríxenes %s (triba)"
 msgid "Type '%s' is not known on stanza %u in source list %s"
 msgstr "Triba '%s' desconocida na llinia %u de la llista d'oríxenes %s"
 
-#: apt-pkg/sourcelist.cc apt-private/private-install.cc
+#: apt-pkg/sourcelist.cc
 #, c-format
 msgid "Unsupported file %s given on commandline"
 msgstr ""
@@ -1813,8 +1813,8 @@ msgid ""
 "instead."
 msgstr ""
 
-#: apt-private/private-depends.cc apt-private/private-download.cc
-#: apt-private/private-show.cc cmdline/apt-mark.cc
+#: apt-private/private-depends.cc apt-private/private-show.cc
+#: cmdline/apt-mark.cc
 msgid "No packages found"
 msgstr "Nun s'alcontraron paquetes"
 
@@ -1981,7 +1981,7 @@ msgstr ""
 msgid "Abort."
 msgstr "Encaboxar."
 
-#: apt-private/private-install.cc cmdline/apt-mark.cc
+#: apt-private/private-install.cc
 msgid "Do you want to continue?"
 msgstr "¿Quies continuar?"
 
@@ -2309,6 +2309,11 @@ msgstr "Has de dar polo menos un patrón de gueta"
 msgid "Full Text Search"
 msgstr ""
 
+#: apt-private/private-show.cc cmdline/apt-cache.cc
+#, c-format
+msgid "Package file %s is out of sync."
+msgstr "El ficheru de paquetes %s nun ta sincronizáu."
+
 #: apt-private/private-show.cc
 #, c-format
 msgid "There is %i additional record. Please use the '-a' switch to see it"
@@ -2471,17 +2476,17 @@ msgid "%s has no build depends.\n"
 msgstr "%s nun tien dependencies de construcción.\n"
 
 #: apt-private/private-source.cc
+msgid "Must specify at least one package to check builddeps for"
+msgstr ""
+"Hai que conseñar polo menos un paquete pa verificar les dependencies de "
+"construcción"
+
+#: apt-private/private-source.cc
 #, c-format
 msgid ""
 "No architecture information available for %s. See apt.conf(5) APT::"
 "Architectures for setup"
 msgstr ""
-
-#: apt-private/private-source.cc
-msgid "Must specify at least one package to check builddeps for"
-msgstr ""
-"Hai que conseñar polo menos un paquete pa verificar les dependencies de "
-"construcción"
 
 #: apt-private/private-source.cc
 #, c-format
@@ -2504,7 +2509,7 @@ msgstr "Nun pudo renomase %s como %s"
 
 #: apt-private/private-sources.cc
 #, c-format
-msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+msgid "Your '%s' file changed, please run 'apt-get update'."
 msgstr ""
 
 #: apt-private/private-unmet.cc
@@ -2536,9 +2541,9 @@ msgstr[1] ""
 msgid "All packages are up to date."
 msgstr ""
 
-#: cmdline/apt-cache.cc cmdline/apt-mark.cc
-#, fuzzy, c-format
-msgid "%s does not take any arguments"
+#: cmdline/apt-cache.cc
+#, fuzzy
+msgid "apt-cache stats does not take any arguments"
 msgstr "La orde update nun lleva argumentos"
 
 #: cmdline/apt-cache.cc
@@ -2799,12 +2804,6 @@ msgid "Install new packages (pkg is libc6 not libc6.deb)"
 msgstr "Instalar nuevos paquetes (pkg ye libc6 non libc6.deb)"
 
 #: cmdline/apt-get.cc
-#, fuzzy
-#| msgid "Install new packages (pkg is libc6 not libc6.deb)"
-msgid "Reinstall packages (pkg is libc6 not libc6.deb)"
-msgstr "Instalar nuevos paquetes (pkg ye libc6 non libc6.deb)"
-
-#: cmdline/apt-get.cc
 msgid "Remove packages"
 msgstr "Desaniciar paquetes"
 
@@ -2962,16 +2961,6 @@ msgid "%s was already set to automatically installed.\n"
 msgstr "%s axustáu como instaláu automáticamente.\n"
 
 #: cmdline/apt-mark.cc
-msgid "No changes necessary"
-msgstr ""
-
-#: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "The following NEW packages will be installed:"
-msgid "The following packages will be marked as automatically installed:"
-msgstr "Van instalase los siguientes paquetes NUEVOS:"
-
-#: cmdline/apt-mark.cc
 #, fuzzy, c-format
 msgid "%s was already set on hold.\n"
 msgstr "%s yá ta na versión más nueva.\n"
@@ -3031,11 +3020,6 @@ msgid "Mark the given packages as manually installed"
 msgstr "Comprueba qu'el paquete 'dpkg-dev' ta instaláu.\n"
 
 #: cmdline/apt-mark.cc
-#, fuzzy
-msgid "Mark all dependencies of meta packages as automatically installed."
-msgstr "%s axustáu como instaláu automáticamente.\n"
-
-#: cmdline/apt-mark.cc
 msgid "Mark a package as held back"
 msgstr ""
 
@@ -3054,7 +3038,7 @@ msgid "Print the list of manually installed packages"
 msgstr "%s axustáu como instaláu manualmente.\n"
 
 #: cmdline/apt-mark.cc
-msgid "Print the list of packages on hold"
+msgid "Print the list of package on hold"
 msgstr ""
 
 #: cmdline/apt-sortpkgs.cc
@@ -3099,11 +3083,6 @@ msgstr ""
 #: cmdline/apt.cc
 #, fuzzy
 msgid "install packages"
-msgstr "Paquetes na chincheta:"
-
-#: cmdline/apt.cc
-#, fuzzy
-msgid "reinstall packages"
 msgstr "Paquetes na chincheta:"
 
 #: cmdline/apt.cc
@@ -3854,12 +3833,6 @@ msgstr "Conexón encaboxada prematuramente"
 #: methods/store.cc
 msgid "Empty files can't be valid archives"
 msgstr ""
-
-#~ msgid "Removed %s"
-#~ msgstr "%s desinstaláu"
-
-#~ msgid "Package file %s is out of sync."
-#~ msgstr "El ficheru de paquetes %s nun ta sincronizáu."
 
 #~ msgid ""
 #~ "The package index files are corrupted. No Filename: field for package %s."

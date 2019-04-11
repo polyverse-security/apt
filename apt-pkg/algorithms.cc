@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: algorithms.cc,v 1.44 2002/11/28 18:49:16 jgg Exp $
 /* ######################################################################
 
    Algorithms - A set of misc algorithms
@@ -147,7 +148,7 @@ bool pkgSimulate::RealInstall(PkgIterator iPkg,string /*File*/)
 									/*}}}*/
 // Simulate::Configure - Simulate configuration of a Package		/*{{{*/
 // ---------------------------------------------------------------------
-/* This is not an accurate simulation of relatity, we should really not
+/* This is not an acurate simulation of relatity, we should really not
    install the package.. For some investigations it may be necessary 
    however. */
 bool pkgSimulate::Configure(PkgIterator iPkg)
@@ -1341,6 +1342,32 @@ bool pkgProblemResolver::ResolveByKeepInternal()
 
    delete[] PList;
    return true;
+}
+									/*}}}*/
+// ProblemResolver::InstallProtect - deprecated cpu-eating no-op	/*{{{*/
+// ---------------------------------------------------------------------
+/* Actions issued with FromUser bit set are protected from further
+   modification (expect by other calls with FromUser set) nowadays , so we
+   don't need to reissue actions here, they are already set in stone. */
+void pkgProblemResolver::InstallProtect()
+{
+   pkgDepCache::ActionGroup group(Cache);
+
+   for (pkgCache::PkgIterator I = Cache.PkgBegin(); I.end() == false; ++I)
+   {
+      if ((Flags[I->ID] & Protected) == Protected)
+      {
+	 if ((Flags[I->ID] & ToRemove) == ToRemove)
+	    Cache.MarkDelete(I);
+	 else 
+	 {
+	    // preserve the information whether the package was auto
+	    // or manually installed
+	    bool autoInst = (Cache[I].Flags & pkgCache::Flag::Auto);
+	    Cache.MarkInstall(I, false, 0, !autoInst);
+	 }
+      }
+   }   
 }
 									/*}}}*/
 // PrioSortList - Sort a list of versions by priority			/*{{{*/

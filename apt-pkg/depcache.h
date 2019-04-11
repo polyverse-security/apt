@@ -22,7 +22,7 @@
      Now - Compared using the Currently install version
      Install - Compared using the install version (final state)
      CVer - (Candidate Version) Compared using the Candidate Version
-   The candidate and now results are used to decide whether a package
+   The candidate and now results are used to decide wheather a package
    should be automatically installed or if it should be left alone.
    
    Remember, the Candidate Version is selected based on the distribution
@@ -88,15 +88,11 @@ class pkgDepCache : protected pkgCache::Namespace
     *
     *  \param follow_suggests If \b true, suggestions of the package
     *  will be recursively marked.
-    *
-    *  \param reason The reason why the package is being marked.
-    *  (Used in logging when Debug::pkgAutoRemove is set.)
     */
    APT_HIDDEN void MarkPackage(const pkgCache::PkgIterator &pkg,
 		    const pkgCache::VerIterator &ver,
 		    bool const &follow_recommends,
-		    bool const &follow_suggests,
-		    const char *reason);
+		    bool const &follow_suggests);
 
    /** \brief Update the Marked field of all packages.
     *
@@ -186,7 +182,7 @@ class pkgDepCache : protected pkgCache::Namespace
 
        /** \brief Clean up the action group before it is destroyed.
         *
-        *  If it is destroyed later, no second cleanup will be run.
+        *  If it is destroyed later, no second cleanup wil be run.
 	*/
        void release();
 
@@ -243,6 +239,7 @@ class pkgDepCache : protected pkgCache::Namespace
       unsigned char DepState;          // DepState Flags
 
       // Update of candidate version
+      APT_DEPRECATED_MSG("Use the method of the same name in contrib/strutl.h instead if you must") const char *StripEpoch(const char *Ver) APT_PURE;
       void Update(PkgIterator Pkg,pkgCache &Cache);
       
       // Various test members for the current status of the package
@@ -362,6 +359,9 @@ class pkgDepCache : protected pkgCache::Namespace
 
    inline pkgCache &GetCache() {return *Cache;};
    inline pkgVersioningSystem &VS() {return *Cache->VS;};
+
+   // Policy implementation
+   APT_DEPRECATED_MSG("Confusingly named method which returns the candidate as chosen by policy (NOT as chosen via .SetCandidateVersion!). You probably want to use .GetCandidateVersion instead.") inline VerIterator GetCandidateVer(PkgIterator const &Pkg) {return /* GetCandidateVersion(Pkg); but for API compat: */ LocalPolicy->GetCandidateVer(Pkg);};
 
    inline bool IsImportantDep(DepIterator Dep) const {return LocalPolicy->IsImportantDep(Dep);};
    inline Policy &GetPolicy() {return *LocalPolicy;};

@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
-// Description								/*{{{*/
+// Description								/*{{{*/// $Id: ftp.h,v 1.4 2001/03/06 07:15:29 jgg Exp $
+// $Id: ftp.h,v 1.4 2001/03/06 07:15:29 jgg Exp $
 /* ######################################################################
 
    FTP Acquire Method - This is the FTP acquire method for APT.

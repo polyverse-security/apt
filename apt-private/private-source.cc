@@ -383,14 +383,14 @@ bool DoSource(CommandLine &CmdL)
       }
 
       // Back track
-      std::vector<pkgSrcRecords::File> Lst;
-      if (Last->Files(Lst) == false) {
+      std::vector<pkgSrcRecords::File2> Lst;
+      if (Last->Files2(Lst) == false) {
 	 return false;
       }
 
       DscFile curDsc;
       // Load them into the fetcher
-      for (std::vector<pkgSrcRecords::File>::const_iterator I = Lst.begin();
+      for (std::vector<pkgSrcRecords::File2>::const_iterator I = Lst.begin();
 	    I != Lst.end(); ++I)
       {
 	 // Try to guess what sort of file it is we are getting.
@@ -636,6 +636,15 @@ static void WriteBuildDependencyPackage(std::ostringstream &buildDepsPkgFile,
 }
 bool DoBuildDep(CommandLine &CmdL)
 {
+   CacheFile Cache;
+   std::vector<std::string> VolatileCmdL;
+   Cache.GetSourceList()->AddVolatileFiles(CmdL, &VolatileCmdL);
+
+   _config->Set("APT::Install-Recommends", false);
+
+   if (CmdL.FileSize() <= 1 && VolatileCmdL.empty())
+      return _error->Error(_("Must specify at least one package to check builddeps for"));
+
    bool StripMultiArch;
    std::string hostArch = _config->Find("APT::Get::Host-Architecture");
    if (hostArch.empty() == false)
@@ -647,19 +656,9 @@ bool DoBuildDep(CommandLine &CmdL)
    }
    else
       StripMultiArch = true;
-   auto const nativeArch = _config->Find("APT::Architecture");
-   std::string const pseudoArch = hostArch.empty() ? nativeArch : hostArch;
-
-   CacheFile Cache;
-   auto VolatileCmdL = GetPseudoPackages(Cache.GetSourceList(), CmdL, AddVolatileSourceFile, pseudoArch);
-
-   _config->Set("APT::Install-Recommends", false);
-
-   if (CmdL.FileSize() <= 1 && VolatileCmdL.empty())
-      return _error->Error(_("Must specify at least one package to check builddeps for"));
 
    std::ostringstream buildDepsPkgFile;
-   std::vector<PseudoPkg> pseudoPkgs;
+   std::vector<std::pair<std::string,std::string>> pseudoPkgs;
    // deal with the build essentials first
    {
       std::vector<pkgSrcRecords::Parser::BuildDepRec> BuildDeps;
@@ -674,42 +673,43 @@ bool DoBuildDep(CommandLine &CmdL)
 	 BuildDeps.push_back(rec);
       }
       std::string const pseudo = "builddeps:essentials";
+      std::string const nativeArch = _config->Find("APT::Architecture");
       WriteBuildDependencyPackage(buildDepsPkgFile, pseudo, nativeArch, BuildDeps);
-      pseudoPkgs.emplace_back(pseudo, nativeArch, "");
+      pseudoPkgs.emplace_back(pseudo, nativeArch);
    }
 
    // Read the source list
    if (Cache.BuildSourceList() == false)
       return false;
    pkgSourceList *List = Cache.GetSourceList();
+   std::string const pseudoArch = hostArch.empty() ? _config->Find("APT::Architecture") : hostArch;
 
+   // FIXME: Avoid volatile sources == cmdline assumption
    {
       auto const VolatileSources = List->GetVolatileFiles();
-      for (auto &&pkg : VolatileCmdL)
+      if (VolatileSources.size() == VolatileCmdL.size())
       {
-	 if (unlikely(pkg.index == -1))
+	 for (size_t i = 0; i < VolatileSources.size(); ++i)
 	 {
-	    _error->Error(_("Unable to find a source package for %s"), pkg.name.c_str());
-	    continue;
-	 }
-	 if (DirectoryExists(pkg.name))
-	    ioprintf(c1out, _("Note, using directory '%s' to get the build dependencies\n"), pkg.name.c_str());
-	 else
-	    ioprintf(c1out, _("Note, using file '%s' to get the build dependencies\n"), pkg.name.c_str());
-	 std::unique_ptr<pkgSrcRecords::Parser> Last(VolatileSources[pkg.index]->CreateSrcParser());
-	 if (Last == nullptr)
-	 {
-	    _error->Error(_("Unable to find a source package for %s"), pkg.name.c_str());
-	    continue;
-	 }
+	    auto const Src = VolatileCmdL[i];
+	    if (DirectoryExists(Src))
+	       ioprintf(c1out, _("Note, using directory '%s' to get the build dependencies\n"), Src.c_str());
+	    else
+	       ioprintf(c1out, _("Note, using file '%s' to get the build dependencies\n"), Src.c_str());
+	    std::unique_ptr<pkgSrcRecords::Parser> Last(VolatileSources[i]->CreateSrcParser());
+	    if (Last == nullptr)
+	       return _error->Error(_("Unable to find a source package for %s"), Src.c_str());
 
-	 auto pseudo = std::string("builddeps:") + pkg.name;
-	 WriteBuildDependencyPackage(buildDepsPkgFile, pseudo, pseudoArch,
-				     GetBuildDeps(Last.get(), pkg.name.c_str(), StripMultiArch, hostArch));
-	 pkg.name = std::move(pseudo);
-	 pseudoPkgs.push_back(std::move(pkg));
+	    std::string const pseudo = std::string("builddeps:") + Src;
+	    WriteBuildDependencyPackage(buildDepsPkgFile, pseudo, pseudoArch,
+		  GetBuildDeps(Last.get(), Src.c_str(), StripMultiArch, hostArch));
+	    pseudoPkgs.emplace_back(pseudo, pseudoArch);
+	 }
       }
-      VolatileCmdL.clear();
+      else
+	 return _error->Error("Implementation error: Volatile sources (%lu) and"
+	       "commandline elements (%lu) do not match!", VolatileSources.size(),
+	       VolatileCmdL.size());
    }
 
    bool const WantLock = _config->FindB("APT::Get::Print-URIs", false) == false;
@@ -731,13 +731,7 @@ bool DoBuildDep(CommandLine &CmdL)
 	 std::string const pseudo = std::string("builddeps:") + Src;
 	 WriteBuildDependencyPackage(buildDepsPkgFile, pseudo, pseudoArch,
 	       GetBuildDeps(Last, Src.c_str(), StripMultiArch, hostArch));
-	 std::string reltag = *I;
-	 size_t found = reltag.find_last_of("/");
-	 if (found == std::string::npos)
-	    reltag.clear();
-	 else
-	    reltag.erase(0, found + 1);
-	 pseudoPkgs.emplace_back(pseudo, pseudoArch, std::move(reltag));
+	 pseudoPkgs.emplace_back(pseudo, pseudoArch);
       }
    }
 
@@ -751,24 +745,12 @@ bool DoBuildDep(CommandLine &CmdL)
    {
       pkgDepCache::ActionGroup group(Cache);
       TryToInstall InstallAction(Cache, &Fix, false);
-      std::list<std::pair<pkgCache::VerIterator, std::string>> candSwitch;
       for (auto const &pkg: pseudoPkgs)
       {
-	 pkgCache::PkgIterator const Pkg = Cache->FindPkg(pkg.name, pkg.arch);
+	 pkgCache::PkgIterator const Pkg = Cache->FindPkg(pkg.first, pkg.second);
 	 if (Pkg.end())
 	    continue;
-	 if (pkg.release.empty())
-	    Cache->SetCandidateVersion(Pkg.VersionList());
-	 else
-	    candSwitch.emplace_back(Pkg.VersionList(), pkg.release);
-      }
-      if (candSwitch.empty() == false)
-	 InstallAction.propergateReleaseCandiateSwitching(candSwitch, c0out);
-      for (auto const &pkg: pseudoPkgs)
-      {
-	 pkgCache::PkgIterator const Pkg = Cache->FindPkg(pkg.name, pkg.arch);
-	 if (Pkg.end())
-	    continue;
+	 Cache->SetCandidateVersion(Pkg.VersionList());
 	 InstallAction(Cache[Pkg].CandidateVerIter(Cache));
 	 removeAgain.push_back(Pkg);
       }

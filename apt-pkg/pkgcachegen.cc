@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: pkgcachegen.cc,v 1.53.2.1 2003/12/24 23:09:17 mdz Exp $
 /* ######################################################################
    
    Package Cache Generator - Generator for the cache structure.
@@ -154,7 +155,7 @@ void pkgCacheGenerator::ReMap(void const * const oldMap, void const * const newM
       return;
 
    if (_config->FindB("Debug::pkgCacheGen", false))
-      std::clog << "Remapping from " << oldMap << " to " << newMap << std::endl;
+      std::clog << "Remaping from " << oldMap << " to " << newMap << std::endl;
 
    Cache.ReMap(false);
 
@@ -600,6 +601,9 @@ bool pkgCacheGenerator::NewPackage(pkgCache::PkgIterator &Pkg, StringView Name,
    Pkg = pkgCache::PkgIterator(Cache,Cache.PkgP + Package);
 
    // Set the name, arch and the ID
+   APT_IGNORE_DEPRECATED_PUSH
+   Pkg->Name = Grp->Name;
+   APT_IGNORE_DEPRECATED_POP
    Pkg->Group = Grp.Index();
    // all is mapped to the native architecture
    map_stringitem_t const idxArch = (Arch == "all") ? Cache.HeaderP->Architecture : StoreString(MIXED, Arch);
@@ -1584,7 +1588,7 @@ static bool BuildCache(pkgCacheGenerator &Gen,
 /* This makes sure that the status cache (the cache that has all 
    index files from the sources list and all local ones) is ready
    to be mmaped. If OutMap is not zero then a MMap object representing
-   the cache will be stored there. This is pretty much mandatory if you
+   the cache will be stored there. This is pretty much mandetory if you
    are using AllowMem. AllowMem lets the function be run as non-root
    where it builds the cache 'fast' into a memory buffer. */
 static DynamicMMap* CreateDynamicMMap(FileFd * const CacheF, unsigned long Flags)
@@ -1641,6 +1645,9 @@ static bool loadBackMMapFromFile(std::unique_ptr<pkgCacheGenerator> &Gen,
    Gen.reset(new pkgCacheGenerator(Map.get(),Progress));
    return Gen->Start();
 }
+bool pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
+			MMap **OutMap, bool AllowMem)
+   { return pkgCacheGenerator::MakeStatusCache(List, &Progress, OutMap, AllowMem); }
 bool pkgCacheGenerator::MakeStatusCache(pkgSourceList &List,OpProgress *Progress,
 			MMap **OutMap,bool)
 {
@@ -1803,6 +1810,8 @@ public:
    ScopedErrorMerge() { _error->PushToStack(); }
    ~ScopedErrorMerge() { _error->MergeWithStack(); }
 };
+bool pkgMakeOnlyStatusCache(OpProgress &Progress,DynamicMMap **OutMap)
+   { return pkgCacheGenerator::MakeOnlyStatusCache(&Progress, OutMap); }
 bool pkgCacheGenerator::MakeOnlyStatusCache(OpProgress *Progress,DynamicMMap **OutMap)
 {
    std::vector<pkgIndexFile *> Files;

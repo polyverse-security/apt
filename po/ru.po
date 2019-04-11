@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apt 1.8.0\n"
 "Report-Msgid-Bugs-To: APT Development Team <deity@lists.debian.org>\n"
-"POT-Creation-Date: 2019-02-04 15:34+0100\n"
+"POT-Creation-Date: 2019-03-01 10:02+0100\n"
 "PO-Revision-Date: 2019-02-10 11:50+0300\n"
 "Last-Translator: Aleksej Shilin <rootlexx@mail.ru>\n"
 "Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
@@ -431,16 +431,6 @@ msgstr "Журнал изменений для %s=%s недоступен"
 
 #: apt-pkg/acquire-worker.cc
 #, c-format
-msgid ""
-"The method '%s' is unsupported and disabled by default. Consider switching "
-"to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."
-msgstr ""
-"Метод «%s» не поддерживается и по умолчанию отключён. Рассмотрите "
-"возможность перехода на использование http(s). Чтобы включить его снова, "
-"установите параметр Dir::Bin::Methods::%s в значение «%s»."
-
-#: apt-pkg/acquire-worker.cc
-#, c-format
 msgid "The method '%s' is explicitly disabled via configuration."
 msgstr "Метод «%s» явным образом отключён в настройках."
 
@@ -507,6 +497,8 @@ msgstr ""
 msgid "Clean of %s is not supported"
 msgstr "Очистка «%s» не поддерживается"
 
+#. only show the ETA if it makes sense
+#. two days
 #: apt-pkg/acquire.cc
 #, c-format
 msgid "Retrieving file %li of %li (%s remaining)"
@@ -967,12 +959,12 @@ msgstr "Проблема при переименовании файла %s в %s
 msgid "Problem syncing the file"
 msgstr "Проблема при синхронизации файла"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to mkstemp %s"
 msgstr "Невозможно выполнить mkstemp %s"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to write to %s"
 msgstr "Невозможно записать в %s"
@@ -1197,23 +1189,23 @@ msgstr "Не заблокирован"
 #. we don't care for the difference
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing %s"
-msgstr "Подготавливается %s"
+msgid "Installing %s"
+msgstr "Устанавливается %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to configure %s"
-msgstr "Подготавливается для настройки %s"
+msgid "Configuring %s"
+msgstr "Настраивается %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing for removal of %s"
-msgstr "Подготавливается для удаления %s"
+msgid "Removing %s"
+msgstr "Удаляется %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to completely remove %s"
-msgstr "Подготовка к полному удалению %s"
+msgid "Completely removing %s"
+msgstr "Выполняется полное удаление %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1230,11 +1222,6 @@ msgstr "Выполняется послеустановочный триггер
 msgid "Installed %s"
 msgstr "Установлен %s"
 
-#: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Configuring %s"
-msgstr "Настраивается %s"
-
 #. FIXME: use a better string after freeze
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1248,23 +1235,33 @@ msgstr "Не удалось открыть файл «%s»"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
+msgid "Preparing %s"
+msgstr "Подготавливается %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
 msgid "Unpacking %s"
 msgstr "Распаковывается %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Installing %s"
-msgstr "Устанавливается %s"
+msgid "Preparing to configure %s"
+msgstr "Подготавливается для настройки %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Removing %s"
-msgstr "Удаляется %s"
+msgid "Preparing for removal of %s"
+msgstr "Подготавливается для удаления %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Completely removing %s"
-msgstr "Выполняется полное удаление %s"
+msgid "Removed %s"
+msgstr "Удалён %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
+msgid "Preparing to completely remove %s"
+msgstr "Подготовка к полному удалению %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1664,7 +1661,7 @@ msgstr "Некорректная запись %u в списке источни�
 msgid "Type '%s' is not known on stanza %u in source list %s"
 msgstr "Неизвестный тип «%s» в записи %u в списке источников %s"
 
-#: apt-pkg/sourcelist.cc apt-private/private-install.cc
+#: apt-pkg/sourcelist.cc
 #, c-format
 msgid "Unsupported file %s given on commandline"
 msgstr "В командной строке указан неподдерживаемый файл %s"
@@ -1895,8 +1892,8 @@ msgstr ""
 "--force-yes устарел, вместо него используйте параметры, начинающиеся с --"
 "allow."
 
-#: apt-private/private-depends.cc apt-private/private-download.cc
-#: apt-private/private-show.cc cmdline/apt-mark.cc
+#: apt-private/private-depends.cc apt-private/private-show.cc
+#: cmdline/apt-mark.cc
 msgid "No packages found"
 msgstr "Не найдено ни одного пакета"
 
@@ -2073,7 +2070,7 @@ msgstr ""
 msgid "Abort."
 msgstr "Прервано."
 
-#: apt-private/private-install.cc cmdline/apt-mark.cc
+#: apt-private/private-install.cc
 msgid "Do you want to continue?"
 msgstr "Хотите продолжить?"
 
@@ -2402,6 +2399,11 @@ msgstr "Вы должны задать не менее одного шаблон
 msgid "Full Text Search"
 msgstr "Полнотекстовый поиск"
 
+#: apt-private/private-show.cc cmdline/apt-cache.cc
+#, c-format
+msgid "Package file %s is out of sync."
+msgstr "Список пакетов %s рассинхронизирован."
+
 #: apt-private/private-show.cc
 #, c-format
 msgid "There is %i additional record. Please use the '-a' switch to see it"
@@ -2565,6 +2567,11 @@ msgid "%s has no build depends.\n"
 msgstr "%s не имеет сборочных зависимостей.\n"
 
 #: apt-private/private-source.cc
+msgid "Must specify at least one package to check builddeps for"
+msgstr ""
+"Для проверки сборочных зависимостей необходимо указать как минимум один пакет"
+
+#: apt-private/private-source.cc
 #, c-format
 msgid ""
 "No architecture information available for %s. See apt.conf(5) APT::"
@@ -2572,11 +2579,6 @@ msgid ""
 msgstr ""
 "Отсутствует информация об архитектуре %s. Для её настройки смотрите apt."
 "conf(5) об APT::Architectures"
-
-#: apt-private/private-source.cc
-msgid "Must specify at least one package to check builddeps for"
-msgstr ""
-"Для проверки сборочных зависимостей необходимо указать как минимум один пакет"
 
 #: apt-private/private-source.cc
 #, c-format
@@ -2601,8 +2603,8 @@ msgstr "Не удалось разобрать содержимое %s. Повт
 
 #: apt-private/private-sources.cc
 #, c-format
-msgid "Your '%s' file changed, please run 'apt-get update'.\n"
-msgstr "Файл «%s» изменён, запустите «apt-get update».\n"
+msgid "Your '%s' file changed, please run 'apt-get update'."
+msgstr "Файл «%s» изменён, запустите «apt-get update»."
 
 #: apt-private/private-unmet.cc
 #, c-format
@@ -2641,10 +2643,9 @@ msgstr[2] ""
 msgid "All packages are up to date."
 msgstr "Все пакеты имеют последние версии."
 
-#: cmdline/apt-cache.cc cmdline/apt-mark.cc
-#, c-format
-msgid "%s does not take any arguments"
-msgstr "Команде %s не нужны аргументы"
+#: cmdline/apt-cache.cc
+msgid "apt-cache stats does not take any arguments"
+msgstr "Команде apt-cache stats не нужны аргументы"
 
 #: cmdline/apt-cache.cc
 msgid "Total package names: "
@@ -2927,12 +2928,6 @@ msgstr ""
 "deb)"
 
 #: cmdline/apt-get.cc
-msgid "Reinstall packages (pkg is libc6 not libc6.deb)"
-msgstr ""
-"переустановить пакеты (указывается имя пакета libc6, а не имя файла libc6."
-"deb)"
-
-#: cmdline/apt-get.cc
 msgid "Remove packages"
 msgstr "удалить пакеты"
 
@@ -3080,14 +3075,6 @@ msgid "%s was already set to automatically installed.\n"
 msgstr "%s уже помечен как установленный автоматически.\n"
 
 #: cmdline/apt-mark.cc
-msgid "No changes necessary"
-msgstr "Никаких изменений не требуется"
-
-#: cmdline/apt-mark.cc
-msgid "The following packages will be marked as automatically installed:"
-msgstr "Следующие пакеты будут помечены как установленные автоматически:"
-
-#: cmdline/apt-mark.cc
 #, c-format
 msgid "%s was already set on hold.\n"
 msgstr "%s уже помечен как зафиксированный.\n"
@@ -3152,10 +3139,6 @@ msgid "Mark the given packages as manually installed"
 msgstr "пометить указанные пакеты как установленные вручную"
 
 #: cmdline/apt-mark.cc
-msgid "Mark all dependencies of meta packages as automatically installed."
-msgstr "пометить все зависимости метапакетов как установленные автоматически"
-
-#: cmdline/apt-mark.cc
 msgid "Mark a package as held back"
 msgstr "пометить пакет как зафиксированный"
 
@@ -3172,7 +3155,7 @@ msgid "Print the list of manually installed packages"
 msgstr "вывести список пакетов, установленных вручную"
 
 #: cmdline/apt-mark.cc
-msgid "Print the list of packages on hold"
+msgid "Print the list of package on hold"
 msgstr "вывести список зафиксированных пакетов"
 
 #: cmdline/apt-sortpkgs.cc
@@ -3229,10 +3212,6 @@ msgstr "показать дополнительные данные о пакет
 #: cmdline/apt.cc
 msgid "install packages"
 msgstr "установить пакеты"
-
-#: cmdline/apt.cc
-msgid "reinstall packages"
-msgstr "переустановить пакеты"
 
 #: cmdline/apt.cc
 msgid "remove packages"
@@ -4001,11 +3980,11 @@ msgstr "Соединение закрыто преждевременно"
 msgid "Empty files can't be valid archives"
 msgstr "Пустые файлы не могут быть допустимыми архивами"
 
-#~ msgid "Removed %s"
-#~ msgstr "Удалён %s"
+#~ msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+#~ msgstr "Файл «%s» изменён, запустите «apt-get update».\n"
 
-#~ msgid "Package file %s is out of sync."
-#~ msgstr "Список пакетов %s рассинхронизирован."
+#~ msgid "Print the list of packages on hold"
+#~ msgstr "вывести список зафиксированных пакетов"
 
 #~ msgid ""
 #~ "The package index files are corrupted. No Filename: field for package %s."

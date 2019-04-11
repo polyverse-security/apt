@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: multicompress.h,v 1.2 2001/02/20 07:03:18 jgg Exp $
 /* ######################################################################
 
    MultiCompressor

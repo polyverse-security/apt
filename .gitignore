@@ -1,6 +1,8 @@
 # Include directory
 include/
 
+*/test/*
+*/doc/*
 # Cmake files
 CMakeCache.txt
 CMakeFiles

@@ -89,14 +89,6 @@ gpg:              unchanged: 1' aptkey --fakeroot update
 	testsuccess test -s "${TMPWORKINGDIRECTORY}/aptkey.export"
 	testsuccess test -s "${TMPWORKINGDIRECTORY}/aptkey.exportall"
 
-	msgtest 'Check that multiple keys can be' 'exported'
-	aptkey export 'Sixpack' 'Expired' > "${TMPWORKINGDIRECTORY}/aptkey.export" 2>/dev/null
-	aptkey --keyring "${KEYDIR}/rexexpired.pub.${EXT}" \
-		--keyring "${ROOTDIR}/etc/apt/trusted.gpg.d/joesixpack.${EXT}" exportall > "${TMPWORKINGDIRECTORY}/aptkey.exportall"
-	testsuccess --nomsg cmp "${TMPWORKINGDIRECTORY}/aptkey.export" "${TMPWORKINGDIRECTORY}/aptkey.exportall"
-	testsuccess test -s "${TMPWORKINGDIRECTORY}/aptkey.export"
-	testsuccess test -s "${TMPWORKINGDIRECTORY}/aptkey.exportall"
-
 	msgtest 'Execute update again to trigger removal of' 'Rex Expired key'
 	${TESTSTATE} --nomsg aptkey --fakeroot update
 
@@ -200,7 +192,7 @@ gpg:              unchanged: 1' aptkey --fakeroot update
 	${TESTSTATE} aptkey --fakeroot add "${KEYDIR}/marvin paránöid.pub.${EXT}"
 	testaptkeys 'Joe Sixpack' 'Marvin Paranoid'
 	cp -a "${ROOTDIR}/etc/apt/trusted.gpg" "${KEYDIR}/testcase-multikey.pub.gpg" # store for reuse
-	aptkey --keyring "${KEYDIR}/testcase-multikey.pub.gpg" export > "${KEYDIR}/testcase-multikey.pub.asc"
+	gpg --no-default-keyring --keyring "${KEYDIR}/testcase-multikey.pub.gpg" --armor --export > "${KEYDIR}/testcase-multikey.pub.asc"
 
 	msgtest 'Test key removal with' 'multi key in real file'
 	cleanplate
@@ -281,14 +273,6 @@ gpg:              unchanged: 1' aptkey --fakeroot update
 
 		msgtest 'Test verify a file' 'with good keyring'
 		testsuccess --nomsg aptkey --quiet --readonly --keyring "${KEYDIR}/testcase-multikey.pub.${EXT}" verify "${SIGNATURE}.gpg" "${SIGNATURE}"
-
-		msgtest 'Test verify a file' 'with good keyrings 1'
-		testsuccess --nomsg aptkey --quiet --readonly --keyring "${KEYDIR}/joesixpack.pub.${EXT}" \
-			--keyring "${KEYDIR}/marvinparanoid.pub.${EXT}" verify "${SIGNATURE}.gpg" "${SIGNATURE}"
-
-		msgtest 'Test verify a file' 'with good keyrings 2'
-		testsuccess --nomsg aptkey --quiet --readonly --keyring "${KEYDIR}/marvinparanoid.pub.${EXT}" \
-			--keyring "${KEYDIR}/joesixpack.pub.${EXT}" verify "${SIGNATURE}.gpg" "${SIGNATURE}"
 
 		msgtest 'Test fail verify a file' 'with bad keyring'
 		testfailure --nomsg aptkey --quiet --readonly --keyring "${KEYDIR}/joesixpack.pub.${EXT}" verify "${SIGNATURE}.gpg" "${SIGNATURE}"

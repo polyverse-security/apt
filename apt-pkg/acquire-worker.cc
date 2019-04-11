@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: acquire-worker.cc,v 1.34 2001/05/22 04:42:54 jgg Exp $
 /* ######################################################################
 
    Acquire Worker 
@@ -98,8 +99,6 @@ bool pkgAcquire::Worker::Start()
    std::string Method;
    if (_config->Exists(confItem))
 	 Method = _config->FindFile(confItem.c_str());
-   else if (Access == "ftp" || Access == "rsh" || Access == "ssh")
-      return _error->Error(_("The method '%s' is unsupported and disabled by default. Consider switching to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."), Access.c_str(), Access.c_str(), Access.c_str());
    else
 	 Method = _config->FindDir(methodsDir) + Access;
    if (FileExists(Method) == false)
@@ -323,35 +322,28 @@ bool pkgAcquire::Worker::RunMessages()
 	    Itm = nullptr;
 	    for (auto const &Owner: ItmOwners)
 	    {
-	       for (auto alt = AltUris.crbegin(); alt != AltUris.crend(); ++alt)
-		  Owner->PushAlternativeURI(std::string(*alt), {}, false);
-
 	       pkgAcquire::ItemDesc &desc = Owner->GetItemDesc();
-	       // for a simplified retry a method might redirect without URI change
-	       // see also IsRedirectionLoop implementation
-	       if (desc.URI != NewURI)
+	       if (Owner->IsRedirectionLoop(NewURI))
 	       {
-		  auto newuri = NewURI;
-		  if (Owner->IsGoodAlternativeURI(newuri) == false && Owner->PopAlternativeURI(newuri) == false)
-		     newuri.clear();
-		  if (newuri.empty() || Owner->IsRedirectionLoop(newuri))
-		  {
-		     std::string msg = Message;
-		     msg.append("\nFailReason: RedirectionLoop");
-		     Owner->Failed(msg, Config);
-		     if (Log != nullptr)
-			Log->Fail(Owner->GetItemDesc());
-		     continue;
-		  }
-
+		  std::string msg = Message;
+		  msg.append("\nFailReason: RedirectionLoop");
+		  Owner->Failed(msg, Config);
 		  if (Log != nullptr)
-		     Log->Done(desc);
-
-		  ChangeSiteIsMirrorChange(NewURI, desc, Owner);
-		  desc.URI = NewURI;
+		     Log->Fail(Owner->GetItemDesc());
+		  continue;
 	       }
+
+	       if (Log != nullptr)
+		  Log->Done(desc);
+
+	       ChangeSiteIsMirrorChange(NewURI, desc, Owner);
+	       desc.URI = NewURI;
 	       if (isDoomedItem(Owner) == false)
+	       {
+		  for (auto alt = AltUris.crbegin(); alt != AltUris.crend(); ++alt)
+		     Owner->PushAlternativeURI(std::string(*alt), {}, false);
 		  OwnerQ->Owner->Enqueue(desc);
+	       }
 	    }
             break;
          }
@@ -617,33 +609,28 @@ void pkgAcquire::Worker::HandleFailure(std::vector<pkgAcquire::Item *> const &It
 	 if (isDoomedItem(Owner) == false)
 	    OwnerQ->Owner->Enqueue(SavedDesc);
       }
+      else if (Owner->PopAlternativeURI(NewURI))
+      {
+	 Owner->FailMessage(Message);
+	 auto &desc = Owner->GetItemDesc();
+	 if (Log != nullptr)
+	    Log->Fail(desc);
+	 ChangeSiteIsMirrorChange(NewURI, desc, Owner);
+	 desc.URI = NewURI;
+	 if (isDoomedItem(Owner) == false)
+	    OwnerQ->Owner->Enqueue(desc);
+      }
       else
       {
-	 if (errAuthErr)
-	    Owner->RemoveAlternativeSite(URI::SiteOnly(Owner->GetItemDesc().URI));
-	 if (Owner->PopAlternativeURI(NewURI))
-	 {
-	    Owner->FailMessage(Message);
-	    auto &desc = Owner->GetItemDesc();
-	    if (Log != nullptr)
-	       Log->Fail(desc);
-	    ChangeSiteIsMirrorChange(NewURI, desc, Owner);
-	    desc.URI = NewURI;
-	    if (isDoomedItem(Owner) == false)
-	       OwnerQ->Owner->Enqueue(desc);
-	 }
-	 else
-	 {
-	    if (errAuthErr && Owner->GetExpectedHashes().empty() == false)
-	       Owner->Status = pkgAcquire::Item::StatAuthError;
-	    else if (errTransient)
-	       Owner->Status = pkgAcquire::Item::StatTransientNetworkError;
-	    auto SavedDesc = Owner->GetItemDesc();
-	    if (isDoomedItem(Owner) == false)
-	       Owner->Failed(Message, Config);
-	    if (Log != nullptr)
-	       Log->Fail(SavedDesc);
-	 }
+	 if (errAuthErr && Owner->GetExpectedHashes().empty() == false)
+	    Owner->Status = pkgAcquire::Item::StatAuthError;
+	 else if (errTransient)
+	    Owner->Status = pkgAcquire::Item::StatTransientNetworkError;
+	 auto SavedDesc = Owner->GetItemDesc();
+	 if (isDoomedItem(Owner) == false)
+	    Owner->Failed(Message, Config);
+	 if (Log != nullptr)
+	    Log->Fail(SavedDesc);
       }
    }
 }
@@ -892,7 +879,7 @@ bool pkgAcquire::Worker::MethodFailure()
 {
    _error->Error("Method %s has died unexpectedly!",Access.c_str());
 
-   // do not reap the child here to show meaningful error to the user
+   // do not reap the child here to show meaningfull error to the user
    ExecWait(Process,Access.c_str(),false);
    Process = -1;
    close(InFd);

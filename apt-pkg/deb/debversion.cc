@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: debversion.cc,v 1.8 2003/09/10 23:39:49 mdz Exp $
 /* ######################################################################
 
    Debian Version - Versioning system for Debian
@@ -202,7 +203,7 @@ int debVersioningSystem::DoCmpVersion(const char *A,const char *AEnd,
 									/*}}}*/
 // debVS::CheckDep - Check a single dependency				/*{{{*/
 // ---------------------------------------------------------------------
-/* This simply performs the version comparison and switch based on 
+/* This simply preforms the version comparison and switch based on 
    operator. If DepVer is 0 then we are comparing against a provides
    with no version. */
 bool debVersioningSystem::CheckDep(const char *PkgVer,

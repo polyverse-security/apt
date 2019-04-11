@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apt 1.0.5\n"
 "Report-Msgid-Bugs-To: APT Development Team <deity@lists.debian.org>\n"
-"POT-Creation-Date: 2019-02-04 15:34+0100\n"
+"POT-Creation-Date: 2019-03-01 10:02+0100\n"
 "PO-Revision-Date: 2008-11-15 02:21+0200\n"
 "Last-Translator: Eddy Petrișor <eddy.petrisor@gmail.com>\n"
 "Language-Team: Romanian <debian-l10n-romanian@lists.debian.org>\n"
@@ -399,13 +399,6 @@ msgstr "Conectare la %s (%s)"
 
 #: apt-pkg/acquire-worker.cc
 #, c-format
-msgid ""
-"The method '%s' is unsupported and disabled by default. Consider switching "
-"to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."
-msgstr ""
-
-#: apt-pkg/acquire-worker.cc
-#, c-format
 msgid "The method '%s' is explicitly disabled via configuration."
 msgstr ""
 
@@ -468,6 +461,8 @@ msgstr ""
 msgid "Clean of %s is not supported"
 msgstr "Tipul de fișier index '%s' nu este suportat"
 
+#. only show the ETA if it makes sense
+#. two days
 #: apt-pkg/acquire.cc
 #, c-format
 msgid "Retrieving file %li of %li (%s remaining)"
@@ -908,12 +903,12 @@ msgstr "Problemă în timpul sincronizării fișierului"
 msgid "Problem syncing the file"
 msgstr "Problemă în timpul sincronizării fișierului"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, fuzzy, c-format
 msgid "Unable to mkstemp %s"
 msgstr "Nu se poate executa „stat” pe %s"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to write to %s"
 msgstr "Nu s-a putut scrie în %s"
@@ -1121,23 +1116,23 @@ msgstr ""
 #. we don't care for the difference
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing %s"
-msgstr "Se pregătește %s"
+msgid "Installing %s"
+msgstr "Se instalează %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to configure %s"
-msgstr "Se pregătește configurarea %s"
+msgid "Configuring %s"
+msgstr "Se configurează %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing for removal of %s"
-msgstr "Se pregătește ștergerea lui %s"
+msgid "Removing %s"
+msgstr "Se șterge %s"
 
 #: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Preparing to completely remove %s"
-msgstr "Se pregătește ștergerea completă a %s"
+#, fuzzy, c-format
+msgid "Completely removing %s"
+msgstr "Șters complet %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1154,11 +1149,6 @@ msgstr "Se rulează declanșatorul post-instalare %s"
 msgid "Installed %s"
 msgstr "Instalat %s"
 
-#: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Configuring %s"
-msgstr "Se configurează %s"
-
 #. FIXME: use a better string after freeze
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1172,23 +1162,33 @@ msgstr "Nu s-a putut deschide fișierul %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
+msgid "Preparing %s"
+msgstr "Se pregătește %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
 msgid "Unpacking %s"
 msgstr "Se despachetează %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Installing %s"
-msgstr "Se instalează %s"
+msgid "Preparing to configure %s"
+msgstr "Se pregătește configurarea %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Removing %s"
-msgstr "Se șterge %s"
+msgid "Preparing for removal of %s"
+msgstr "Se pregătește ștergerea lui %s"
 
 #: apt-pkg/deb/dpkgpm.cc
-#, fuzzy, c-format
-msgid "Completely removing %s"
-msgstr "Șters complet %s"
+#, c-format
+msgid "Removed %s"
+msgstr "Șters %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
+msgid "Preparing to completely remove %s"
+msgstr "Se pregătește ștergerea completă a %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1568,7 +1568,7 @@ msgstr "Linie greșită %u în lista sursă %s (tip)"
 msgid "Type '%s' is not known on stanza %u in source list %s"
 msgstr "Tipul '%s' nu este cunoscut în linia %u din lista sursă %s"
 
-#: apt-pkg/sourcelist.cc apt-private/private-install.cc
+#: apt-pkg/sourcelist.cc
 #, c-format
 msgid "Unsupported file %s given on commandline"
 msgstr ""
@@ -1791,8 +1791,8 @@ msgid ""
 "instead."
 msgstr ""
 
-#: apt-private/private-depends.cc apt-private/private-download.cc
-#: apt-private/private-show.cc cmdline/apt-mark.cc
+#: apt-private/private-depends.cc apt-private/private-show.cc
+#: cmdline/apt-mark.cc
 msgid "No packages found"
 msgstr "Nu s-au găsit pachete"
 
@@ -1961,7 +1961,7 @@ msgstr ""
 msgid "Abort."
 msgstr "Renunțare."
 
-#: apt-private/private-install.cc cmdline/apt-mark.cc
+#: apt-private/private-install.cc
 msgid "Do you want to continue?"
 msgstr "Vreți să continuați?"
 
@@ -2292,6 +2292,11 @@ msgstr "Trebuie să dați exact un șablon"
 msgid "Full Text Search"
 msgstr ""
 
+#: apt-private/private-show.cc cmdline/apt-cache.cc
+#, c-format
+msgid "Package file %s is out of sync."
+msgstr "Fișierul pachetului %s este desincronizat."
+
 #: apt-private/private-show.cc
 #, c-format
 msgid "There is %i additional record. Please use the '-a' switch to see it"
@@ -2449,17 +2454,17 @@ msgid "%s has no build depends.\n"
 msgstr "%s nu are dependențe înglobate.\n"
 
 #: apt-private/private-source.cc
+msgid "Must specify at least one package to check builddeps for"
+msgstr ""
+"Trebuie specificat cel puțin un pachet pentru a-i verifica dependențele "
+"înglobate"
+
+#: apt-private/private-source.cc
 #, c-format
 msgid ""
 "No architecture information available for %s. See apt.conf(5) APT::"
 "Architectures for setup"
 msgstr ""
-
-#: apt-private/private-source.cc
-msgid "Must specify at least one package to check builddeps for"
-msgstr ""
-"Trebuie specificat cel puțin un pachet pentru a-i verifica dependențele "
-"înglobate"
 
 #: apt-private/private-source.cc
 #, c-format
@@ -2482,7 +2487,7 @@ msgstr "Eșec la redenumirea lui %s în %s"
 
 #: apt-private/private-sources.cc
 #, c-format
-msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+msgid "Your '%s' file changed, please run 'apt-get update'."
 msgstr ""
 
 #: apt-private/private-unmet.cc
@@ -2515,9 +2520,9 @@ msgstr[2] ""
 msgid "All packages are up to date."
 msgstr ""
 
-#: cmdline/apt-cache.cc cmdline/apt-mark.cc
-#, fuzzy, c-format
-msgid "%s does not take any arguments"
+#: cmdline/apt-cache.cc
+#, fuzzy
+msgid "apt-cache stats does not take any arguments"
 msgstr "Comanda de actualizare nu are argumente"
 
 #: cmdline/apt-cache.cc
@@ -2781,12 +2786,6 @@ msgid "Install new packages (pkg is libc6 not libc6.deb)"
 msgstr "Instalează pachete noi (pachet este libc6, nu libc6.deb)"
 
 #: cmdline/apt-get.cc
-#, fuzzy
-#| msgid "Install new packages (pkg is libc6 not libc6.deb)"
-msgid "Reinstall packages (pkg is libc6 not libc6.deb)"
-msgstr "Instalează pachete noi (pachet este libc6, nu libc6.deb)"
-
-#: cmdline/apt-get.cc
 msgid "Remove packages"
 msgstr "Șterge pachete"
 
@@ -2942,16 +2941,6 @@ msgid "%s was already set to automatically installed.\n"
 msgstr "%s este marcat ca fiind instalat manual.\n"
 
 #: cmdline/apt-mark.cc
-msgid "No changes necessary"
-msgstr ""
-
-#: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "The following NEW packages will be installed:"
-msgid "The following packages will be marked as automatically installed:"
-msgstr "Următoarele pachete NOI vor fi instalate:"
-
-#: cmdline/apt-mark.cc
 #, fuzzy, c-format
 msgid "%s was already set on hold.\n"
 msgstr "%s este deja la cea mai nouă versiune.\n"
@@ -3011,11 +3000,6 @@ msgid "Mark the given packages as manually installed"
 msgstr "Verificați dacă pachetul 'dpkg-dev' este instalat.\n"
 
 #: cmdline/apt-mark.cc
-#, fuzzy
-msgid "Mark all dependencies of meta packages as automatically installed."
-msgstr "%s este marcat ca fiind instalat manual.\n"
-
-#: cmdline/apt-mark.cc
 msgid "Mark a package as held back"
 msgstr ""
 
@@ -3034,7 +3018,7 @@ msgid "Print the list of manually installed packages"
 msgstr "%s este marcat ca fiind instalat manual.\n"
 
 #: cmdline/apt-mark.cc
-msgid "Print the list of packages on hold"
+msgid "Print the list of package on hold"
 msgstr ""
 
 #: cmdline/apt-sortpkgs.cc
@@ -3079,11 +3063,6 @@ msgstr ""
 #: cmdline/apt.cc
 #, fuzzy
 msgid "install packages"
-msgstr "Pachete alese special:"
-
-#: cmdline/apt.cc
-#, fuzzy
-msgid "reinstall packages"
 msgstr "Pachete alese special:"
 
 #: cmdline/apt.cc
@@ -3849,12 +3828,6 @@ msgstr "Conexiune închisă prematur"
 #: methods/store.cc
 msgid "Empty files can't be valid archives"
 msgstr ""
-
-#~ msgid "Removed %s"
-#~ msgstr "Șters %s"
-
-#~ msgid "Package file %s is out of sync."
-#~ msgstr "Fișierul pachetului %s este desincronizat."
 
 #~ msgid ""
 #~ "The package index files are corrupted. No Filename: field for package %s."

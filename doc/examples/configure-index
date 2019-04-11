@@ -270,7 +270,6 @@ Acquire
     No-Store "false";    // Prevent the cache from storing archives
     Dl-Limit "<INT>"; // Kb/sec maximum download rate
     User-Agent "Debian APT-HTTP/1.3";
-    Referer "<STRING>"; // Set the HTTP Referer [sic!] header to given value
   };
 
   // HTTPS method configuration: uses the http
@@ -363,7 +362,7 @@ Acquire
   // Location of the changelogs with the placeholder @CHANGEPATH@ (e.g. "main/a/apt/apt_1.1")
   Changelogs::URI
   {
-    // Origin::Debian "https://metadata.ftp-master.debian.org/changelogs/@CHANGEPATH@_changelog";
+    // Origin::Debian "http://metadata.ftp-master.debian.org/changelogs/@CHANGEPATH@_changelog";
     Origin::* "<STRING>";
     Label::* "<STRING>";
     Override::Origin::* "<STRING>";
@@ -461,10 +460,6 @@ DPkg
 
    // Probably don't want to use force-downgrade..
    Options {"--force-overwrite";"--force-downgrade";}
-
-   // Defaults to /usr/sbin:/usr/bin:/sbin:/bin, might be set to empty
-   // string to inherit from environment
-   Path "<STRING>";
 
    // Auto re-mounting of a readonly /usr
    Pre-Invoke {"mount -o remount,rw /usr";};

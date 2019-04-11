@@ -25,6 +25,7 @@
 #include <apt-pkg/fileutl.h>
 #include <apt-pkg/macros.h>
 #include <apt-pkg/pkgsystem.h>
+#include <apt-pkg/sptr.h>
 #include <apt-pkg/strutl.h>
 
 #include <cstdio>
@@ -3014,6 +3015,19 @@ bool FileFd::FileFdError(const char *Description,...) {
    return false;
 }
 									/*}}}*/
+gzFile FileFd::gzFd() {							/*{{{*/
+#ifdef HAVE_ZLIB
+   GzipFileFdPrivate * const gzipd = dynamic_cast<GzipFileFdPrivate*>(d);
+   if (gzipd == nullptr)
+      return nullptr;
+   else
+      return gzipd->gz;
+#else
+   return nullptr;
+#endif
+}
+									/*}}}*/
+
 // Glob - wrapper around "glob()"					/*{{{*/
 std::vector<std::string> Glob(std::string const &pattern, int flags)
 {
@@ -3093,10 +3107,6 @@ std::string GetTempDir(std::string const &User)
 									/*}}}*/
 FileFd* GetTempFile(std::string const &Prefix, bool ImmediateUnlink, FileFd * const TmpFd)	/*{{{*/
 {
-   return GetTempFile(Prefix, ImmediateUnlink, TmpFd, false);
-}
-FileFd* GetTempFile(std::string const &Prefix, bool ImmediateUnlink, FileFd * const TmpFd, bool Buffered)
-{
    char fn[512];
    FileFd * const Fd = TmpFd == nullptr ? new FileFd() : TmpFd;
 
@@ -3104,7 +3114,7 @@ FileFd* GetTempFile(std::string const &Prefix, bool ImmediateUnlink, FileFd * co
    snprintf(fn, sizeof(fn), "%s/%s.XXXXXX",
             tempdir.c_str(), Prefix.c_str());
    int const fd = mkstemp(fn);
-   if (ImmediateUnlink)
+   if(ImmediateUnlink)
       unlink(fn);
    if (fd < 0)
    {
@@ -3113,15 +3123,13 @@ FileFd* GetTempFile(std::string const &Prefix, bool ImmediateUnlink, FileFd * co
 	 delete Fd;
       return nullptr;
    }
-   if (!Fd->OpenDescriptor(fd, FileFd::ReadWrite | (Buffered ? FileFd::BufferedWrite : 0), FileFd::None, true))
+   if (!Fd->OpenDescriptor(fd, FileFd::ReadWrite, FileFd::None, true))
    {
       _error->Errno("GetTempFile",_("Unable to write to %s"),fn);
       if (TmpFd == nullptr)
 	 delete Fd;
       return nullptr;
    }
-   if (ImmediateUnlink == false)
-      Fd->SetFileName(fn);
    return Fd;
 }
 									/*}}}*/
@@ -3134,6 +3142,16 @@ bool Rename(std::string From, std::string To)				/*{{{*/
       return false;
    }
    return true;
+}
+									/*}}}*/
+bool Popen(const char* Args[], FileFd &Fd, pid_t &Child, FileFd::OpenMode Mode)/*{{{*/
+{
+   return Popen(Args, Fd, Child, Mode, true);
+}
+									/*}}}*/
+bool Popen(const char* Args[], FileFd &Fd, pid_t &Child, FileFd::OpenMode Mode, bool CaptureStderr)/*{{{*/
+{
+   return Popen(Args, Fd, Child, Mode, CaptureStderr, false);
 }
 									/*}}}*/
 bool Popen(const char *Args[], FileFd &Fd, pid_t &Child, FileFd::OpenMode Mode, bool CaptureStderr, bool Sandbox) /*{{{*/

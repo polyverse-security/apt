@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apt 1.7.x\n"
 "Report-Msgid-Bugs-To: APT Development Team <deity@lists.debian.org>\n"
-"POT-Creation-Date: 2019-02-04 15:34+0100\n"
+"POT-Creation-Date: 2019-03-01 10:02+0100\n"
 "PO-Revision-Date: 2019-01-12 00:00+0000\n"
 "Last-Translator: Mo Zhou <cdluminate@gmail.com>\n"
 "Language-Team: Chinese (simplified) <debian-l10n-chinese@lists.debian.org>\n"
@@ -407,13 +407,6 @@ msgstr "%s=%s 的 Changelog 不可用"
 
 #: apt-pkg/acquire-worker.cc
 #, c-format
-msgid ""
-"The method '%s' is unsupported and disabled by default. Consider switching "
-"to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."
-msgstr ""
-
-#: apt-pkg/acquire-worker.cc
-#, c-format
 msgid "The method '%s' is explicitly disabled via configuration."
 msgstr "方法‘%s’已经被显式设置为禁用。"
 
@@ -475,6 +468,8 @@ msgstr "由于文件'%s'无法被用户'%s'访问，已脱离沙盒并提权为�
 msgid "Clean of %s is not supported"
 msgstr "%s 的 Clean (清理)不被支持"
 
+#. only show the ETA if it makes sense
+#. two days
 #: apt-pkg/acquire.cc
 #, c-format
 msgid "Retrieving file %li of %li (%s remaining)"
@@ -911,12 +906,12 @@ msgstr "重命名文件 %s 为 %s 出错"
 msgid "Problem syncing the file"
 msgstr "同步文件出错"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to mkstemp %s"
 msgstr "无法建立临时文件(mkstemp) %s "
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to write to %s"
 msgstr "无法写入 %s"
@@ -1124,23 +1119,23 @@ msgstr "未锁定"
 #. we don't care for the difference
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing %s"
-msgstr "正在准备 %s"
+msgid "Installing %s"
+msgstr "正在安装 %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to configure %s"
-msgstr "正在准备配置 %s"
+msgid "Configuring %s"
+msgstr "正在配置 %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing for removal of %s"
-msgstr "正在准备 %s 的删除操作"
+msgid "Removing %s"
+msgstr "正在删除 %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to completely remove %s"
-msgstr "正在准备完全删除 %s"
+msgid "Completely removing %s"
+msgstr "完全删除 %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1157,11 +1152,6 @@ msgstr "执行安装后执行的触发器 %s"
 msgid "Installed %s"
 msgstr "已安装 %s"
 
-#: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Configuring %s"
-msgstr "正在配置 %s"
-
 #. FIXME: use a better string after freeze
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1175,23 +1165,33 @@ msgstr "无法打开文件“%s”"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
+msgid "Preparing %s"
+msgstr "正在准备 %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
 msgid "Unpacking %s"
 msgstr "正在解压缩 %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Installing %s"
-msgstr "正在安装 %s"
+msgid "Preparing to configure %s"
+msgstr "正在准备配置 %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Removing %s"
-msgstr "正在删除 %s"
+msgid "Preparing for removal of %s"
+msgstr "正在准备 %s 的删除操作"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Completely removing %s"
-msgstr "完全删除 %s"
+msgid "Removed %s"
+msgstr "已删除 %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
+msgid "Preparing to completely remove %s"
+msgstr "正在准备完全删除 %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1566,7 +1566,7 @@ msgstr "软件源列表 %2$s 中第 %1$u 行的小节格式有误 (类型)"
 msgid "Type '%s' is not known on stanza %u in source list %s"
 msgstr "软件源列表 %3$s 第 %2$u 小节的类别 “%1$s” 无法识别"
 
-#: apt-pkg/sourcelist.cc apt-private/private-install.cc
+#: apt-pkg/sourcelist.cc
 #, c-format
 msgid "Unsupported file %s given on commandline"
 msgstr "命令行中有不支持的文件 %s"
@@ -1787,8 +1787,8 @@ msgid ""
 "instead."
 msgstr "--force-yes 已经被废弃，请使用以 --allow 开头的选项来代替。"
 
-#: apt-private/private-depends.cc apt-private/private-download.cc
-#: apt-private/private-show.cc cmdline/apt-mark.cc
+#: apt-private/private-depends.cc apt-private/private-show.cc
+#: cmdline/apt-mark.cc
 msgid "No packages found"
 msgstr "没有发现匹配的软件包"
 
@@ -1954,7 +1954,7 @@ msgstr ""
 msgid "Abort."
 msgstr "中止。"
 
-#: apt-private/private-install.cc cmdline/apt-mark.cc
+#: apt-private/private-install.cc
 msgid "Do you want to continue?"
 msgstr "您希望继续执行吗？"
 
@@ -2262,6 +2262,11 @@ msgstr "您必须明确地给出至少一个表达式"
 msgid "Full Text Search"
 msgstr "全文搜索"
 
+#: apt-private/private-show.cc cmdline/apt-cache.cc
+#, c-format
+msgid "Package file %s is out of sync."
+msgstr "软件包文件 %s 尚未同步。"
+
 #: apt-private/private-show.cc
 #, c-format
 msgid "There is %i additional record. Please use the '-a' switch to see it"
@@ -2421,6 +2426,10 @@ msgid "%s has no build depends.\n"
 msgstr " %s 没有构建依赖关系信息。\n"
 
 #: apt-private/private-source.cc
+msgid "Must specify at least one package to check builddeps for"
+msgstr "要检查生成软件包的构建依赖关系，必须指定至少一个软件包"
+
+#: apt-private/private-source.cc
 #, c-format
 msgid ""
 "No architecture information available for %s. See apt.conf(5) APT::"
@@ -2428,10 +2437,6 @@ msgid ""
 msgstr ""
 "找不到关于 %s 的有效体系结构信息。请参见 apt.conf(5) APT::Architectures for "
 "setup"
-
-#: apt-private/private-source.cc
-msgid "Must specify at least one package to check builddeps for"
-msgstr "要检查生成软件包的构建依赖关系，必须指定至少一个软件包"
 
 #: apt-private/private-source.cc
 #, c-format
@@ -2454,8 +2459,8 @@ msgstr "解析 %s 失败。请重新编辑之后再试。"
 
 #: apt-private/private-sources.cc
 #, c-format
-msgid "Your '%s' file changed, please run 'apt-get update'.\n"
-msgstr "您的 %s 文件有过改动，请执行 ‘apt-get update’。\n"
+msgid "Your '%s' file changed, please run 'apt-get update'."
+msgstr "您的 %s 文件有过改动，请执行 ‘apt-get update’。"
 
 #: apt-private/private-unmet.cc
 #, c-format
@@ -2486,10 +2491,9 @@ msgstr[0] ""
 msgid "All packages are up to date."
 msgstr "所有软件包均为最新。"
 
-#: cmdline/apt-cache.cc cmdline/apt-mark.cc
-#, c-format
-msgid "%s does not take any arguments"
-msgstr "%s 命令不需要参数"
+#: cmdline/apt-cache.cc
+msgid "apt-cache stats does not take any arguments"
+msgstr "apt-cache stats 命令不需要参数"
 
 #: cmdline/apt-cache.cc
 msgid "Total package names: "
@@ -2756,12 +2760,6 @@ msgid "Install new packages (pkg is libc6 not libc6.deb)"
 msgstr "安装新的软件包(注：软件包名称是 libc6 而非 libc6.deb)"
 
 #: cmdline/apt-get.cc
-#, fuzzy
-#| msgid "Install new packages (pkg is libc6 not libc6.deb)"
-msgid "Reinstall packages (pkg is libc6 not libc6.deb)"
-msgstr "安装新的软件包(注：软件包名称是 libc6 而非 libc6.deb)"
-
-#: cmdline/apt-get.cc
 msgid "Remove packages"
 msgstr "卸载软件包"
 
@@ -2907,16 +2905,6 @@ msgid "%s was already set to automatically installed.\n"
 msgstr "%s 已经被设置为自动安装。\n"
 
 #: cmdline/apt-mark.cc
-msgid "No changes necessary"
-msgstr ""
-
-#: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "The following NEW packages will be installed:"
-msgid "The following packages will be marked as automatically installed:"
-msgstr "下列【新】软件包将被安装："
-
-#: cmdline/apt-mark.cc
 #, c-format
 msgid "%s was already set on hold.\n"
 msgstr "%s 已经设置为保留。\n"
@@ -2978,12 +2966,6 @@ msgid "Mark the given packages as manually installed"
 msgstr "标记指定软件包为手动安装"
 
 #: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "Mark the given packages as automatically installed"
-msgid "Mark all dependencies of meta packages as automatically installed."
-msgstr "标记指定软件包为自动安装"
-
-#: cmdline/apt-mark.cc
 msgid "Mark a package as held back"
 msgstr "标记指定软件包为保留(held back)"
 
@@ -3000,7 +2982,7 @@ msgid "Print the list of manually installed packages"
 msgstr "列出所有手动安装的软件包"
 
 #: cmdline/apt-mark.cc
-msgid "Print the list of packages on hold"
+msgid "Print the list of package on hold"
 msgstr "列出设为保留的软件包"
 
 #: cmdline/apt-sortpkgs.cc
@@ -3053,12 +3035,6 @@ msgstr "显示软件包细节"
 #. package stuff
 #: cmdline/apt.cc
 msgid "install packages"
-msgstr "安装软件包"
-
-#: cmdline/apt.cc
-#, fuzzy
-#| msgid "install packages"
-msgid "reinstall packages"
 msgstr "安装软件包"
 
 #: cmdline/apt.cc
@@ -3792,11 +3768,13 @@ msgstr "连接被永久关闭"
 msgid "Empty files can't be valid archives"
 msgstr "空文件不是有效归档"
 
-#~ msgid "Removed %s"
-#~ msgstr "已删除 %s"
+#, fuzzy
+#~| msgid "Your '%s' file changed, please run 'apt-get update'."
+#~ msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+#~ msgstr "您的 %s 文件有过改动，请执行 ‘apt-get update’。"
 
-#~ msgid "Package file %s is out of sync."
-#~ msgstr "软件包文件 %s 尚未同步。"
+#~ msgid "Print the list of packages on hold"
+#~ msgstr "列出设为保留的软件包"
 
 #~ msgid ""
 #~ "The package index files are corrupted. No Filename: field for package %s."

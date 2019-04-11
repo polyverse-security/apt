@@ -44,6 +44,7 @@ void InitLocale(APT_CMD const binary)				/*{{{*/
 	 break;
    }
 }
+void InitLocale() {}
 									/*}}}*/
 void InitSignals()							/*{{{*/
 {

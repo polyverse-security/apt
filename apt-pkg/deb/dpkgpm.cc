@@ -102,8 +102,8 @@ APT_PURE static unsigned int EnvironmentSize()				/*{{{*/
 class pkgDPkgPMPrivate							/*{{{*/
 {
 public:
-   pkgDPkgPMPrivate() : stdin_is_dev_null(false), status_fd_reached_end_of_file(false),
-			dpkgbuf_pos(0), term_out(NULL), history_out(NULL),
+   pkgDPkgPMPrivate() : stdin_is_dev_null(false), dpkgbuf_pos(0),
+			term_out(NULL), history_out(NULL),
 			progress(NULL), tt_is_valid(false), master(-1),
 			slave(NULL), protect_slave_from_dying(-1),
 			direct_stdin(false)
@@ -114,7 +114,6 @@ public:
    {
    }
    bool stdin_is_dev_null;
-   bool status_fd_reached_end_of_file;
    // the buffer we use for the dpkg status-fd reading
    char dpkgbuf[1024];
    size_t dpkgbuf_pos;
@@ -142,12 +141,12 @@ namespace
   // Maps the dpkg "processing" info to human readable names.  Entry 0
   // of each array is the key, entry 1 is the value.
   const std::pair<const char *, const char *> PackageProcessingOps[] = {
-    std::make_pair("install",   N_("Preparing %s")),
+    std::make_pair("install",   N_("Installing %s")),
     // we don't care for the difference
-    std::make_pair("upgrade",   N_("Preparing %s")),
-    std::make_pair("configure", N_("Preparing to configure %s")),
-    std::make_pair("remove",    N_("Preparing for removal of %s")),
-    std::make_pair("purge",     N_("Preparing to completely remove %s")),
+    std::make_pair("upgrade",   N_("Installing %s")),
+    std::make_pair("configure", N_("Configuring %s")),
+    std::make_pair("remove",    N_("Removing %s")),
+    std::make_pair("purge",    N_("Completely removing %s")),
     std::make_pair("disappear", N_("Noting disappearance of %s")),
     std::make_pair("trigproc",  N_("Running post-installation trigger %s"))
   };
@@ -301,6 +300,10 @@ bool pkgDPkgPM::Remove(PkgIterator Pkg,bool Purge)
 // ---------------------------------------------------------------------
 /* This is part of the helper script communication interface, it sends
    very complete information down to the other end of the pipe.*/
+bool pkgDPkgPM::SendV2Pkgs(FILE *F)
+{
+   return SendPkgsInfo(F, 2);
+}
 bool pkgDPkgPM::SendPkgsInfo(FILE * const F, unsigned int const &Version)
 {
    // This version of APT supports only v3, so don't sent higher versions
@@ -958,19 +961,11 @@ void pkgDPkgPM::handleCrossUpgradeAction(string const &pkgname)		/*{{{*/
 // DPkgPM::DoDpkgStatusFd						/*{{{*/
 void pkgDPkgPM::DoDpkgStatusFd(int statusfd)
 {
-   auto const remainingBuffer = (sizeof(d->dpkgbuf) / sizeof(d->dpkgbuf[0])) - d->dpkgbuf_pos;
-   if (likely(remainingBuffer > 0) && d->status_fd_reached_end_of_file == false)
-   {
-      auto const len = read(statusfd, &d->dpkgbuf[d->dpkgbuf_pos], remainingBuffer);
-      if (len < 0)
-	 return;
-      else if (len == 0 && d->dpkgbuf_pos == 0)
-      {
-	 d->status_fd_reached_end_of_file = true;
-	 return;
-      }
-      d->dpkgbuf_pos += (len / sizeof(d->dpkgbuf[0]));
-   }
+   ssize_t const len = read(statusfd, &d->dpkgbuf[d->dpkgbuf_pos],
+	 (sizeof(d->dpkgbuf)/sizeof(d->dpkgbuf[0])) - d->dpkgbuf_pos);
+   if(len <= 0)
+      return;
+   d->dpkgbuf_pos += (len / sizeof(d->dpkgbuf[0]));
 
    // process line by line from the buffer
    char *p = d->dpkgbuf, *q = nullptr;
@@ -1153,26 +1148,30 @@ void pkgDPkgPM::BuildPackagesProgressMap()
 {
    // map the dpkg states to the operations that are performed
    // (this is sorted in the same way as Item::Ops)
-   static const std::array<std::array<DpkgState, 2>, 4> DpkgStatesOpMap = {{
+   static const std::array<std::array<DpkgState, 3>, 4> DpkgStatesOpMap = {{
       // Install operation
       {{
-	 {"half-installed", N_("Unpacking %s")},
-	 {"unpacked", N_("Installing %s") },
+	 {"half-installed", N_("Preparing %s")},
+	 {"unpacked", N_("Unpacking %s") },
+	 {nullptr, nullptr}
       }},
       // Configure operation
       {{
+	 {"unpacked",N_("Preparing to configure %s") },
 	 {"half-configured", N_("Configuring %s") },
 	 { "installed", N_("Installed %s")},
       }},
       // Remove operation
       {{
-	 {"half-configured", N_("Removing %s")},
+	 {"half-configured", N_("Preparing for removal of %s")},
 	 {"half-installed", N_("Removing %s")},
+	 {"config-files",  N_("Removed %s")},
       }},
       // Purge operation
       {{
-	 {"config-files", N_("Completely removing %s")},
+	 {"config-files", N_("Preparing to completely remove %s")},
 	 {"not-installed", N_("Completely removed %s")},
+	 {nullptr, nullptr}
       }},
    }};
    static_assert(Item::Purge == 3, "Enum item has unexpected index for mapping array");
@@ -1188,16 +1187,21 @@ void pkgDPkgPM::BuildPackagesProgressMap()
 
       string const name = I.Pkg.FullName();
       PackageOpsDone[name] = 0;
-      auto AddToPackageOps = [&](decltype(I.Op) const Op) {
-	 auto const DpkgOps = DpkgStatesOpMap[Op];
-	 std::copy(DpkgOps.begin(), DpkgOps.end(), std::back_inserter(PackageOps[name]));
-	 PackagesTotal += DpkgOps.size();
-      };
-      // purging a package which is installed first passes through remove states
+      auto AddToPackageOps = std::back_inserter(PackageOps[name]);
       if (I.Op == Item::Purge && I.Pkg->CurrentVer != 0)
-	 AddToPackageOps(Item::Remove);
-      AddToPackageOps(I.Op);
-
+      {
+	 // purging a package which is installed first passes through remove states
+	 auto const DpkgOps = DpkgStatesOpMap[Item::Remove];
+	 std::copy(DpkgOps.begin(), DpkgOps.end(), AddToPackageOps);
+	 PackagesTotal += DpkgOps.size();
+      }
+      auto const DpkgOps = DpkgStatesOpMap[I.Op];
+      std::copy_if(DpkgOps.begin(), DpkgOps.end(), AddToPackageOps, [&](DpkgState const &state) {
+	 if (state.state == nullptr)
+	    return false;
+	 ++PackagesTotal;
+	 return true;
+      });
       if ((I.Op == Item::Remove || I.Op == Item::Purge) && I.Pkg->CurrentVer != 0)
       {
 	 if (I.Pkg->CurrentState == pkgCache::State::UnPacked ||
@@ -1219,6 +1223,17 @@ void pkgDPkgPM::BuildPackagesProgressMap()
    ++PackagesTotal;
 }
                                                                         /*}}}*/
+bool pkgDPkgPM::Go(int StatusFd)					/*{{{*/
+{
+   APT::Progress::PackageManager *progress = NULL;
+   if (StatusFd == -1)
+      progress = APT::Progress::PackageManagerProgressFactory();
+   else
+      progress = new APT::Progress::PackageManagerProgressFd(StatusFd);
+
+   return Go(progress);
+}
+									/*}}}*/
 void pkgDPkgPM::StartPtyMagic()						/*{{{*/
 {
    if (_config->FindB("Dpkg::Use-Pty", true) == false)
@@ -1610,9 +1625,9 @@ bool pkgDPkgPM::Go(APT::Progress::PackageManager *progress)
 	    approvedStates.Remove(*Ver);
 	    Purges.erase(Ver);
 	    auto && RemOp = PackageOps[C.first->Pkg.FullName()];
-	    if (RemOp.size() == 4)
+	    if (RemOp.size() == 5)
 	    {
-	       RemOp.erase(std::next(RemOp.begin(), 2), RemOp.end());
+	       RemOp.erase(std::next(RemOp.begin(), 3), RemOp.end());
 	       PackagesTotal -= 2;
 	    }
 	    else
@@ -2002,9 +2017,6 @@ bool pkgDPkgPM::Go(APT::Progress::PackageManager *progress)
 	    && dynamic_cast<debSystem*>(_system)->IsLocked() == true) {
 	    setenv("DPKG_FRONTEND_LOCKED", "true", 1);
 	 }
-	 if (_config->Find("DPkg::Path", "").empty() == false)
-	    setenv("PATH", _config->Find("DPkg::Path", "").c_str(), 1);
-
 	 execvp(Args[0], (char**) &Args[0]);
 	 cerr << "Could not exec dpkg!" << endl;
 	 _exit(100);
@@ -2013,7 +2025,6 @@ bool pkgDPkgPM::Go(APT::Progress::PackageManager *progress)
       // we read from dpkg here
       int const _dpkgin = fd[0];
       close(fd[1]);                        // close the write end of the pipe
-      d->status_fd_reached_end_of_file = false;
 
       // apply ionice
       if (_config->FindB("DPkg::UseIoNice", false) == true)
@@ -2033,24 +2044,14 @@ bool pkgDPkgPM::Go(APT::Progress::PackageManager *progress)
       int Status = 0;
       int res;
       bool waitpid_failure = false;
-      bool dpkg_finished = false;
-      do
-      {
-	 if (dpkg_finished == false)
-	 {
-	    if ((res = waitpid(Child, &Status, WNOHANG)) == Child)
-	       dpkg_finished = true;
-	    else if (res < 0)
-	    {
-	       // error handling, waitpid returned -1
-	       if (errno == EINTR)
-		  continue;
-	       waitpid_failure = true;
-	       break;
-	    }
-	 }
-	 if (dpkg_finished && d->status_fd_reached_end_of_file)
+      while ((res=waitpid(Child,&Status, WNOHANG)) != Child) {
+	 if(res < 0) {
+	    // error handling, waitpid returned -1
+	    if (errno == EINTR)
+	       continue;
+	    waitpid_failure = true;
 	    break;
+	 }
 
 	 // wait for input or output here
 	 FD_ZERO(&rfds);
@@ -2080,8 +2081,7 @@ bool pkgDPkgPM::Go(APT::Progress::PackageManager *progress)
 	    DoStdin(d->master);
 	 if(FD_ISSET(_dpkgin, &rfds))
 	    DoDpkgStatusFd(_dpkgin);
-
-      } while (true);
+      }
       close(_dpkgin);
 
       // Restore sig int/quit

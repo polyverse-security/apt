@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apt 0.5.5\n"
 "Report-Msgid-Bugs-To: APT Development Team <deity@lists.debian.org>\n"
-"POT-Creation-Date: 2019-02-04 15:34+0100\n"
+"POT-Creation-Date: 2019-03-01 10:02+0100\n"
 "PO-Revision-Date: 2012-06-27 21:29+0000\n"
 "Last-Translator: Andrej Znidarsic <andrej.znidarsic@gmail.com>\n"
 "Language-Team: Slovenian <sl@li.org>\n"
@@ -406,13 +406,6 @@ msgstr "Dnevnik sprememb za %s (%s)"
 
 #: apt-pkg/acquire-worker.cc
 #, c-format
-msgid ""
-"The method '%s' is unsupported and disabled by default. Consider switching "
-"to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."
-msgstr ""
-
-#: apt-pkg/acquire-worker.cc
-#, c-format
 msgid "The method '%s' is explicitly disabled via configuration."
 msgstr ""
 
@@ -474,6 +467,8 @@ msgstr ""
 msgid "Clean of %s is not supported"
 msgstr "Vrsta datoteke s kazalom '%s' ni podprta"
 
+#. only show the ETA if it makes sense
+#. two days
 #: apt-pkg/acquire.cc
 #, c-format
 msgid "Retrieving file %li of %li (%s remaining)"
@@ -915,12 +910,12 @@ msgstr "Težava med preimenovanje datoteke %s v %s"
 msgid "Problem syncing the file"
 msgstr "Težava med usklajevanjem datoteke"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, fuzzy, c-format
 msgid "Unable to mkstemp %s"
 msgstr "Ni mogoče določiti %s"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to write to %s"
 msgstr "Ni mogoče pisati na %s"
@@ -1136,23 +1131,23 @@ msgstr "Ni zaklenjeno"
 #. we don't care for the difference
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing %s"
-msgstr "Pripravljanje %s"
+msgid "Installing %s"
+msgstr "Nameščanje %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to configure %s"
-msgstr "Pripravljanje na nastavljanje %s"
+msgid "Configuring %s"
+msgstr "Nastavljanje %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing for removal of %s"
-msgstr "Pripravljanje na odstranitev %s"
+msgid "Removing %s"
+msgstr "Odstranjevanje %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to completely remove %s"
-msgstr "Pripravljanje na popolno odstranitev %s"
+msgid "Completely removing %s"
+msgstr "%s je bil popolnoma odstranjen"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1169,11 +1164,6 @@ msgstr "Poganjanje sprožilca po namestitvi %s"
 msgid "Installed %s"
 msgstr "%s je bil nameščen"
 
-#: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Configuring %s"
-msgstr "Nastavljanje %s"
-
 #. FIXME: use a better string after freeze
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1187,23 +1177,33 @@ msgstr "Ni mogoče odpreti datoteke '%s'"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
+msgid "Preparing %s"
+msgstr "Pripravljanje %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
 msgid "Unpacking %s"
 msgstr "Razširjanje %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Installing %s"
-msgstr "Nameščanje %s"
+msgid "Preparing to configure %s"
+msgstr "Pripravljanje na nastavljanje %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Removing %s"
-msgstr "Odstranjevanje %s"
+msgid "Preparing for removal of %s"
+msgstr "Pripravljanje na odstranitev %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Completely removing %s"
-msgstr "%s je bil popolnoma odstranjen"
+msgid "Removed %s"
+msgstr "%s je bil odstranjen"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
+msgid "Preparing to completely remove %s"
+msgstr "Pripravljanje na popolno odstranitev %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1597,7 +1597,7 @@ msgstr "Slabo oblikovana vrstica %u v seznamu virov %s (vrsta)"
 msgid "Type '%s' is not known on stanza %u in source list %s"
 msgstr "Vrsta '%s' v vrstici %u na seznamu virov %s ni znana"
 
-#: apt-pkg/sourcelist.cc apt-private/private-install.cc
+#: apt-pkg/sourcelist.cc
 #, c-format
 msgid "Unsupported file %s given on commandline"
 msgstr ""
@@ -1819,8 +1819,8 @@ msgid ""
 "instead."
 msgstr ""
 
-#: apt-private/private-depends.cc apt-private/private-download.cc
-#: apt-private/private-show.cc cmdline/apt-mark.cc
+#: apt-private/private-depends.cc apt-private/private-show.cc
+#: cmdline/apt-mark.cc
 msgid "No packages found"
 msgstr "Noben paket ni bil najden"
 
@@ -1988,7 +1988,7 @@ msgstr ""
 msgid "Abort."
 msgstr "Prekini."
 
-#: apt-private/private-install.cc cmdline/apt-mark.cc
+#: apt-private/private-install.cc
 msgid "Do you want to continue?"
 msgstr "Ali želite nadaljevati?"
 
@@ -2330,6 +2330,11 @@ msgstr "Podati morate vsaj en iskalni vzorec"
 msgid "Full Text Search"
 msgstr ""
 
+#: apt-private/private-show.cc cmdline/apt-cache.cc
+#, c-format
+msgid "Package file %s is out of sync."
+msgstr "Datoteka paketa %s ni usklajena."
+
 #: apt-private/private-show.cc
 #, c-format
 msgid "There is %i additional record. Please use the '-a' switch to see it"
@@ -2493,6 +2498,12 @@ msgid "%s has no build depends.\n"
 msgstr "%s nima odvisnosti za gradnjo.\n"
 
 #: apt-private/private-source.cc
+msgid "Must specify at least one package to check builddeps for"
+msgstr ""
+"Potrebno je navesti vsaj en paket, za katerega želite preveriti odvisnosti "
+"za gradnjo"
+
+#: apt-private/private-source.cc
 #, c-format
 msgid ""
 "No architecture information available for %s. See apt.conf(5) APT::"
@@ -2500,12 +2511,6 @@ msgid ""
 msgstr ""
 "Za %s ni bilo mogoče najti podatkov o arhitekturi. Za nastavitev si oglejte "
 "apt.conf(5) APT::Architectures"
-
-#: apt-private/private-source.cc
-msgid "Must specify at least one package to check builddeps for"
-msgstr ""
-"Potrebno je navesti vsaj en paket, za katerega želite preveriti odvisnosti "
-"za gradnjo"
 
 #: apt-private/private-source.cc
 #, c-format
@@ -2528,7 +2533,7 @@ msgstr "Ni mogoče preimenovati %s v %s"
 
 #: apt-private/private-sources.cc
 #, c-format
-msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+msgid "Your '%s' file changed, please run 'apt-get update'."
 msgstr ""
 
 #: apt-private/private-unmet.cc
@@ -2562,9 +2567,9 @@ msgstr[3] ""
 msgid "All packages are up to date."
 msgstr ""
 
-#: cmdline/apt-cache.cc cmdline/apt-mark.cc
-#, fuzzy, c-format
-msgid "%s does not take any arguments"
+#: cmdline/apt-cache.cc
+#, fuzzy
+msgid "apt-cache stats does not take any arguments"
 msgstr "Ukaz update ne sprejema argumentov"
 
 #: cmdline/apt-cache.cc
@@ -2825,12 +2830,6 @@ msgid "Install new packages (pkg is libc6 not libc6.deb)"
 msgstr "Namesti nove pakete (paket je libc6, ne libc6.deb)"
 
 #: cmdline/apt-get.cc
-#, fuzzy
-#| msgid "Install new packages (pkg is libc6 not libc6.deb)"
-msgid "Reinstall packages (pkg is libc6 not libc6.deb)"
-msgstr "Namesti nove pakete (paket je libc6, ne libc6.deb)"
-
-#: cmdline/apt-get.cc
 msgid "Remove packages"
 msgstr "Odstrani pakete"
 
@@ -2989,16 +2988,6 @@ msgid "%s was already set to automatically installed.\n"
 msgstr "paket %s je bil že nastavljen kot samodejno nameščen.\n"
 
 #: cmdline/apt-mark.cc
-msgid "No changes necessary"
-msgstr ""
-
-#: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "The following NEW packages will be installed:"
-msgid "The following packages will be marked as automatically installed:"
-msgstr "Naslednji NOVI paketi bodo nameščeni:"
-
-#: cmdline/apt-mark.cc
 #, c-format
 msgid "%s was already set on hold.\n"
 msgstr "paket %s je bil že nastavljen kot na čakanju.\n"
@@ -3061,12 +3050,6 @@ msgid "Mark the given packages as manually installed"
 msgstr "Označi dane pakete kot ročno nameščene"
 
 #: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "Mark the given packages as automatically installed"
-msgid "Mark all dependencies of meta packages as automatically installed."
-msgstr "Označi dane pakete kot samodejno nameščene"
-
-#: cmdline/apt-mark.cc
 msgid "Mark a package as held back"
 msgstr ""
 
@@ -3083,7 +3066,7 @@ msgid "Print the list of manually installed packages"
 msgstr ""
 
 #: cmdline/apt-mark.cc
-msgid "Print the list of packages on hold"
+msgid "Print the list of package on hold"
 msgstr ""
 
 #: cmdline/apt-sortpkgs.cc
@@ -3128,11 +3111,6 @@ msgstr ""
 #: cmdline/apt.cc
 #, fuzzy
 msgid "install packages"
-msgstr "Pripeti paketi:"
-
-#: cmdline/apt.cc
-#, fuzzy
-msgid "reinstall packages"
 msgstr "Pripeti paketi:"
 
 #: cmdline/apt.cc
@@ -3879,12 +3857,6 @@ msgstr "Povezava se je prezgodaj zaprla"
 #: methods/store.cc
 msgid "Empty files can't be valid archives"
 msgstr "Prazne datoteke ne morejo biti veljavni arhivi"
-
-#~ msgid "Removed %s"
-#~ msgstr "%s je bil odstranjen"
-
-#~ msgid "Package file %s is out of sync."
-#~ msgstr "Datoteka paketa %s ni usklajena."
 
 #~ msgid ""
 #~ "The package index files are corrupted. No Filename: field for package %s."

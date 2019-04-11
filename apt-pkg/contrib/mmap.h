@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: mmap.h,v 1.12 2001/05/14 05:16:43 jgg Exp $
 /* ######################################################################
    
    MMap Class - Provides 'real' mmap or a faked mmap using read().
@@ -36,7 +37,7 @@ using std::string;
 
 class FileFd;
 
-/* This should be a 32 bit type, larger types use too much ram and smaller
+/* This should be a 32 bit type, larger tyes use too much ram and smaller
    types are too small. Where ever possible 'unsigned long' should be used
    instead of this internal type */
 typedef unsigned int map_ptrloc;

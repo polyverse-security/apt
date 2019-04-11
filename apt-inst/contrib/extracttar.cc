@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: extracttar.cc,v 1.8.2.1 2004/01/16 18:58:50 mdz Exp $
 /* ######################################################################
 
    Extract a Tar - Tar Extractor
@@ -76,6 +77,10 @@ ExtractTar::~ExtractTar()
 }
 									/*}}}*/
 // ExtractTar::Done - Reap the gzip sub process				/*{{{*/
+bool ExtractTar::Done(bool)
+{
+   return Done();
+}
 bool ExtractTar::Done()
 {
    return InFd.Close();

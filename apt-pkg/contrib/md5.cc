@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: md5.cc,v 1.12 2001/05/13 05:15:03 jgg Exp $
 /* ######################################################################
    
    MD5Sum - MD5 Message Digest Algorithm.
@@ -80,7 +81,7 @@ static void byteSwap(uint32_t *buf, unsigned words)
 
 static void MD5Transform(uint32_t buf[4], uint32_t const in[16])
 {
-   uint32_t a, b, c, d;
+   register uint32_t a, b, c, d;
    
    a = buf[0];
    b = buf[1];

@@ -93,12 +93,6 @@
   </citerefentry>"
 >
 
-<!ENTITY apt-transport-mirror "<citerefentry>
-    <refentrytitle><command>apt-transport-mirror</command></refentrytitle>
-    <manvolnum>1</manvolnum>
-  </citerefentry>"
->
-
 <!ENTITY sources-list "<citerefentry>
     <refentrytitle><filename>sources.list</filename></refentrytitle>
     <manvolnum>5</manvolnum>
@@ -225,7 +219,7 @@
   </citerefentry>"
 >
 
-<!ENTITY apt-acquire-additional-files "<literal><filename>/usr/share/doc/apt-doc/acquire-additional-files.md.gz</filename></literal>">
+<!ENTITY apt-acquire-additional-files "<literal><filename>/usr/share/doc/apt-doc/acquire-additional-files.txt</filename></literal>">
 
 <!-- Boiler plate docinfo section -->
 <!ENTITY apt-email "
@@ -268,14 +262,14 @@
 ">
 
 <!-- this will be updated by 'prepare-release' -->
-<!ENTITY apt-product-version "1.8.0">
+<!ENTITY apt-product-version "1.6.10">
 
 <!-- (Code)names for various things used all over the place -->
-<!ENTITY debian-oldstable-codename "stretch">
-<!ENTITY debian-stable-codename "buster">
-<!ENTITY debian-testing-codename "bullseye">
-<!ENTITY debian-stable-version "10">
-<!ENTITY ubuntu-codename "disco">
+<!ENTITY debian-oldstable-codename "jessie">
+<!ENTITY debian-stable-codename "stretch">
+<!ENTITY debian-testing-codename "buster">
+<!ENTITY debian-stable-version "9">
+<!ENTITY ubuntu-codename "bionic">
 
 <!-- good and bad just refers to matching and not matching a pattern…
      It is not a remark about the specific perl version.

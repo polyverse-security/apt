@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apt 1.0.5\n"
 "Report-Msgid-Bugs-To: APT Development Team <deity@lists.debian.org>\n"
-"POT-Creation-Date: 2019-02-04 15:34+0100\n"
+"POT-Creation-Date: 2019-03-01 10:02+0100\n"
 "PO-Revision-Date: 2018-10-30 20:53+0100\n"
 "Last-Translator: Petter Reinholdtsen <pere@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <i18n-no@lister.ping.uio.no>\n"
@@ -411,13 +411,6 @@ msgstr "Kobler til %s (%s)"
 
 #: apt-pkg/acquire-worker.cc
 #, c-format
-msgid ""
-"The method '%s' is unsupported and disabled by default. Consider switching "
-"to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."
-msgstr ""
-
-#: apt-pkg/acquire-worker.cc
-#, c-format
 msgid "The method '%s' is explicitly disabled via configuration."
 msgstr "Metoden «%s» er eksplisitt avskrudd via oppsettet."
 
@@ -479,6 +472,8 @@ msgstr ""
 msgid "Clean of %s is not supported"
 msgstr "Oversiktsfil av typen «%s» støttes ikke"
 
+#. only show the ETA if it makes sense
+#. two days
 #: apt-pkg/acquire.cc
 #, c-format
 msgid "Retrieving file %li of %li (%s remaining)"
@@ -922,12 +917,12 @@ msgstr "Problem ved endring av navn på fila %s til %s"
 msgid "Problem syncing the file"
 msgstr "Problem ved oppdatering av fila"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, fuzzy, c-format
 msgid "Unable to mkstemp %s"
 msgstr "Klarte ikke å få statusen på %s"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to write to %s"
 msgstr "Kan ikke skrive til %s"
@@ -1145,23 +1140,23 @@ msgstr "Ikke låst"
 #. we don't care for the difference
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing %s"
-msgstr "Forbereder %s"
+msgid "Installing %s"
+msgstr "Installerer %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to configure %s"
-msgstr "Forbereder oppsett av %s"
+msgid "Configuring %s"
+msgstr "Setter opp %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing for removal of %s"
-msgstr "Forbereder fjerning av %s"
+msgid "Removing %s"
+msgstr "Fjerner %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to completely remove %s"
-msgstr "Forbereder å fullstendig slette %s"
+msgid "Completely removing %s"
+msgstr "Fjerner %s fullstendig"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1178,11 +1173,6 @@ msgstr "Kjører etter-installasjonsutløser %s"
 msgid "Installed %s"
 msgstr "Installerte %s"
 
-#: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Configuring %s"
-msgstr "Setter opp %s"
-
 #. FIXME: use a better string after freeze
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1196,23 +1186,33 @@ msgstr "Klarte ikke åpne fila «%s»"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
+msgid "Preparing %s"
+msgstr "Forbereder %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
 msgid "Unpacking %s"
 msgstr "Pakker ut %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Installing %s"
-msgstr "Installerer %s"
+msgid "Preparing to configure %s"
+msgstr "Forbereder oppsett av %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Removing %s"
-msgstr "Fjerner %s"
+msgid "Preparing for removal of %s"
+msgstr "Forbereder fjerning av %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Completely removing %s"
-msgstr "Fjerner %s fullstendig"
+msgid "Removed %s"
+msgstr "Fjernet %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
+msgid "Preparing to completely remove %s"
+msgstr "Forbereder å fullstendig slette %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1596,7 +1596,7 @@ msgstr "Feil på %u i kildelista %s (type)"
 msgid "Type '%s' is not known on stanza %u in source list %s"
 msgstr "Typen «%s» er ukjent i linje %u i kildelista %s"
 
-#: apt-pkg/sourcelist.cc apt-private/private-install.cc
+#: apt-pkg/sourcelist.cc
 #, c-format
 msgid "Unsupported file %s given on commandline"
 msgstr ""
@@ -1823,8 +1823,8 @@ msgid ""
 msgstr ""
 "--force-yes er utdatert, bruk en av valgene som starter med --allow istedet."
 
-#: apt-private/private-depends.cc apt-private/private-download.cc
-#: apt-private/private-show.cc cmdline/apt-mark.cc
+#: apt-private/private-depends.cc apt-private/private-show.cc
+#: cmdline/apt-mark.cc
 msgid "No packages found"
 msgstr "Fant ingen pakker"
 
@@ -1995,7 +1995,7 @@ msgstr ""
 msgid "Abort."
 msgstr "Avbryter."
 
-#: apt-private/private-install.cc cmdline/apt-mark.cc
+#: apt-private/private-install.cc
 msgid "Do you want to continue?"
 msgstr "Vil du fortsette?"
 
@@ -2325,6 +2325,11 @@ msgstr "Du må oppgi minst ett søkemønster"
 msgid "Full Text Search"
 msgstr "Fulltekstsøk"
 
+#: apt-private/private-show.cc cmdline/apt-cache.cc
+#, c-format
+msgid "Package file %s is out of sync."
+msgstr "Pakkefila %s er ikke oppdatert."
+
 #: apt-private/private-show.cc
 #, c-format
 msgid "There is %i additional record. Please use the '-a' switch to see it"
@@ -2489,6 +2494,10 @@ msgid "%s has no build depends.\n"
 msgstr "%s har ingen avhengigheter.\n"
 
 #: apt-private/private-source.cc
+msgid "Must specify at least one package to check builddeps for"
+msgstr "Du må angi minst en pakke du vil sjekke «builddeps» for"
+
+#: apt-private/private-source.cc
 #, c-format
 msgid ""
 "No architecture information available for %s. See apt.conf(5) APT::"
@@ -2496,10 +2505,6 @@ msgid ""
 msgstr ""
 "Ingen arkitekturinformasjon tilgjengelig for %s.  Se apt.conf(5) APT::"
 "Architectures for oppsett."
-
-#: apt-private/private-source.cc
-msgid "Must specify at least one package to check builddeps for"
-msgstr "Du må angi minst en pakke du vil sjekke «builddeps» for"
 
 #: apt-private/private-source.cc
 #, c-format
@@ -2522,8 +2527,8 @@ msgstr "Klarte ikke å endre navnet på %s til %s"
 
 #: apt-private/private-sources.cc
 #, c-format
-msgid "Your '%s' file changed, please run 'apt-get update'.\n"
-msgstr "'%s'-filen din ble endret, vær så snill å kjør 'apt-get update'.\n"
+msgid "Your '%s' file changed, please run 'apt-get update'."
+msgstr "'%s'-filen din ble endret, vær så snill å kjør 'apt-get update'."
 
 #: apt-private/private-unmet.cc
 #, c-format
@@ -2556,9 +2561,9 @@ msgstr[1] ""
 msgid "All packages are up to date."
 msgstr "Alle pakkene er oppdatert."
 
-#: cmdline/apt-cache.cc cmdline/apt-mark.cc
-#, fuzzy, c-format
-msgid "%s does not take any arguments"
+#: cmdline/apt-cache.cc
+#, fuzzy
+msgid "apt-cache stats does not take any arguments"
 msgstr "Oppdaterings-kommandoen tar ingen argumenter"
 
 #: cmdline/apt-cache.cc
@@ -2823,12 +2828,6 @@ msgid "Install new packages (pkg is libc6 not libc6.deb)"
 msgstr "Installér nye pakker (Pakke er «foo», ikke «foo.deb»)"
 
 #: cmdline/apt-get.cc
-#, fuzzy
-#| msgid "Install new packages (pkg is libc6 not libc6.deb)"
-msgid "Reinstall packages (pkg is libc6 not libc6.deb)"
-msgstr "Installér nye pakker (Pakke er «foo», ikke «foo.deb»)"
-
-#: cmdline/apt-get.cc
 msgid "Remove packages"
 msgstr "Fjern pakker"
 
@@ -2986,16 +2985,6 @@ msgid "%s was already set to automatically installed.\n"
 msgstr "%s satt til automatisk installasjon.\n"
 
 #: cmdline/apt-mark.cc
-msgid "No changes necessary"
-msgstr ""
-
-#: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "The following NEW packages will be installed:"
-msgid "The following packages will be marked as automatically installed:"
-msgstr "Følgende NYE pakker vil bli installert:"
-
-#: cmdline/apt-mark.cc
 #, fuzzy, c-format
 msgid "%s was already set on hold.\n"
 msgstr "%s er allerede nyeste versjon.\n"
@@ -3054,12 +3043,6 @@ msgid "Mark the given packages as manually installed"
 msgstr "Sjekk om pakken «dpkg-dev» er installert.\n"
 
 #: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "Mark the given packages as automatically installed"
-msgid "Mark all dependencies of meta packages as automatically installed."
-msgstr "Marker den angitte pakken som automatisk installert"
-
-#: cmdline/apt-mark.cc
 msgid "Mark a package as held back"
 msgstr "Marker en pakke som holdt tilbake"
 
@@ -3078,7 +3061,7 @@ msgid "Print the list of manually installed packages"
 msgstr "%s satt til manuell installasjon.\n"
 
 #: cmdline/apt-mark.cc
-msgid "Print the list of packages on hold"
+msgid "Print the list of package on hold"
 msgstr "Skriv listen med pakker som holdes tilbake"
 
 #: cmdline/apt-sortpkgs.cc
@@ -3123,11 +3106,6 @@ msgstr "vis pakkedetaljer"
 #: cmdline/apt.cc
 #, fuzzy
 msgid "install packages"
-msgstr "Låste pakker:"
-
-#: cmdline/apt.cc
-#, fuzzy
-msgid "reinstall packages"
 msgstr "Låste pakker:"
 
 #: cmdline/apt.cc
@@ -3880,11 +3858,11 @@ msgstr "Forbindelsen ble uventet stengt"
 msgid "Empty files can't be valid archives"
 msgstr "Tomme filer kan ikke være gyldige arkiver"
 
-#~ msgid "Removed %s"
-#~ msgstr "Fjernet %s"
+#~ msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+#~ msgstr "'%s'-filen din ble endret, vær så snill å kjør 'apt-get update'.\n"
 
-#~ msgid "Package file %s is out of sync."
-#~ msgstr "Pakkefila %s er ikke oppdatert."
+#~ msgid "Print the list of packages on hold"
+#~ msgstr "Skriv listen med pakker som holdes tilbake"
 
 #~ msgid ""
 #~ "The package index files are corrupted. No Filename: field for package %s."

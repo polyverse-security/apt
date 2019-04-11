@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apt\n"
 "Report-Msgid-Bugs-To: APT Development Team <deity@lists.debian.org>\n"
-"POT-Creation-Date: 2019-02-26 08:33+0100\n"
+"POT-Creation-Date: 2019-03-01 10:02+0100\n"
 "PO-Revision-Date: 2019-03-04 11:05+0100\n"
 "Last-Translator: Milo Casagrande <milo@milo.name>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
@@ -429,15 +429,6 @@ msgstr "Changelog per %s=%s non disponibile"
 
 #: apt-pkg/acquire-worker.cc
 #, c-format
-msgid ""
-"The method '%s' is unsupported and disabled by default. Consider switching "
-"to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."
-msgstr ""
-"Il metodo \"%s\" non è supportato ed è disabilitato: passare a http(s). Per "
-"abilitarlo nuovamente, impostare Dir::Bin::Methods::%s a \"%s\"."
-
-#: apt-pkg/acquire-worker.cc
-#, c-format
 msgid "The method '%s' is explicitly disabled via configuration."
 msgstr "Il metodo \"%s\" è disabilitato tramite la configurazione."
 
@@ -503,6 +494,8 @@ msgstr ""
 msgid "Clean of %s is not supported"
 msgstr "La pulizia di %s non è supportata"
 
+#. only show the ETA if it makes sense
+#. two days
 #: apt-pkg/acquire.cc
 #, c-format
 msgid "Retrieving file %li of %li (%s remaining)"
@@ -971,12 +964,12 @@ msgstr "Si è verificato un problema nel rinominare il file %s in %s"
 msgid "Problem syncing the file"
 msgstr "Si è verificato un problema nel sincronizzare il file"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to mkstemp %s"
 msgstr "Impossibile eseguire mkstemp %s"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to write to %s"
 msgstr "Impossibile scrivere in %s"
@@ -1207,23 +1200,23 @@ msgstr "Non bloccato"
 #. we don't care for the difference
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing %s"
-msgstr "Preparazione di %s"
+msgid "Installing %s"
+msgstr "Installazione di %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to configure %s"
-msgstr "Preparazione alla configurazione di %s"
+msgid "Configuring %s"
+msgstr "Configurazione di %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing for removal of %s"
-msgstr "Preparazione alla rimozione di %s"
+msgid "Removing %s"
+msgstr "Rimozione di %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to completely remove %s"
-msgstr "Preparazione alla rimozione completa di %s"
+msgid "Completely removing %s"
+msgstr "Rimozione completa di %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1240,11 +1233,6 @@ msgstr "Esecuzione comando di post installazione %s"
 msgid "Installed %s"
 msgstr "Pacchetto %s installato"
 
-#: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Configuring %s"
-msgstr "Configurazione di %s"
-
 #. FIXME: use a better string after freeze
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1258,23 +1246,33 @@ msgstr "Impossibile aprire il file \"%s\""
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
+msgid "Preparing %s"
+msgstr "Preparazione di %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
 msgid "Unpacking %s"
 msgstr "Estrazione di %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Installing %s"
-msgstr "Installazione di %s"
+msgid "Preparing to configure %s"
+msgstr "Preparazione alla configurazione di %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Removing %s"
-msgstr "Rimozione di %s"
+msgid "Preparing for removal of %s"
+msgstr "Preparazione alla rimozione di %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Completely removing %s"
-msgstr "Rimozione completa di %s"
+msgid "Removed %s"
+msgstr "Pacchetto %s rimosso"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
+msgid "Preparing to completely remove %s"
+msgstr "Preparazione alla rimozione completa di %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1675,7 +1673,7 @@ msgid "Type '%s' is not known on stanza %u in source list %s"
 msgstr ""
 "Tipo \"%s\" non riconosciuto nella stanza %u nel file delle sorgenti %s"
 
-#: apt-pkg/sourcelist.cc apt-private/private-install.cc
+#: apt-pkg/sourcelist.cc
 #, c-format
 msgid "Unsupported file %s given on commandline"
 msgstr "File %s non supportato passato sulla riga di comando"
@@ -1907,8 +1905,8 @@ msgstr ""
 "--force-yes è deprecata, utilizzare una delle opzioni che iniziano con --"
 "allow."
 
-#: apt-private/private-depends.cc apt-private/private-download.cc
-#: apt-private/private-show.cc cmdline/apt-mark.cc
+#: apt-private/private-depends.cc apt-private/private-show.cc
+#: cmdline/apt-mark.cc
 msgid "No packages found"
 msgstr "Nessun pacchetto trovato"
 
@@ -2084,7 +2082,7 @@ msgstr ""
 msgid "Abort."
 msgstr "Interrotto."
 
-#: apt-private/private-install.cc cmdline/apt-mark.cc
+#: apt-private/private-install.cc
 msgid "Do you want to continue?"
 msgstr "Continuare?"
 
@@ -2416,6 +2414,11 @@ msgstr "È necessario specificare almeno un modello per la ricerca"
 msgid "Full Text Search"
 msgstr "Ricerca sul testo"
 
+#: apt-private/private-show.cc cmdline/apt-cache.cc
+#, c-format
+msgid "Package file %s is out of sync."
+msgstr "Il file dei pacchetti %s non è sincronizzato."
+
 #: apt-private/private-show.cc
 #, c-format
 msgid "There is %i additional record. Please use the '-a' switch to see it"
@@ -2580,6 +2583,12 @@ msgid "%s has no build depends.\n"
 msgstr "%s non ha dipendenze di generazione.\n"
 
 #: apt-private/private-source.cc
+msgid "Must specify at least one package to check builddeps for"
+msgstr ""
+"È necessario specificare almeno un pacchetto di cui controllare le "
+"dipendenze di generazione"
+
+#: apt-private/private-source.cc
 #, c-format
 msgid ""
 "No architecture information available for %s. See apt.conf(5) APT::"
@@ -2587,12 +2596,6 @@ msgid ""
 msgstr ""
 "Informazioni sull'architettura non disponibili per %s. Consultare apt."
 "conf(5) APT::Architectures per l'impostazione"
-
-#: apt-private/private-source.cc
-msgid "Must specify at least one package to check builddeps for"
-msgstr ""
-"È necessario specificare almeno un pacchetto di cui controllare le "
-"dipendenze di generazione"
 
 #: apt-private/private-source.cc
 #, c-format
@@ -2618,9 +2621,9 @@ msgstr "Analisi di %s non riuscita: modificare nuovamente?"
 
 #: apt-private/private-sources.cc
 #, c-format
-msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+msgid "Your '%s' file changed, please run 'apt-get update'."
 msgstr ""
-"Il proprio file \"%s\" è stato modificato: eseguire \"apt-get update\".\n"
+"Il proprio file \"%s\" è stato modificato: eseguire \"apt-get update\"."
 
 #: apt-private/private-unmet.cc
 #, c-format
@@ -2657,10 +2660,9 @@ msgstr[1] ""
 msgid "All packages are up to date."
 msgstr "Tutti i pacchetti sono aggiornati."
 
-#: cmdline/apt-cache.cc cmdline/apt-mark.cc
-#, c-format
-msgid "%s does not take any arguments"
-msgstr "Il comando \"%s\" non accetta alcun argomento"
+#: cmdline/apt-cache.cc
+msgid "apt-cache stats does not take any arguments"
+msgstr "Il comando \"apt-cache stats\" non accetta alcun argomento"
 
 #: cmdline/apt-cache.cc
 msgid "Total package names: "
@@ -2948,10 +2950,6 @@ msgid "Install new packages (pkg is libc6 not libc6.deb)"
 msgstr "Installa nuovi pacchetti (PKG è libc6 non libc6.deb)"
 
 #: cmdline/apt-get.cc
-msgid "Reinstall packages (pkg is libc6 not libc6.deb)"
-msgstr "Installa nuovamente pacchetti (PKG è libc6 non libc6.deb)"
-
-#: cmdline/apt-get.cc
 msgid "Remove packages"
 msgstr "Rimuove i pacchetti"
 
@@ -3103,14 +3101,6 @@ msgid "%s was already set to automatically installed.\n"
 msgstr "%s è già stato impostato come installato automaticamente.\n"
 
 #: cmdline/apt-mark.cc
-msgid "No changes necessary"
-msgstr "Nessuna modifica necessaria"
-
-#: cmdline/apt-mark.cc
-msgid "The following packages will be marked as automatically installed:"
-msgstr "I seguenti pacchetti verranno segnati come installati automaticamente:"
-
-#: cmdline/apt-mark.cc
 #, c-format
 msgid "%s was already set on hold.\n"
 msgstr "%s è già stato impostato come bloccato.\n"
@@ -3177,11 +3167,6 @@ msgid "Mark the given packages as manually installed"
 msgstr "Segna i pacchetti forniti come installati manualmente"
 
 #: cmdline/apt-mark.cc
-msgid "Mark all dependencies of meta packages as automatically installed."
-msgstr ""
-"Segna tutte le dipendenze dei meta pacchetti come installate automaticamente"
-
-#: cmdline/apt-mark.cc
 msgid "Mark a package as held back"
 msgstr "Segna un pacchetto come bloccato a una vecchia versione"
 
@@ -3198,7 +3183,7 @@ msgid "Print the list of manually installed packages"
 msgstr "Stampa l'elenco dei pacchetti installati manualmente"
 
 #: cmdline/apt-mark.cc
-msgid "Print the list of packages on hold"
+msgid "Print the list of package on hold"
 msgstr "Stampa l'elenco dei pacchetti bloccati"
 
 #: cmdline/apt-sortpkgs.cc
@@ -3257,10 +3242,6 @@ msgstr "Mostra dettagli di un pacchetto"
 #: cmdline/apt.cc
 msgid "install packages"
 msgstr "Installa pacchetti"
-
-#: cmdline/apt.cc
-msgid "reinstall packages"
-msgstr "Installa nuovamente pacchetti"
 
 #: cmdline/apt.cc
 msgid "remove packages"
@@ -4026,3 +4007,10 @@ msgstr "Connessione chiusa prematuramente"
 #: methods/store.cc
 msgid "Empty files can't be valid archives"
 msgstr "File vuoti non possono essere archivi validi"
+
+#~ msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+#~ msgstr ""
+#~ "Il proprio file \"%s\" è stato modificato: eseguire \"apt-get update\".\n"
+
+#~ msgid "Print the list of packages on hold"
+#~ msgstr "Stampa l'elenco dei pacchetti bloccati"

@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: configuration.cc,v 1.28 2004/04/30 04:00:15 mdz Exp $
 /* ######################################################################
 
    Configuration Class
@@ -252,7 +253,7 @@ Configuration::Item *Configuration::Lookup(Item *Head,const char *S,
    if (Len != 0)
    {
       for (; I != 0; Last = &I->Next, I = I->Next)
-	 if (Len == I->Tag.length() && (Res = stringcasecmp(I->Tag,S,S + Len)) == 0)
+	 if ((Res = stringcasecmp(I->Tag,S,S + Len)) == 0)
 	    break;
    }
    else
@@ -728,7 +729,7 @@ bool Configuration::ExistsAny(const char *Name) const
 /* Dump the entire configuration space */
 void Configuration::Dump(ostream& str)
 {
-   Dump(str, NULL, "%F \"%v\";\n", true);
+   Dump(str, NULL, "%f \"%v\";\n", true);
 }
 void Configuration::Dump(ostream& str, char const * const root,
 			 char const * const formatstr, bool const emptyValue)

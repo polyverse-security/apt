@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: fileutl.h,v 1.26 2001/05/07 05:06:52 jgg Exp $
 /* ######################################################################
    
    File Utilities
@@ -133,6 +134,20 @@ class FileFd
    unsigned long long FileSize();
    time_t ModificationTime();
 
+   /* You want to use 'unsigned long long' if you are talking about a file
+      to be able to support large files (>2 or >4 GB) properly.
+      This shouldn't happen all to often for the indexes, but deb's might be…
+      And as the auto-conversation converts a 'unsigned long *' to a 'bool'
+      instead of 'unsigned long long *' we need to provide this explicitly -
+      otherwise applications magically start to fail… */
+   bool Read(void *To,unsigned long long Size,unsigned long *Actual) APT_DEPRECATED_MSG("The Actual variable you pass in should be an unsigned long long")
+   {
+	unsigned long long R;
+	bool const T = Read(To, Size, &R);
+	*Actual = R;
+	return T;
+   }
+
    bool Open(std::string FileName,unsigned int const Mode,CompressMode Compress,unsigned long const AccessMode = 0666);
    bool Open(std::string FileName,unsigned int const Mode,APT::Configuration::Compressor const &compressor,unsigned long const AccessMode = 0666);
    inline bool Open(std::string const &FileName,unsigned int const Mode, unsigned long const AccessMode = 0666) {
@@ -149,6 +164,7 @@ class FileFd
    // Simple manipulators
    inline int Fd() {return iFd;};
    inline void Fd(int fd) { OpenDescriptor(fd, ReadWrite);};
+   gzFile gzFd() APT_DEPRECATED_MSG("Implementation detail, do not use to be able to support bzip2, xz and co") APT_PURE;
 
    inline bool IsOpen() {return iFd >= 0;};
    inline bool Failed() {return (Flags & Fail) == Fail;};
@@ -168,7 +184,6 @@ class FileFd
 
    private:
    FileFdPrivate * d;
-   APT_HIDDEN FileFd(const FileFd &);
    APT_HIDDEN FileFd & operator=(const FileFd &);
    APT_HIDDEN bool OpenInternDescriptor(unsigned int const Mode, APT::Configuration::Compressor const &compressor);
 
@@ -194,12 +209,6 @@ std::string GetTempDir(std::string const &User);
 FileFd* GetTempFile(std::string const &Prefix = "",
                     bool ImmediateUnlink = true,
 		    FileFd * const TmpFd = NULL);
-
-// FIXME: GetTempFile should always return a buffered file
-FileFd* GetTempFile(std::string const &Prefix,
-                    bool ImmediateUnlink ,
-		    FileFd * const TmpFd,
-          bool Buffered) APT_HIDDEN;
 
 /** \brief Ensure the existence of the given Path
  *
@@ -270,7 +279,7 @@ std::vector<std::string> Glob(std::string const &pattern, int flags=0);
 /** \brief Popen() implementation that execv() instead of using a shell
  *
  * \param Args the execv style command to run
- * \param FileFd is a reference to the FileFd to use for input or output
+ * \param FileFd is a referenz to the FileFd to use for input or output
  * \param Child a reference to the integer that stores the child pid
  *        Note that you must call ExecWait() or similar to cleanup
  * \param Mode is either FileFd::ReadOnly or FileFd::WriteOnly
@@ -279,7 +288,9 @@ std::vector<std::string> Glob(std::string const &pattern, int flags=0);
  * \param Sandbox True if this should run sandboxed
  * \return true on success, false on failure with _error set
  */
-bool Popen(const char *Args[], FileFd &Fd, pid_t &Child, FileFd::OpenMode Mode, bool CaptureStderr = true, bool Sandbox = false);
+bool Popen(const char *Args[], FileFd &Fd, pid_t &Child, FileFd::OpenMode Mode, bool CaptureStderr, bool Sandbox) APT_HIDDEN;
+bool Popen(const char* Args[], FileFd &Fd, pid_t &Child, FileFd::OpenMode Mode, bool CaptureStderr);
+bool Popen(const char* Args[], FileFd &Fd, pid_t &Child, FileFd::OpenMode Mode);
 
 APT_HIDDEN bool OpenConfigurationFileFd(std::string const &File, FileFd &Fd);
 

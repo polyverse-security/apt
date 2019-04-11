@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apt 1.0.5\n"
 "Report-Msgid-Bugs-To: APT Development Team <deity@lists.debian.org>\n"
-"POT-Creation-Date: 2019-02-04 15:34+0100\n"
+"POT-Creation-Date: 2019-03-01 10:02+0100\n"
 "PO-Revision-Date: 2012-06-28 20:49+0100\n"
 "Last-Translator: Ivan Masár <helix84@centrum.sk>\n"
 "Language-Team: Slovak <sk-i18n@lists.linux.sk>\n"
@@ -406,13 +406,6 @@ msgstr "Záznam zmien %s (%s)"
 
 #: apt-pkg/acquire-worker.cc
 #, c-format
-msgid ""
-"The method '%s' is unsupported and disabled by default. Consider switching "
-"to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."
-msgstr ""
-
-#: apt-pkg/acquire-worker.cc
-#, c-format
 msgid "The method '%s' is explicitly disabled via configuration."
 msgstr ""
 
@@ -474,6 +467,8 @@ msgstr ""
 msgid "Clean of %s is not supported"
 msgstr "Indexový súbor typu „%s“ nie je podporovaný"
 
+#. only show the ETA if it makes sense
+#. two days
 #: apt-pkg/acquire.cc
 #, c-format
 msgid "Retrieving file %li of %li (%s remaining)"
@@ -918,12 +913,12 @@ msgstr "Problém pri synchronizovaní súboru %s na %s"
 msgid "Problem syncing the file"
 msgstr "Problém pri synchronizovaní súboru"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, fuzzy, c-format
 msgid "Unable to mkstemp %s"
 msgstr "Nedá sa vyhodnotiť %s"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to write to %s"
 msgstr "Do %s sa nedá zapisovať"
@@ -1138,23 +1133,23 @@ msgstr "Nie je zamknuté"
 #. we don't care for the difference
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing %s"
-msgstr "Pripravuje sa %s"
+msgid "Installing %s"
+msgstr "Inštaluje sa %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to configure %s"
-msgstr "Pripravuje sa nastavenie %s"
+msgid "Configuring %s"
+msgstr "Nastavuje sa %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing for removal of %s"
-msgstr "Pripravuje sa odstránenie %s"
+msgid "Removing %s"
+msgstr "Odstraňuje sa %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to completely remove %s"
-msgstr "Pripravuje sa úplné odstránenie %s"
+msgid "Completely removing %s"
+msgstr "Úplne sa odstraňuje %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1171,11 +1166,6 @@ msgstr "Vykonáva sa spúšťač post-installation %s"
 msgid "Installed %s"
 msgstr "Nainštalovaný balík %s"
 
-#: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Configuring %s"
-msgstr "Nastavuje sa %s"
-
 #. FIXME: use a better string after freeze
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1189,23 +1179,33 @@ msgstr "Nedá sa otvoriť súbor „%s“"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
+msgid "Preparing %s"
+msgstr "Pripravuje sa %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
 msgid "Unpacking %s"
 msgstr "Rozbaľuje sa %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Installing %s"
-msgstr "Inštaluje sa %s"
+msgid "Preparing to configure %s"
+msgstr "Pripravuje sa nastavenie %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Removing %s"
-msgstr "Odstraňuje sa %s"
+msgid "Preparing for removal of %s"
+msgstr "Pripravuje sa odstránenie %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Completely removing %s"
-msgstr "Úplne sa odstraňuje %s"
+msgid "Removed %s"
+msgstr "Odstránený balík %s"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
+msgid "Preparing to completely remove %s"
+msgstr "Pripravuje sa úplné odstránenie %s"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1598,7 +1598,7 @@ msgstr "Skomolený riadok %u v zozname zdrojov %s (typ)"
 msgid "Type '%s' is not known on stanza %u in source list %s"
 msgstr "Typ „%s“ je neznámy na riadku %u v zozname zdrojov %s"
 
-#: apt-pkg/sourcelist.cc apt-private/private-install.cc
+#: apt-pkg/sourcelist.cc
 #, c-format
 msgid "Unsupported file %s given on commandline"
 msgstr ""
@@ -1819,8 +1819,8 @@ msgid ""
 "instead."
 msgstr ""
 
-#: apt-private/private-depends.cc apt-private/private-download.cc
-#: apt-private/private-show.cc cmdline/apt-mark.cc
+#: apt-private/private-depends.cc apt-private/private-show.cc
+#: cmdline/apt-mark.cc
 msgid "No packages found"
 msgstr "Neboli nájdené žiadne balíky"
 
@@ -1988,7 +1988,7 @@ msgstr ""
 msgid "Abort."
 msgstr "Prerušené."
 
-#: apt-private/private-install.cc cmdline/apt-mark.cc
+#: apt-private/private-install.cc
 msgid "Do you want to continue?"
 msgstr "Chcete pokračovať?"
 
@@ -2326,6 +2326,11 @@ msgstr "Musíte zadať aspoň jeden vyhľadávací vzor"
 msgid "Full Text Search"
 msgstr ""
 
+#: apt-private/private-show.cc cmdline/apt-cache.cc
+#, c-format
+msgid "Package file %s is out of sync."
+msgstr "Súbor balíkov %s je neaktuálny."
+
 #: apt-private/private-show.cc
 #, c-format
 msgid "There is %i additional record. Please use the '-a' switch to see it"
@@ -2489,6 +2494,12 @@ msgid "%s has no build depends.\n"
 msgstr "%s nemá žiadne závislosti na zostavenie.\n"
 
 #: apt-private/private-source.cc
+msgid "Must specify at least one package to check builddeps for"
+msgstr ""
+"Musíte zadať aspoň jeden balík, pre ktorý sa budú overovať závislosti na "
+"zostavenie"
+
+#: apt-private/private-source.cc
 #, c-format
 msgid ""
 "No architecture information available for %s. See apt.conf(5) APT::"
@@ -2496,12 +2507,6 @@ msgid ""
 msgstr ""
 "Informácie o architektúre nie sú dostupné pre %s. Informácie o nastavení "
 "nájdete v apt.conf(5) APT::Architectures"
-
-#: apt-private/private-source.cc
-msgid "Must specify at least one package to check builddeps for"
-msgstr ""
-"Musíte zadať aspoň jeden balík, pre ktorý sa budú overovať závislosti na "
-"zostavenie"
 
 #: apt-private/private-source.cc
 #, c-format
@@ -2524,7 +2529,7 @@ msgstr "Premenovanie %s na %s zlyhalo"
 
 #: apt-private/private-sources.cc
 #, c-format
-msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+msgid "Your '%s' file changed, please run 'apt-get update'."
 msgstr ""
 
 #: apt-private/private-unmet.cc
@@ -2557,9 +2562,9 @@ msgstr[2] ""
 msgid "All packages are up to date."
 msgstr ""
 
-#: cmdline/apt-cache.cc cmdline/apt-mark.cc
-#, fuzzy, c-format
-msgid "%s does not take any arguments"
+#: cmdline/apt-cache.cc
+#, fuzzy
+msgid "apt-cache stats does not take any arguments"
 msgstr "Príkaz update neprijíma žiadne argumenty"
 
 #: cmdline/apt-cache.cc
@@ -2822,12 +2827,6 @@ msgid "Install new packages (pkg is libc6 not libc6.deb)"
 msgstr "Nainštaluje nové balíky (balík je libc6, nie libc6.deb)"
 
 #: cmdline/apt-get.cc
-#, fuzzy
-#| msgid "Install new packages (pkg is libc6 not libc6.deb)"
-msgid "Reinstall packages (pkg is libc6 not libc6.deb)"
-msgstr "Nainštaluje nové balíky (balík je libc6, nie libc6.deb)"
-
-#: cmdline/apt-get.cc
 msgid "Remove packages"
 msgstr "Odstráni balíky"
 
@@ -2983,16 +2982,6 @@ msgid "%s was already set to automatically installed.\n"
 msgstr "%s už bol označený ako automaticky nainštalovaný.\n"
 
 #: cmdline/apt-mark.cc
-msgid "No changes necessary"
-msgstr ""
-
-#: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "The following NEW packages will be installed:"
-msgid "The following packages will be marked as automatically installed:"
-msgstr "Nainštalujú sa nasledovné NOVÉ balíky:"
-
-#: cmdline/apt-mark.cc
 #, c-format
 msgid "%s was already set on hold.\n"
 msgstr "%s bol už nastavený na podržanie.\n"
@@ -3056,12 +3045,6 @@ msgid "Mark the given packages as manually installed"
 msgstr "Označí uvedené balíky ako manuálne nainštalované"
 
 #: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "Mark the given packages as automatically installed"
-msgid "Mark all dependencies of meta packages as automatically installed."
-msgstr "Označí uvedené balíky ako automaticky nainštalované"
-
-#: cmdline/apt-mark.cc
 msgid "Mark a package as held back"
 msgstr ""
 
@@ -3078,7 +3061,7 @@ msgid "Print the list of manually installed packages"
 msgstr ""
 
 #: cmdline/apt-mark.cc
-msgid "Print the list of packages on hold"
+msgid "Print the list of package on hold"
 msgstr ""
 
 #: cmdline/apt-sortpkgs.cc
@@ -3123,11 +3106,6 @@ msgstr ""
 #: cmdline/apt.cc
 #, fuzzy
 msgid "install packages"
-msgstr "Pripevnené balíky:"
-
-#: cmdline/apt.cc
-#, fuzzy
-msgid "reinstall packages"
 msgstr "Pripevnené balíky:"
 
 #: cmdline/apt.cc
@@ -3873,12 +3851,6 @@ msgstr "Spojenie bolo predčasne ukončené"
 #: methods/store.cc
 msgid "Empty files can't be valid archives"
 msgstr "Prázdne súbory nemôžu byť platné archívy"
-
-#~ msgid "Removed %s"
-#~ msgstr "Odstránený balík %s"
-
-#~ msgid "Package file %s is out of sync."
-#~ msgstr "Súbor balíkov %s je neaktuálny."
 
 #~ msgid ""
 #~ "The package index files are corrupted. No Filename: field for package %s."

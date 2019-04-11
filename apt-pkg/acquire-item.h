@@ -102,6 +102,11 @@ class pkgAcquire::Item : public WeakPointable				/*{{{*/
    /** \brief How much of the object was already fetched. */
    unsigned long long PartialSize;
 
+   /** \brief If not \b NULL, contains the name of a subprocess that
+    *  is operating on this object (for instance, "gzip" or "gpgv").
+    */
+   APT_DEPRECATED_MSG("Use the std::string member ActiveSubprocess instead") const char *Mode;
+
    /** \brief contains the name of the subprocess that is operating on this object
     * (for instance, "gzip", "rred" or "gpgv"). This is obsoleting #Mode from above
     * as it can manage the lifetime of included string properly. */
@@ -241,9 +246,7 @@ class pkgAcquire::Item : public WeakPointable				/*{{{*/
    APT_HIDDEN std::unordered_map<std::string, std::string> &ModifyCustomFields();
    // this isn't the super nicest interface either…
    APT_HIDDEN bool PopAlternativeURI(std::string &NewURI);
-   APT_HIDDEN bool IsGoodAlternativeURI(std::string const &AltUri) const;
    APT_HIDDEN void PushAlternativeURI(std::string &&NewURI, std::unordered_map<std::string, std::string> &&fields, bool const at_the_back);
-   APT_HIDDEN void RemoveAlternativeSite(std::string &&OldSite);
 
    /** \brief A "descriptive" URI-like string.
     *
@@ -278,6 +281,15 @@ class pkgAcquire::Item : public WeakPointable				/*{{{*/
 
    /** \return \b true if this object is being fetched from a trusted source. */
    virtual bool IsTrusted() const;
+
+   /** \brief Report mirror problem
+    *
+    *  This allows reporting mirror failures back to a centralized
+    *  server. The apt-report-mirror-failure script is called for this
+    *
+    *  \param FailCode A short failure string that is send
+    */
+   APT_DEPRECATED_MSG("Item::Failed does this for you") void ReportMirrorFailure(std::string const &FailCode);
 
    /** \brief Set the name of the current active subprocess
     *
@@ -393,7 +405,7 @@ class APT_HIDDEN pkgAcqTransactionItem: public pkgAcquire::Item		/*{{{*/
    virtual HashStringList GetExpectedHashes() const APT_OVERRIDE;
    virtual std::string GetMetaKey() const;
    virtual bool HashesRequired() const APT_OVERRIDE;
-   virtual bool AcquireByHash() const;
+
 
    pkgAcqTransactionItem(pkgAcquire * const Owner, pkgAcqMetaClearSig * const TransactionManager, IndexTarget const &Target) APT_NONNULL(2, 3);
    virtual ~pkgAcqTransactionItem();
@@ -437,9 +449,8 @@ class APT_HIDDEN pkgAcqMetaBase : public pkgAcqTransactionItem		/*{{{*/
     *
     *  \param Message The message block received from the fetch
     *  subprocess.
-    *  \param Cnf The method and its configuration which handled the request
     */
-   bool CheckAuthDone(std::string const &Message, pkgAcquire::MethodConfig const *const Cnf);
+   bool CheckAuthDone(std::string const &Message);
 
    /** Check if the current item should fail at this point */
    bool CheckStopAuthentication(pkgAcquire::Item * const I, const std::string &Message);
@@ -558,7 +569,7 @@ class APT_HIDDEN pkgAcqMetaSig : public pkgAcqTransactionItem
    virtual ~pkgAcqMetaSig();
 };
 									/*}}}*/
-/** \brief An item responsible for downloading clearsigned metaindexes	{{{*/
+/** \brief An item repsonsible for downloading clearsigned metaindexes	{{{*/
 class APT_HIDDEN pkgAcqMetaClearSig : public pkgAcqMetaIndex
 {
    void * const d;
@@ -679,8 +690,8 @@ class APT_HIDDEN pkgAcqIndex : public pkgAcqBaseIndex
    protected:
    APT_HIDDEN void Init(std::string const &URI, std::string const &URIDesc,
              std::string const &ShortDesc);
-   APT_HIDDEN bool CommonFailed(std::string const &TargetURI,
-				std::string const &Message, pkgAcquire::MethodConfig const *const Cnf);
+   APT_HIDDEN bool CommonFailed(std::string const &TargetURI, std::string const TargetDesc,
+             std::string const &Message, pkgAcquire::MethodConfig const * const Cnf);
 };
 									/*}}}*/
 struct APT_HIDDEN DiffInfo {						/*{{{*/
@@ -716,6 +727,11 @@ class APT_HIDDEN pkgAcqDiffIndex : public pkgAcqIndex
  protected:
    /** \brief If \b true, debugging information will be written to std::clog. */
    bool Debug;
+
+   /** \brief A description of the Packages file (stored in
+    *  pkgAcquire::ItemDesc::Description).
+    */
+   std::string Description;
 
    /** \brief Get the full pathname of the final file for the current URI */
    virtual std::string GetFinalFilename() const APT_OVERRIDE;
@@ -774,12 +790,17 @@ class APT_HIDDEN pkgAcqDiffIndex : public pkgAcqIndex
  */
 class APT_HIDDEN pkgAcqIndexMergeDiffs : public pkgAcqBaseIndex
 {
+   std::string const indexURI;
+
    protected:
 
    /** \brief If \b true, debugging output will be written to
     *  std::clog.
     */
    bool Debug;
+
+   /** \brief description of the file being downloaded. */
+   std::string Description;
 
    /** \brief information about the current patch */
    struct DiffInfo const patch;
@@ -816,7 +837,6 @@ class APT_HIDDEN pkgAcqIndexMergeDiffs : public pkgAcqBaseIndex
    virtual std::string DescURI() const APT_OVERRIDE {return Target.URI + "Index";};
    virtual HashStringList GetExpectedHashes() const APT_OVERRIDE;
    virtual bool HashesRequired() const APT_OVERRIDE;
-   virtual bool AcquireByHash() const APT_OVERRIDE;
 
    /** \brief Create an index merge-diff item.
     *
@@ -830,9 +850,10 @@ class APT_HIDDEN pkgAcqIndexMergeDiffs : public pkgAcqBaseIndex
     *  \param allPatches contains all related items so that each item can
     *  check if it was the last one to complete the download step
     */
-   pkgAcqIndexMergeDiffs(pkgAcquire *const Owner, pkgAcqMetaClearSig *const TransactionManager,
-			 IndexTarget const &Target, DiffInfo const &patch,
-			 std::vector<pkgAcqIndexMergeDiffs *> const *const allPatches) APT_NONNULL(2, 3, 6);
+   pkgAcqIndexMergeDiffs(pkgAcquire * const Owner, pkgAcqMetaClearSig * const TransactionManager,
+			 IndexTarget const &Target, std::string const &indexUsedMirror,
+			 std::string const &indexURI, DiffInfo const &patch,
+                         std::vector<pkgAcqIndexMergeDiffs*> const * const allPatches) APT_NONNULL(2, 3, 8);
    virtual ~pkgAcqIndexMergeDiffs();
 };
 									/*}}}*/
@@ -849,6 +870,8 @@ class APT_HIDDEN pkgAcqIndexMergeDiffs : public pkgAcqBaseIndex
  */
 class APT_HIDDEN pkgAcqIndexDiffs : public pkgAcqBaseIndex
 {
+   std::string const indexURI;
+
    private:
 
    /** \brief Queue up the next diff download.
@@ -881,6 +904,9 @@ class APT_HIDDEN pkgAcqIndexDiffs : public pkgAcqBaseIndex
     *  std::clog.
     */
    bool Debug;
+
+   /** A description of the file being downloaded. */
+   std::string Description;
 
    /** The patches that remain to be downloaded, including the patch
     *  being downloaded right now.  This list should be ordered so
@@ -917,7 +943,6 @@ class APT_HIDDEN pkgAcqIndexDiffs : public pkgAcqBaseIndex
    virtual std::string DescURI() const APT_OVERRIDE {return Target.URI + "IndexDiffs";};
    virtual HashStringList GetExpectedHashes() const APT_OVERRIDE;
    virtual bool HashesRequired() const APT_OVERRIDE;
-   virtual bool AcquireByHash() const APT_OVERRIDE;
 
    /** \brief Create an index diff item.
     *
@@ -932,9 +957,10 @@ class APT_HIDDEN pkgAcqIndexDiffs : public pkgAcqBaseIndex
     *  should be ordered so that each diff appears before any diff
     *  that depends on it.
     */
-   pkgAcqIndexDiffs(pkgAcquire *const Owner, pkgAcqMetaClearSig *const TransactionManager,
-		    IndexTarget const &Target,
-		    std::vector<DiffInfo> const &diffs = std::vector<DiffInfo>()) APT_NONNULL(2, 3);
+   pkgAcqIndexDiffs(pkgAcquire * const Owner, pkgAcqMetaClearSig * const TransactionManager,
+                    IndexTarget const &Target,
+		    std::string const &indexUsedMirror, std::string const &indexURI,
+		    std::vector<DiffInfo> const &diffs=std::vector<DiffInfo>()) APT_NONNULL(2, 3);
    virtual ~pkgAcqIndexDiffs();
 };
 									/*}}}*/
@@ -968,6 +994,18 @@ class pkgAcqArchive : public pkgAcquire::Item
     *  should be stored.
     */
    std::string &StoreFilename;
+
+   /** \brief The next file for this version to try to download. */
+   APT_DEPRECATED_MSG("Unused member")
+   pkgCache::VerFileIterator Vf;
+
+   /** \brief How many (more) times to try to find a new source from
+    *  which to download this package version if it fails.
+    *
+    *  Set from Acquire::Retries.
+    */
+   APT_DEPRECATED_MSG("Unused member. See pkgAcqItem::Retries.")
+   unsigned int Retries;
 
    /** \brief \b true if this version file is being downloaded from a
     *  trusted source.
@@ -1140,6 +1178,12 @@ private:
 class pkgAcqFile : public pkgAcquire::Item
 {
    void * const d;
+
+   /** \brief How many times to retry the download, set from
+    *  Acquire::Retries.
+    */
+   APT_DEPRECATED_MSG("Unused member. See pkgAcqItem::Retries.")
+   unsigned int Retries;
 
    /** \brief Should this file be considered a index file */
    bool IsIndexFile;

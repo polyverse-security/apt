@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apt 1.4\n"
 "Report-Msgid-Bugs-To: APT Development Team <deity@lists.debian.org>\n"
-"POT-Creation-Date: 2019-02-04 15:34+0100\n"
+"POT-Creation-Date: 2019-03-01 10:02+0100\n"
 "PO-Revision-Date: 2017-01-06 04:50+0900\n"
 "Last-Translator: Takuma Yamada <tyamada@takumayamada.com>\n"
 "Language-Team: Japanese <debian-japanese@lists.debian.org>\n"
@@ -432,13 +432,6 @@ msgstr "%s=%s のため変更履歴が利用できません"
 
 #: apt-pkg/acquire-worker.cc
 #, c-format
-msgid ""
-"The method '%s' is unsupported and disabled by default. Consider switching "
-"to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."
-msgstr ""
-
-#: apt-pkg/acquire-worker.cc
-#, c-format
 msgid "The method '%s' is explicitly disabled via configuration."
 msgstr "メソッド '%s' は設定によりはっきりと無効にされています。"
 
@@ -505,6 +498,8 @@ msgstr ""
 msgid "Clean of %s is not supported"
 msgstr "%s の消去はサポートされていません"
 
+#. only show the ETA if it makes sense
+#. two days
 #: apt-pkg/acquire.cc
 #, c-format
 msgid "Retrieving file %li of %li (%s remaining)"
@@ -959,12 +954,12 @@ msgstr "%s から %s へのファイル名変更中に問題が発生しまし�
 msgid "Problem syncing the file"
 msgstr "ファイルの同期中に問題が発生しました"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to mkstemp %s"
 msgstr "mkstemp %s を実行できません"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to write to %s"
 msgstr "%s に書き込めません"
@@ -1191,23 +1186,23 @@ msgstr "ロックされていません"
 #. we don't care for the difference
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing %s"
-msgstr "%s を準備しています"
+msgid "Installing %s"
+msgstr "%s をインストールしています"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to configure %s"
-msgstr "%s の設定を準備しています"
+msgid "Configuring %s"
+msgstr "%s を設定しています"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing for removal of %s"
-msgstr "%s の削除を準備しています"
+msgid "Removing %s"
+msgstr "%s を削除しています"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to completely remove %s"
-msgstr "%s を完全に削除する準備をしています"
+msgid "Completely removing %s"
+msgstr "%s を完全に削除しています"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1224,11 +1219,6 @@ msgstr "インストール後トリガ %s を実行しています"
 msgid "Installed %s"
 msgstr "%s をインストールしました"
 
-#: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Configuring %s"
-msgstr "%s を設定しています"
-
 #. FIXME: use a better string after freeze
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1242,23 +1232,33 @@ msgstr "ファイル '%s' をオープンできませんでした"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
+msgid "Preparing %s"
+msgstr "%s を準備しています"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
 msgid "Unpacking %s"
 msgstr "%s を展開しています"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Installing %s"
-msgstr "%s をインストールしています"
+msgid "Preparing to configure %s"
+msgstr "%s の設定を準備しています"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Removing %s"
-msgstr "%s を削除しています"
+msgid "Preparing for removal of %s"
+msgstr "%s の削除を準備しています"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Completely removing %s"
-msgstr "%s を完全に削除しています"
+msgid "Removed %s"
+msgstr "%s を削除しました"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
+msgid "Preparing to completely remove %s"
+msgstr "%s を完全に削除する準備をしています"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1649,7 +1649,7 @@ msgstr "ソースリスト %2$s の %1$u 個目の節が不正です (type)"
 msgid "Type '%s' is not known on stanza %u in source list %s"
 msgstr "ソースリスト %3$s の %2$u 個目の節 '%1$s' は不明です"
 
-#: apt-pkg/sourcelist.cc apt-private/private-install.cc
+#: apt-pkg/sourcelist.cc
 #, c-format
 msgid "Unsupported file %s given on commandline"
 msgstr "コマンドラインで指定されたファイル %s はサポートされていません"
@@ -1879,8 +1879,8 @@ msgstr ""
 "--force-yes は時代遅れです、代わりに --allow で始まるオプションのいずれかを使"
 "用します。"
 
-#: apt-private/private-depends.cc apt-private/private-download.cc
-#: apt-private/private-show.cc cmdline/apt-mark.cc
+#: apt-private/private-depends.cc apt-private/private-show.cc
+#: cmdline/apt-mark.cc
 msgid "No packages found"
 msgstr "パッケージが見つかりません"
 
@@ -2052,7 +2052,7 @@ msgstr ""
 msgid "Abort."
 msgstr "中断しました。"
 
-#: apt-private/private-install.cc cmdline/apt-mark.cc
+#: apt-private/private-install.cc
 msgid "Do you want to continue?"
 msgstr "続行しますか?"
 
@@ -2374,6 +2374,11 @@ msgstr "検索パターンはちょうど 1 つだけ指定してください"
 msgid "Full Text Search"
 msgstr "全文検索"
 
+#: apt-private/private-show.cc cmdline/apt-cache.cc
+#, c-format
+msgid "Package file %s is out of sync."
+msgstr "Package ファイル %s が同期していません。"
+
 #: apt-private/private-show.cc
 #, c-format
 msgid "There is %i additional record. Please use the '-a' switch to see it"
@@ -2538,6 +2543,11 @@ msgid "%s has no build depends.\n"
 msgstr "%s にはビルド依存情報が指定されていません。\n"
 
 #: apt-private/private-source.cc
+msgid "Must specify at least one package to check builddeps for"
+msgstr ""
+"ビルド依存関係をチェックするパッケージを少なくとも 1 つ指定する必要があります"
+
+#: apt-private/private-source.cc
 #, c-format
 msgid ""
 "No architecture information available for %s. See apt.conf(5) APT::"
@@ -2545,11 +2555,6 @@ msgid ""
 msgstr ""
 "%s に利用可能なアーキテクチャ情報がありません。セットアップのために apt."
 "conf(5) の APT::Architectures を参照してください。"
-
-#: apt-private/private-source.cc
-msgid "Must specify at least one package to check builddeps for"
-msgstr ""
-"ビルド依存関係をチェックするパッケージを少なくとも 1 つ指定する必要があります"
 
 #: apt-private/private-source.cc
 #, c-format
@@ -2572,9 +2577,9 @@ msgstr "%s の解析に失敗しました。再編集しますか? "
 
 #: apt-private/private-sources.cc
 #, c-format
-msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+msgid "Your '%s' file changed, please run 'apt-get update'."
 msgstr ""
-"'%s' ファイルが変更されています。「apt-get update」を実行してください。\n"
+"'%s' ファイルが変更されています。「apt-get update」を実行してください。"
 
 #: apt-private/private-unmet.cc
 #, c-format
@@ -2606,10 +2611,9 @@ msgstr[0] ""
 msgid "All packages are up to date."
 msgstr "パッケージはすべて最新です。"
 
-#: cmdline/apt-cache.cc cmdline/apt-mark.cc
-#, c-format
-msgid "%s does not take any arguments"
-msgstr "%s は引数をとりません"
+#: cmdline/apt-cache.cc
+msgid "apt-cache stats does not take any arguments"
+msgstr "apt-cache stats は引数をとりません"
 
 #: cmdline/apt-cache.cc
 msgid "Total package names: "
@@ -2893,14 +2897,6 @@ msgstr ""
 "定する)"
 
 #: cmdline/apt-get.cc
-#, fuzzy
-#| msgid "Install new packages (pkg is libc6 not libc6.deb)"
-msgid "Reinstall packages (pkg is libc6 not libc6.deb)"
-msgstr ""
-"新規パッケージをインストールする (pkg は libc6.deb ではなく libc6 のように指"
-"定する)"
-
-#: cmdline/apt-get.cc
 msgid "Remove packages"
 msgstr "パッケージを削除する"
 
@@ -3047,16 +3043,6 @@ msgid "%s was already set to automatically installed.\n"
 msgstr "%s は自動でインストールしたとすでに設定されています。\n"
 
 #: cmdline/apt-mark.cc
-msgid "No changes necessary"
-msgstr ""
-
-#: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "The following NEW packages will be installed:"
-msgid "The following packages will be marked as automatically installed:"
-msgstr "以下のパッケージが新たにインストールされます:"
-
-#: cmdline/apt-mark.cc
 #, c-format
 msgid "%s was already set on hold.\n"
 msgstr "%s はすでに保留に設定されています。\n"
@@ -3120,12 +3106,6 @@ msgid "Mark the given packages as manually installed"
 msgstr "指定のパッケージを手動でインストールしたものとしてマークする"
 
 #: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "Mark the given packages as automatically installed"
-msgid "Mark all dependencies of meta packages as automatically installed."
-msgstr "指定のパッケージを自動でインストールされたものとしてマークする"
-
-#: cmdline/apt-mark.cc
 msgid "Mark a package as held back"
 msgstr "パッケージを保留としてマークする"
 
@@ -3142,7 +3122,7 @@ msgid "Print the list of manually installed packages"
 msgstr "手作業でインストールしたパッケージの一覧を表示する"
 
 #: cmdline/apt-mark.cc
-msgid "Print the list of packages on hold"
+msgid "Print the list of package on hold"
 msgstr "保留されているパッケージの一覧を表示する"
 
 #: cmdline/apt-sortpkgs.cc
@@ -3196,12 +3176,6 @@ msgstr "パッケージの詳細を表示"
 #. package stuff
 #: cmdline/apt.cc
 msgid "install packages"
-msgstr "パッケージをインストール"
-
-#: cmdline/apt.cc
-#, fuzzy
-#| msgid "install packages"
-msgid "reinstall packages"
 msgstr "パッケージをインストール"
 
 #: cmdline/apt.cc
@@ -3944,11 +3918,12 @@ msgstr "途中で接続がクローズされました"
 msgid "Empty files can't be valid archives"
 msgstr "空のファイルは有効なアーカイブと認められません"
 
-#~ msgid "Removed %s"
-#~ msgstr "%s を削除しました"
+#~ msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+#~ msgstr ""
+#~ "'%s' ファイルが変更されています。「apt-get update」を実行してください。\n"
 
-#~ msgid "Package file %s is out of sync."
-#~ msgstr "Package ファイル %s が同期していません。"
+#~ msgid "Print the list of packages on hold"
+#~ msgstr "保留されているパッケージの一覧を表示する"
 
 #~ msgid ""
 #~ "The package index files are corrupted. No Filename: field for package %s."

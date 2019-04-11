@@ -1,17 +1,7 @@
-apt (1.8.0~alpha3) unstable; urgency=medium
-
-  The PATH for running dpkg is now configured by the option DPkg::Path,
-  and defaults to "/usr/sbin:/usr/bin:/sbin:/bin". Previous behavior of
-  not changing PATH may be restored by setting the option to an empty string.
-
-  Support for /etc/apt/auth.conf.d/ has been added, see apt_auth.conf(5).
-
- -- Julian Andres Klode <jak@debian.org>  Tue, 18 Dec 2018 15:02:11 +0100
-
 apt (1.6~rc1) unstable; urgency=medium
 
   Seccomp sandboxing has been turned off by default for now. If it works
-  for you, you are encouraged to re-enable it by setting APT::Sandbox::Seccomp
+  for you, you are encouraged to reenable it by setting APT::Sandbox::Seccomp
   to true.
 
  -- Julian Andres Klode <jak@debian.org>  Fri, 06 Apr 2018 14:14:29 +0200
@@ -57,7 +47,7 @@ apt (1.5~beta1) unstable; urgency=medium
   setting the option Acquire::AllowTLS to "false".
 
   As for backwards compatibility, the options IssuerCert and SslForceVersion
-  are not supported anymore, and any specified certificate files must be in the
+  are not supported anymore, and any specified certificate files must in the
   PEM format (curl might have allowed DER files as well).
 
   [ Changes to unauthenticated repositories ]

@@ -19,7 +19,8 @@
 static bool UpgradeHelper(CommandLine &CmdL, int UpgradeFlags)
 {
    CacheFile Cache;
-   auto VolatileCmdL = GetPseudoPackages(Cache.GetSourceList(), CmdL, AddVolatileBinaryFile, "");
+   std::vector<std::string> VolatileCmdL;
+   Cache.GetSourceList()->AddVolatileFiles(CmdL, &VolatileCmdL);
 
    if (Cache.OpenForInstall() == false || Cache.CheckDeps() == false)
       return false;

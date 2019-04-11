@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: cdrom.cc,v 1.20.2.1 2004/01/16 18:58:50 mdz Exp $
 /* ######################################################################
 
    CDROM URI method for APT
@@ -96,7 +97,7 @@ string CDROMMethod::GetID(string Name)
 									/*}}}*/
 // CDROMMethod::AutoDetectAndMount                                      /*{{{*/
 // ---------------------------------------------------------------------
-/* Modifies class variable CDROM to the mountpoint */
+/* Modifies class varaiable CDROM to the mountpoint */
 bool CDROMMethod::AutoDetectAndMount(const URI Get, string &NewID)
 {
    vector<struct CdromDevice> v = UdevCdroms.Scan();

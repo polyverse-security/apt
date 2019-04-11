@@ -57,7 +57,7 @@ ServerState::RunHeadersResult ServerState::RunHeaders(RequestState &Req,
       if (ReadHeaderLines(Data) == false)
 	 continue;
 
-      if (Owner->Debug == true)
+      // if (Owner->Debug == true)
 	 clog << "Answer for: " << Uri << endl << Data;
 
       for (string::const_iterator I = Data.begin(); I < Data.end(); ++I)
@@ -74,8 +74,10 @@ ServerState::RunHeadersResult ServerState::RunHeaders(RequestState &Req,
 	 continue;
       
       // Tidy up the connection persistence state.
-      if (Req.Encoding == RequestState::Closes && Req.HaveContent == true)
-	 Persistent = false;
+      if (Req.Encoding == RequestState::Closes && Req.HaveContent == true) {
+			std::cerr << "pvdebug: tidying up persistence state and disabling persistence\n";
+	 	Persistent = false;
+		}
       
       return RUN_HEADERS_OK;
    } while (LoadNextResponse(false, Req) == ResultState::SUCCESSFUL);
@@ -113,12 +115,15 @@ bool RequestState::HeaderLine(string const &Line)			/*{{{*/
 
       /* Check the HTTP response header to get the default persistence
          state. */
-      if (Major < 1)
-	 Server->Persistent = false;
+      if (Major < 1) {
+			std::cerr << "pvdebug: Persistence is enabled\n";
+	 		Server->Persistent = false;
+		}
       else
       {
 	 if (Major == 1 && Minor == 0)
 	 {
+		std::cerr << "pvdebug: Persistence is disabled\n";
 	    Server->Persistent = false;
 	 }
 	 else
@@ -214,8 +219,10 @@ bool RequestState::HeaderLine(string const &Line)			/*{{{*/
    {
       if (stringcasecmp(Val,"close") == 0)
       {
+			std::cerr << "pvdebug: server requested connection:close\n";
 	 Server->Persistent = false;
 	 Server->Pipeline = false;
+	
 	 /* Some servers send error pages (as they are dynamically generated)
 	    for simplicity via a connection close instead of e.g. chunked,
 	    so assuming an always closing server only if we get a file + close */
@@ -226,7 +233,8 @@ bool RequestState::HeaderLine(string const &Line)			/*{{{*/
 	 }
       }
       else if (stringcasecmp(Val,"keep-alive") == 0)
-	 Server->Persistent = true;
+	 	std::cerr << "pvdebug: server sent keep-alive header:" << Val << "\n";
+	 	Server->Persistent = true;
       return true;
    }
 
@@ -597,11 +605,13 @@ int BaseHttpMethod::Loop()
 	 the connection. This will speed up HTTP/1.0 servers a tad
 	 since we don't have to wait for the close sequence to
          complete */
-      if (Server->Persistent == false)
+      if (Server->Persistent == false) {
+			std::cerr << "pvdebug: closing connection to non-persistent server.\n";
 	 Server->Close();
-
+	}
       // Reset the pipeline
       if (Server->IsOpen() == false) {
+			std::cerr << "pvdebug: server connection is closed, resetting pipeline\n";
 	 QueueBack = Queue;
 	 Server->PipelineAnswersReceived = 0;
       }
@@ -610,10 +620,12 @@ int BaseHttpMethod::Loop()
       switch (Server->Open())
       {
       case ResultState::FATAL_ERROR:
+		std::cerr << "pvdebug: Tried to open a new connection to the server and failed.\n";
 	 Fail(false);
 	 Server = nullptr;
 	 continue;
       case ResultState::TRANSIENT_ERROR:
+		std::cout << "pvdebug: Received a TransientError when trying to open a new connection to the server.\n";
 	 Fail(true);
 	 Server = nullptr;
 	 continue;
@@ -887,7 +899,7 @@ bool BaseHttpMethod::Configuration(std::string Message)			/*{{{*/
       return false;
 
    _config->CndSet("Acquire::tor::Proxy",
-	 "socks5h://apt-transport-tor@127.0.0.1:9050");
+	 "socks5h://apt-transport-tor@localhost:9050");
    return true;
 }
 									/*}}}*/

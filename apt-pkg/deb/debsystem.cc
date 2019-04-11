@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: debsystem.cc,v 1.4 2004/01/26 17:01:53 mdz Exp $
 /* ######################################################################
 
    System - Abstraction for running on different systems.
@@ -398,10 +399,6 @@ pid_t debSystem::ExecDpkg(std::vector<std::string> const &sArgs, int * const inp
       {
 	 setenv("DPKG_FRONTEND_LOCKED", "true", 1);
       }
-
-      if (_config->Find("DPkg::Path", "").empty() == false)
-	 setenv("PATH", _config->Find("DPkg::Path", "").c_str(), 1);
-
       execvp(Args[0], (char**) &Args[0]);
       _error->WarningE("dpkg", "Can't execute dpkg!");
       _exit(100);

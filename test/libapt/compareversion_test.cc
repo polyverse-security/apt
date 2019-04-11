@@ -32,25 +32,23 @@
 
 using namespace std;
 
-static bool callDPKG(const char * const val, const char * const ref, char const * const op) {
+static bool callDPKG(const char *val, const char *ref, const char &op) {
    pid_t Process = ExecFork();
    if (Process == 0)
    {
-      const char * args[] = {
-	 "dpkg",
-	 "--compare-versions",
-	 val,
-	 op,
-	 ref,
-	 nullptr
-      };
-      execvp(args[0], (char**) args);
+      const char * args[6];
+      args[0] = "/usr/bin/dpkg";
+      args[1] = "--compare-versions";
+      args[2] = val;
+      args[3] = (op == 1) ? ">>" : ( (op == 0) ? "=" : "<<");
+      args[4] = ref;
+      args[5] = 0;
+      execv(args[0], (char**) args);
       exit(1);
    }
    int Ret;
    waitpid(Process, &Ret, 0);
-   EXPECT_TRUE(WIFEXITED(Ret));
-   return WEXITSTATUS(Ret) == 0;
+   return WIFEXITED(Ret) == true && WEXITSTATUS(Ret) == 0;
 }
 
 
@@ -59,7 +57,7 @@ static bool callDPKG(const char * const val, const char * const ref, char const 
    int Res = debVS.CmpVersion(A, B); \
    Res = (Res < 0) ? -1 : ( (Res > 0) ? 1 : Res); \
    EXPECT_EQ(compare, Res) << "APT: A: »" << A << "« B: »" << B << "«"; \
-   EXPECT_PRED3(callDPKG, A, B,  ((compare == 1) ? ">>" : ( (compare == 0) ? "=" : "<<"))); \
+   EXPECT_PRED3(callDPKG, A, B, compare); \
 }
 #define EXPECT_VERSION(A, compare, B) \
    EXPECT_VERSION_PART(A, compare, B); \

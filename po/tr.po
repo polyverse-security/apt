@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apt 1.0.5\n"
 "Report-Msgid-Bugs-To: APT Development Team <deity@lists.debian.org>\n"
-"POT-Creation-Date: 2019-02-04 15:34+0100\n"
+"POT-Creation-Date: 2019-03-01 10:02+0100\n"
 "PO-Revision-Date: 2018-01-03 16:32+0300\n"
 "Last-Translator: Mert Dirik <mertdirik@gmail.com>\n"
 "Language-Team: Debian l10n Turkish <debian-l10n-turkish@lists.debian.org>\n"
@@ -433,13 +433,6 @@ msgstr "%s=%s için değişim günlüğü mevcut değil"
 
 #: apt-pkg/acquire-worker.cc
 #, c-format
-msgid ""
-"The method '%s' is unsupported and disabled by default. Consider switching "
-"to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."
-msgstr ""
-
-#: apt-pkg/acquire-worker.cc
-#, c-format
 msgid "The method '%s' is explicitly disabled via configuration."
 msgstr "'%s' yöntemi yapılandırma üzerinden devre dışı bırakılmış."
 
@@ -506,6 +499,8 @@ msgstr ""
 msgid "Clean of %s is not supported"
 msgstr "%s temizliği desteklenmiyor"
 
+#. only show the ETA if it makes sense
+#. two days
 #: apt-pkg/acquire.cc
 #, c-format
 msgid "Retrieving file %li of %li (%s remaining)"
@@ -955,12 +950,12 @@ msgstr "%s dosyası %s olarak yeniden adlandırılamadı"
 msgid "Problem syncing the file"
 msgstr "Dosya eşitlenirken sorun çıktı"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to mkstemp %s"
 msgstr "mkstemp %s başarısız oldu"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to write to %s"
 msgstr "%s dosyasına yazılamıyor"
@@ -1182,23 +1177,23 @@ msgstr "Kilitlenmemiş"
 #. we don't care for the difference
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing %s"
-msgstr "%s hazırlanıyor"
+msgid "Installing %s"
+msgstr "%s kuruluyor"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to configure %s"
-msgstr "%s paketini yapılandırmaya hazırlanılıyor"
+msgid "Configuring %s"
+msgstr "%s yapılandırılıyor"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing for removal of %s"
-msgstr "%s paketinin kaldırılmasına hazırlanılıyor"
+msgid "Removing %s"
+msgstr "%s kaldırılıyor"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to completely remove %s"
-msgstr "%s paketinin tamamen kaldırılmasına hazırlanılıyor"
+msgid "Completely removing %s"
+msgstr "%s tamamen kaldırılıyor"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1215,11 +1210,6 @@ msgstr "Kurulum sonrası tetikleyicisi %s çalıştırılıyor"
 msgid "Installed %s"
 msgstr "%s kuruldu"
 
-#: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Configuring %s"
-msgstr "%s yapılandırılıyor"
-
 #. FIXME: use a better string after freeze
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1233,23 +1223,33 @@ msgstr "'%s' dosyası açılamadı"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
+msgid "Preparing %s"
+msgstr "%s hazırlanıyor"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
 msgid "Unpacking %s"
 msgstr "%s paketi açılıyor"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Installing %s"
-msgstr "%s kuruluyor"
+msgid "Preparing to configure %s"
+msgstr "%s paketini yapılandırmaya hazırlanılıyor"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Removing %s"
-msgstr "%s kaldırılıyor"
+msgid "Preparing for removal of %s"
+msgstr "%s paketinin kaldırılmasına hazırlanılıyor"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Completely removing %s"
-msgstr "%s tamamen kaldırılıyor"
+msgid "Removed %s"
+msgstr "%s kaldırıldı"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
+msgid "Preparing to completely remove %s"
+msgstr "%s paketinin tamamen kaldırılmasına hazırlanılıyor"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1637,7 +1637,7 @@ msgstr "%2$s kaynak listesinin %1$u kısmı hatalı (tür)"
 msgid "Type '%s' is not known on stanza %u in source list %s"
 msgstr "'%s' türü bilinmiyor (girdi: %u, kaynak listesi: %s)"
 
-#: apt-pkg/sourcelist.cc apt-private/private-install.cc
+#: apt-pkg/sourcelist.cc
 #, c-format
 msgid "Unsupported file %s given on commandline"
 msgstr "Komut satırında desteklenmeyen bir dosya (%s) verildi"
@@ -1871,8 +1871,8 @@ msgstr ""
 "--force-yes seçeneği kullanımdan kaldırılmıştır, bunun yerine --allow ile "
 "başlayan seçeneklerden birini kullanabilirsiniz."
 
-#: apt-private/private-depends.cc apt-private/private-download.cc
-#: apt-private/private-show.cc cmdline/apt-mark.cc
+#: apt-private/private-depends.cc apt-private/private-show.cc
+#: cmdline/apt-mark.cc
 msgid "No packages found"
 msgstr "Hiç paket bulunamadı"
 
@@ -2047,7 +2047,7 @@ msgstr ""
 msgid "Abort."
 msgstr "Vazgeç."
 
-#: apt-private/private-install.cc cmdline/apt-mark.cc
+#: apt-private/private-install.cc
 msgid "Do you want to continue?"
 msgstr "Devam etmek istiyor musunuz?"
 
@@ -2374,6 +2374,11 @@ msgstr "En az bir arama örüntüsü vermelisiniz"
 msgid "Full Text Search"
 msgstr "Tam Metin Arama"
 
+#: apt-private/private-show.cc cmdline/apt-cache.cc
+#, c-format
+msgid "Package file %s is out of sync."
+msgstr "%s paket dosyası eş zamanlı değil."
+
 #: apt-private/private-show.cc
 #, c-format
 msgid "There is %i additional record. Please use the '-a' switch to see it"
@@ -2539,6 +2544,10 @@ msgid "%s has no build depends.\n"
 msgstr "%s paketinin hiç inşa bağımlılığı yok.\n"
 
 #: apt-private/private-source.cc
+msgid "Must specify at least one package to check builddeps for"
+msgstr "İnşa bağımlılıklarının denetleneceği en az bir paket belirtilmelidir"
+
+#: apt-private/private-source.cc
 #, c-format
 msgid ""
 "No architecture information available for %s. See apt.conf(5) APT::"
@@ -2546,10 +2555,6 @@ msgid ""
 msgstr ""
 "%s mimarisinin bilgileri mevcut değil. Kurulum için apt.conf(5) rehber "
 "sayfasındaki APT::Architectures kısmına göz atın"
-
-#: apt-private/private-source.cc
-msgid "Must specify at least one package to check builddeps for"
-msgstr "İnşa bağımlılıklarının denetleneceği en az bir paket belirtilmelidir"
 
 #: apt-private/private-source.cc
 #, c-format
@@ -2572,8 +2577,8 @@ msgstr "%s ayrıştırılamadı. Tekrar düzenlemek ister misiniz? "
 
 #: apt-private/private-sources.cc
 #, c-format
-msgid "Your '%s' file changed, please run 'apt-get update'.\n"
-msgstr "'%s' dosyası değişti, lütfen 'apt-get update' komutunu çalıştırın.\n"
+msgid "Your '%s' file changed, please run 'apt-get update'."
+msgstr "'%s' dosyası değişti, lütfen 'apt-get update' komutunu çalıştırın."
 
 #: apt-private/private-unmet.cc
 #, c-format
@@ -2610,10 +2615,9 @@ msgstr[1] ""
 msgid "All packages are up to date."
 msgstr "Tüm paketler güncel."
 
-#: cmdline/apt-cache.cc cmdline/apt-mark.cc
-#, c-format
-msgid "%s does not take any arguments"
-msgstr "%s komutu argüman almaz"
+#: cmdline/apt-cache.cc
+msgid "apt-cache stats does not take any arguments"
+msgstr "apt-cache stats komutu argüman almaz"
 
 #: cmdline/apt-cache.cc
 msgid "Total package names: "
@@ -2891,12 +2895,6 @@ msgid "Install new packages (pkg is libc6 not libc6.deb)"
 msgstr "Yeni paket kur (paket libc6.deb değil libc6 şeklinde olmalıdır)"
 
 #: cmdline/apt-get.cc
-#, fuzzy
-#| msgid "Install new packages (pkg is libc6 not libc6.deb)"
-msgid "Reinstall packages (pkg is libc6 not libc6.deb)"
-msgstr "Yeni paket kur (paket libc6.deb değil libc6 şeklinde olmalıdır)"
-
-#: cmdline/apt-get.cc
 msgid "Remove packages"
 msgstr "Paket(leri) kaldır"
 
@@ -3044,16 +3042,6 @@ msgid "%s was already set to automatically installed.\n"
 msgstr "%s zaten otomatik kurulmuş olarak ayarlı.\n"
 
 #: cmdline/apt-mark.cc
-msgid "No changes necessary"
-msgstr ""
-
-#: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "The following NEW packages will be installed:"
-msgid "The following packages will be marked as automatically installed:"
-msgstr "Aşağıdaki YENİ paketler kurulacak:"
-
-#: cmdline/apt-mark.cc
 #, c-format
 msgid "%s was already set on hold.\n"
 msgstr "%s zaten tutulacak şekilde ayarlanmış.\n"
@@ -3118,12 +3106,6 @@ msgid "Mark the given packages as manually installed"
 msgstr "Belirtilen paketleri elle kurulmuş olarak işaretle"
 
 #: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "Mark the given packages as automatically installed"
-msgid "Mark all dependencies of meta packages as automatically installed."
-msgstr "Belirtilen paketleri otomatik kurulmuş olarak işaretle"
-
-#: cmdline/apt-mark.cc
 msgid "Mark a package as held back"
 msgstr "Paketi tutulacak şekilde işaretle"
 
@@ -3140,7 +3122,7 @@ msgid "Print the list of manually installed packages"
 msgstr "Elle kurulmuş paketlerin listesini görüntüle"
 
 #: cmdline/apt-mark.cc
-msgid "Print the list of packages on hold"
+msgid "Print the list of package on hold"
 msgstr "Tutulur durumda olan paketlerin listesini görüntüle"
 
 #: cmdline/apt-sortpkgs.cc
@@ -3194,12 +3176,6 @@ msgstr "Paket ayrıntılarını görüntüle"
 #. package stuff
 #: cmdline/apt.cc
 msgid "install packages"
-msgstr "paket kur"
-
-#: cmdline/apt.cc
-#, fuzzy
-#| msgid "install packages"
-msgid "reinstall packages"
 msgstr "paket kur"
 
 #: cmdline/apt.cc
@@ -3949,11 +3925,12 @@ msgstr "Bağlantı vaktinden önce kapandı"
 msgid "Empty files can't be valid archives"
 msgstr "Boş dosyalar geçerli birer arşiv dosyası olamazlar"
 
-#~ msgid "Removed %s"
-#~ msgstr "%s kaldırıldı"
+#~ msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+#~ msgstr ""
+#~ "'%s' dosyası değişti, lütfen 'apt-get update' komutunu çalıştırın.\n"
 
-#~ msgid "Package file %s is out of sync."
-#~ msgstr "%s paket dosyası eş zamanlı değil."
+#~ msgid "Print the list of packages on hold"
+#~ msgstr "Tutulur durumda olan paketlerin listesini görüntüle"
 
 #~ msgid ""
 #~ "The package index files are corrupted. No Filename: field for package %s."

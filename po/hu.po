@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: apt 1.0.5\n"
 "Report-Msgid-Bugs-To: APT Development Team <deity@lists.debian.org>\n"
-"POT-Creation-Date: 2019-02-04 15:34+0100\n"
+"POT-Creation-Date: 2019-03-01 10:02+0100\n"
 "PO-Revision-Date: 2016-04-10 19:46+0200\n"
 "Last-Translator: Gabor Kelemen <kelemeng@ubuntu.com>\n"
 "Language-Team: Hungarian <gnome-hu-list@gnome.org>\n"
@@ -430,13 +430,6 @@ msgstr "Nem érhető el változásnapló ehhez: %s=%s"
 
 #: apt-pkg/acquire-worker.cc
 #, c-format
-msgid ""
-"The method '%s' is unsupported and disabled by default. Consider switching "
-"to http(s). Set Dir::Bin::Methods::%s to \"%s\" to enable it again."
-msgstr ""
-
-#: apt-pkg/acquire-worker.cc
-#, c-format
 msgid "The method '%s' is explicitly disabled via configuration."
 msgstr ""
 
@@ -505,6 +498,8 @@ msgstr ""
 msgid "Clean of %s is not supported"
 msgstr "A(z) „%s” tisztítása nem támogatott"
 
+#. only show the ETA if it makes sense
+#. two days
 #: apt-pkg/acquire.cc
 #, c-format
 msgid "Retrieving file %li of %li (%s remaining)"
@@ -959,12 +954,12 @@ msgstr "Hiba a(z) %s fájl átnevezésekor erre: %s"
 msgid "Problem syncing the file"
 msgstr "Hiba a fájl szinkronizálásakor"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to mkstemp %s"
 msgstr "Az mkstemp %s meghiúsult"
 
-#: apt-pkg/contrib/fileutl.cc
+#: apt-pkg/contrib/fileutl.cc cmdline/apt-extracttemplates.cc
 #, c-format
 msgid "Unable to write to %s"
 msgstr "Nem lehet írni ebbe: %s"
@@ -1198,23 +1193,23 @@ msgstr "Nincs zárolva"
 #. we don't care for the difference
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing %s"
-msgstr "%s előkészítése"
+msgid "Installing %s"
+msgstr "%s telepítése"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to configure %s"
-msgstr "%s konfigurálásának előkészítése"
+msgid "Configuring %s"
+msgstr "%s konfigurálása"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing for removal of %s"
-msgstr "%s eltávolításának előkészítése"
+msgid "Removing %s"
+msgstr "%s eltávolítása"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Preparing to completely remove %s"
-msgstr "%s teljes eltávolításának előkészítése"
+msgid "Completely removing %s"
+msgstr "%s teljes eltávolítása"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1231,11 +1226,6 @@ msgstr "A(z) %s telepítés utáni trigger futtatása"
 msgid "Installed %s"
 msgstr "%s telepítve"
 
-#: apt-pkg/deb/dpkgpm.cc
-#, c-format
-msgid "Configuring %s"
-msgstr "%s konfigurálása"
-
 #. FIXME: use a better string after freeze
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1249,23 +1239,33 @@ msgstr "A(z) „%s” fájl megnyitása sikertelen"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
+msgid "Preparing %s"
+msgstr "%s előkészítése"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
 msgid "Unpacking %s"
 msgstr "%s kicsomagolása"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Installing %s"
-msgstr "%s telepítése"
+msgid "Preparing to configure %s"
+msgstr "%s konfigurálásának előkészítése"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Removing %s"
-msgstr "%s eltávolítása"
+msgid "Preparing for removal of %s"
+msgstr "%s eltávolításának előkészítése"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
-msgid "Completely removing %s"
-msgstr "%s teljes eltávolítása"
+msgid "Removed %s"
+msgstr "%s eltávolítva"
+
+#: apt-pkg/deb/dpkgpm.cc
+#, c-format
+msgid "Preparing to completely remove %s"
+msgstr "%s teljes eltávolításának előkészítése"
 
 #: apt-pkg/deb/dpkgpm.cc
 #, c-format
@@ -1656,7 +1656,7 @@ msgstr "A(z) %u. utasítás hibás a(z) %s forráslistában (típus)"
 msgid "Type '%s' is not known on stanza %u in source list %s"
 msgstr "„%1$s” típus nem ismert a(z) %3$s forráslista %2$u. utasításában"
 
-#: apt-pkg/sourcelist.cc apt-private/private-install.cc
+#: apt-pkg/sourcelist.cc
 #, c-format
 msgid "Unsupported file %s given on commandline"
 msgstr "Nem támogatott %s fájlt adott meg a parancssorban"
@@ -1883,8 +1883,8 @@ msgid ""
 "instead."
 msgstr "a --force-yes elavult, használja a --allow kezdetű kapcsolók egyikét."
 
-#: apt-private/private-depends.cc apt-private/private-download.cc
-#: apt-private/private-show.cc cmdline/apt-mark.cc
+#: apt-private/private-depends.cc apt-private/private-show.cc
+#: cmdline/apt-mark.cc
 msgid "No packages found"
 msgstr "Nem találhatók csomagok"
 
@@ -2055,7 +2055,7 @@ msgstr ""
 msgid "Abort."
 msgstr "Megszakítva."
 
-#: apt-private/private-install.cc cmdline/apt-mark.cc
+#: apt-private/private-install.cc
 msgid "Do you want to continue?"
 msgstr "Folytatni akarja?"
 
@@ -2381,6 +2381,11 @@ msgstr "Legalább egy keresési mintát meg kell adnia"
 msgid "Full Text Search"
 msgstr "Keresés a teljes szövegben"
 
+#: apt-private/private-show.cc cmdline/apt-cache.cc
+#, c-format
+msgid "Package file %s is out of sync."
+msgstr "%s csomagfájl nincs szinkronban."
+
 #: apt-private/private-show.cc
 #, c-format
 msgid "There is %i additional record. Please use the '-a' switch to see it"
@@ -2546,6 +2551,12 @@ msgid "%s has no build depends.\n"
 msgstr "Nincs fordítási függősége a következőnek: %s.\n"
 
 #: apt-private/private-source.cc
+msgid "Must specify at least one package to check builddeps for"
+msgstr ""
+"Legalább egy csomagot adjon meg, amelynek fordítási függőségeit ellenőrizni "
+"kell"
+
+#: apt-private/private-source.cc
 #, c-format
 msgid ""
 "No architecture information available for %s. See apt.conf(5) APT::"
@@ -2553,12 +2564,6 @@ msgid ""
 msgstr ""
 "Nem érhetők el architektúrainformációk ehhez: %s. A beállításokkal "
 "kapcsolatban lásd az apt.conf(5) APT::Architectures részét."
-
-#: apt-private/private-source.cc
-msgid "Must specify at least one package to check builddeps for"
-msgstr ""
-"Legalább egy csomagot adjon meg, amelynek fordítási függőségeit ellenőrizni "
-"kell"
 
 #: apt-private/private-source.cc
 #, c-format
@@ -2582,8 +2587,8 @@ msgstr "%s feldolgozása sikertelen. Újra szerkeszti? "
 
 #: apt-private/private-sources.cc
 #, c-format
-msgid "Your '%s' file changed, please run 'apt-get update'.\n"
-msgstr "A(z) „%s” fájl megváltozott, adja ki az „apt-get update” parancsot.\n"
+msgid "Your '%s' file changed, please run 'apt-get update'."
+msgstr "A(z) „%s” fájl megváltozott, adja ki az „apt-get update” parancsot."
 
 #: apt-private/private-unmet.cc
 #, c-format
@@ -2618,10 +2623,9 @@ msgstr[1] ""
 msgid "All packages are up to date."
 msgstr "Minden csomag naprakész."
 
-#: cmdline/apt-cache.cc cmdline/apt-mark.cc
-#, c-format
-msgid "%s does not take any arguments"
-msgstr "Az %s parancsnak nincsenek argumentumai"
+#: cmdline/apt-cache.cc
+msgid "apt-cache stats does not take any arguments"
+msgstr "Az apt-cache stats parancsnak nincsenek argumentumai"
 
 #: cmdline/apt-cache.cc
 msgid "Total package names: "
@@ -2895,12 +2899,6 @@ msgid "Install new packages (pkg is libc6 not libc6.deb)"
 msgstr "Új csomagok telepítése (csomag a libc6 és nem a libc6.deb)"
 
 #: cmdline/apt-get.cc
-#, fuzzy
-#| msgid "Install new packages (pkg is libc6 not libc6.deb)"
-msgid "Reinstall packages (pkg is libc6 not libc6.deb)"
-msgstr "Új csomagok telepítése (csomag a libc6 és nem a libc6.deb)"
-
-#: cmdline/apt-get.cc
 msgid "Remove packages"
 msgstr "Csomagok eltávolítása"
 
@@ -3049,16 +3047,6 @@ msgid "%s was already set to automatically installed.\n"
 msgstr "%s már meg van jelölve automatikusan telepítettként.\n"
 
 #: cmdline/apt-mark.cc
-msgid "No changes necessary"
-msgstr ""
-
-#: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "The following NEW packages will be installed:"
-msgid "The following packages will be marked as automatically installed:"
-msgstr "Az alábbi ÚJ csomagok lesznek telepítve:"
-
-#: cmdline/apt-mark.cc
 #, c-format
 msgid "%s was already set on hold.\n"
 msgstr "%s már be van állítva visszatartásra.\n"
@@ -3122,12 +3110,6 @@ msgid "Mark the given packages as manually installed"
 msgstr "Az adott csomagok megjelölése kézzel telepítettként"
 
 #: cmdline/apt-mark.cc
-#, fuzzy
-#| msgid "Mark the given packages as automatically installed"
-msgid "Mark all dependencies of meta packages as automatically installed."
-msgstr "Az adott csomagok megjelölése automatikusan telepítettként"
-
-#: cmdline/apt-mark.cc
 msgid "Mark a package as held back"
 msgstr "Csomag megjelölése visszatartottként"
 
@@ -3144,7 +3126,7 @@ msgid "Print the list of manually installed packages"
 msgstr "Kézileg telepített csomagok listájának kiírása"
 
 #: cmdline/apt-mark.cc
-msgid "Print the list of packages on hold"
+msgid "Print the list of package on hold"
 msgstr "Visszatartott csomagok listájának megjelölése"
 
 #: cmdline/apt-sortpkgs.cc
@@ -3200,12 +3182,6 @@ msgstr "csomagrészletek megjelenítése"
 #. package stuff
 #: cmdline/apt.cc
 msgid "install packages"
-msgstr "csomagok telepítése"
-
-#: cmdline/apt.cc
-#, fuzzy
-#| msgid "install packages"
-msgid "reinstall packages"
 msgstr "csomagok telepítése"
 
 #: cmdline/apt.cc
@@ -3959,11 +3935,12 @@ msgstr "A kapcsolat idő előtt lezárult"
 msgid "Empty files can't be valid archives"
 msgstr "Az üres fájlok biztosan nem érvényes csomagok"
 
-#~ msgid "Removed %s"
-#~ msgstr "%s eltávolítva"
+#~ msgid "Your '%s' file changed, please run 'apt-get update'.\n"
+#~ msgstr ""
+#~ "A(z) „%s” fájl megváltozott, adja ki az „apt-get update” parancsot.\n"
 
-#~ msgid "Package file %s is out of sync."
-#~ msgstr "%s csomagfájl nincs szinkronban."
+#~ msgid "Print the list of packages on hold"
+#~ msgstr "Visszatartott csomagok listájának megjelölése"
 
 #~ msgid ""
 #~ "The package index files are corrupted. No Filename: field for package %s."

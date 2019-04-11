@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: http.cc,v 1.59 2004/05/08 19:42:35 mdz Exp $
 /* ######################################################################
 
    HTTP Acquire Method - This is the HTTP acquire method for APT.
@@ -25,7 +26,6 @@
 #include <apt-pkg/proxy.h>
 #include <apt-pkg/strutl.h>
 
-#include <chrono>
 #include <cstring>
 #include <iostream>
 #include <sstream>
@@ -50,7 +50,7 @@ using namespace std;
 
 unsigned long long CircleBuf::BwReadLimit=0;
 unsigned long long CircleBuf::BwTickReadData=0;
-std::chrono::steady_clock::duration CircleBuf::BwReadTick{0};
+struct timeval CircleBuf::BwReadTick={0,0};
 const unsigned int CircleBuf::BW_HZ=10;
 
 // CircleBuf::CircleBuf - Circular input buffer				/*{{{*/
@@ -99,17 +99,18 @@ bool CircleBuf::Read(std::unique_ptr<MethodFd> const &Fd)
       unsigned long long const BwReadMax = CircleBuf::BwReadLimit/BW_HZ;
 
       if(CircleBuf::BwReadLimit) {
-	 auto const now = std::chrono::steady_clock::now().time_since_epoch();
-	 auto const d = now - CircleBuf::BwReadTick;
+	 struct timeval now;
+	 gettimeofday(&now,0);
 
-	 auto const tickLen = std::chrono::microseconds(std::chrono::seconds(1)) / BW_HZ;
-	 if(d > tickLen) {
+	 unsigned long long d = (now.tv_sec-CircleBuf::BwReadTick.tv_sec)*1000000 +
+	    now.tv_usec-CircleBuf::BwReadTick.tv_usec;
+	 if(d > 1000000/BW_HZ) {
 	    CircleBuf::BwReadTick = now;
 	    CircleBuf::BwTickReadData = 0;
-	 }
-
+	 } 
+	 
 	 if(CircleBuf::BwTickReadData >= BwReadMax) {
-	    usleep(tickLen.count());
+	    usleep(1000000/BW_HZ);
 	    return true;
 	 }
       }
@@ -134,6 +135,8 @@ bool CircleBuf::Read(std::unique_ptr<MethodFd> const &Fd)
 	 return false;
       }
 
+      if (InP == 0)
+	 gettimeofday(&Start,0);
       InP += Res;
    }
 }
@@ -263,6 +266,21 @@ bool CircleBuf::Write(string &Data)
    Data = std::string((char *)Buf + (OutP % Size), LeftWrite());
    OutP += LeftWrite();
    return true;
+}
+									/*}}}*/
+// CircleBuf::Stats - Print out stats information			/*{{{*/
+// ---------------------------------------------------------------------
+/* */
+void CircleBuf::Stats()
+{
+   if (InP == 0)
+      return;
+   
+   struct timeval Stop;
+   gettimeofday(&Stop,0);
+/*   float Diff = Stop.tv_sec - Start.tv_sec + 
+             (float)(Stop.tv_usec - Start.tv_usec)/1000000;
+   clog << "Got " << InP << " in " << Diff << " at " << InP/Diff << endl;*/
 }
 									/*}}}*/
 CircleBuf::~CircleBuf()							/*{{{*/
@@ -416,9 +434,10 @@ HttpServerState::HttpServerState(URI Srv,HttpMethod *Owner) : ServerState(Srv, O
 ResultState HttpServerState::Open()
 {
    // Use the already open connection if possible.
-   if (ServerFd->Fd() != -1)
+   if (ServerFd->Fd() != -1) {
+      std::cerr << "pvdebug: HttpServerState: reusing connection.\n";
       return ResultState::SUCCESSFUL;
-
+   }
    Close();
    In.Reset();
    Out.Reset();
@@ -586,9 +605,10 @@ ResultState HttpServerState::RunData(RequestState &Req)
 	       break;
 	 
 	 // Error
-	 if (In.IsLimit() == false)
+	 if (In.IsLimit() == false) {
+       std::cerr << "pvdebug: Transient error @ HTTPServer:RunData";
 	    return ResultState::TRANSIENT_ERROR;
-
+    }
 	 // The server sends an extra new line before the next block specifier..
 	 In.Limit(-1);
 	 Last = ResultState::SUCCESSFUL;
@@ -973,10 +993,6 @@ void HttpMethod::SendReq(FetchItem *Itm)
 
    Req << "User-Agent: " << ConfigFind("User-Agent",
 		"Debian APT-HTTP/1.3 (" PACKAGE_VERSION ")") << "\r\n";
-
-   auto const referer = ConfigFind("Referer", "");
-   if (referer.empty() == false)
-      Req << "Referer: " << referer << "\r\n";
 
    Req << "\r\n";
 

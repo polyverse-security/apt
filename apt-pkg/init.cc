@@ -1,5 +1,6 @@
 // -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
+// $Id: init.cc,v 1.20 2003/02/09 20:31:05 doogie Exp $
 /* ######################################################################
 
    Init - Initialize the package library
@@ -122,7 +123,7 @@ static bool pkgInitArchTupleMap()
 // ---------------------------------------------------------------------
 /* Directories are specified in such a way that the FindDir function will
    understand them. That is, if they don't start with a / then their parent
-   is prepended, this allows a fair degree of flexibility. */
+   is prepended, this allows a fair degree of flexability. */
 bool pkgInitConfig(Configuration &Cnf)
 {
    // General APT things
@@ -205,12 +206,11 @@ bool pkgInitConfig(Configuration &Cnf)
    Cnf.CndSet("Acquire::IndexTargets::deb-src::Sources::flatDescription", "$(RELEASE) Sources");
    Cnf.CndSet("Acquire::IndexTargets::deb-src::Sources::Optional", false);
 
-   Cnf.CndSet("Acquire::Changelogs::URI::Origin::Debian", "https://metadata.ftp-master.debian.org/changelogs/@CHANGEPATH@_changelog");
+   Cnf.CndSet("Acquire::Changelogs::URI::Origin::Debian", "http://metadata.ftp-master.debian.org/changelogs/@CHANGEPATH@_changelog");
+   Cnf.CndSet("Acquire::Changelogs::URI::Origin::Tanglu", "http://metadata.tanglu.org/changelogs/@CHANGEPATH@_changelog");
    Cnf.CndSet("Acquire::Changelogs::URI::Origin::Ubuntu", "https://changelogs.ubuntu.com/changelogs/pool/@CHANGEPATH@/changelog");
+   Cnf.CndSet("Acquire::Changelogs::URI::Origin::Ultimedia", "http://packages.ultimediaos.com/changelogs/pool/@CHANGEPATH@/changelog.txt");
    Cnf.CndSet("Acquire::Changelogs::AlwaysOnline::Origin::Ubuntu", true);
-
-
-   Cnf.CndSet("DPkg::Path", "/usr/sbin:/usr/bin:/sbin:/bin");
 
    // Read an alternate config file
    _error->PushToStack();
@@ -251,7 +251,7 @@ bool pkgInitConfig(Configuration &Cnf)
    return good;
 }
 									/*}}}*/
-// pkgInitSystem - Initialize the _system class				/*{{{*/
+// pkgInitSystem - Initialize the _system calss				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
 bool pkgInitSystem(Configuration &Cnf,pkgSystem *&Sys)
