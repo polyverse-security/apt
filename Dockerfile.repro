@@ -9,7 +9,7 @@ RUN echo "deb http://s3-us-west-2.amazonaws.com/polyverse-mirror-dev/ubuntu/ bio
 #RUN echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries
 RUN apt update -y && apt upgrade -y
 COPY ./apt_1.6.10_amd64.deb /opt/pv/
-#RUN dpkg -i /opt/pv/apt_1.6.10_amd64.deb
+RUN dpkg -i /opt/pv/apt_1.6.10_amd64.deb
 # -o Acquire::http::Pipeline-Depth=1
 # -o Acquire::http::Retries=3
 # -o Acquire::http::Dl-Limit=200 
