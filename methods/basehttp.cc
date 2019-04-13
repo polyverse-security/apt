@@ -771,34 +771,31 @@ int BaseHttpMethod::Loop()
 	    }
 	    else
 	    {
-	       if (Server->IsOpen() == false)
+               FailCounter++;
+	       _error->Discard();
+	       Server->Close();
+
+	       std::cerr << "[CYH] FailCounter++\n";
+	       if (FailCounter >= 2)
 	       {
-		  FailCounter++;
-		  _error->Discard();
-		  Server->Close();
-		  
-		  if (FailCounter >= 2)
-		  {
-		     Fail(_("Connection failed"),true);
-		     FailCounter = 0;
-		  }
-		  
-		  QueueBack = Queue;
+		       std::cerr << "[CYH] FailCounter >= 2\n";
+		       switch (Result)
+		       {
+		       case ResultState::TRANSIENT_ERROR:
+			       Fail(true);
+			       break;
+	               case ResultState::FATAL_ERROR:
+		       case ResultState::SUCCESSFUL:
+			       Fail(false);
+			       break;
+		       default:
+		               Fail(_("Connection failed"),true);
+			       break;
+		       }
+		       FailCounter = 0;
 	       }
-	       else
-               {
-                  Server->Close();
-		  switch (Result)
-		  {
-		  case ResultState::TRANSIENT_ERROR:
-		     Fail(true);
-		     break;
-		  case ResultState::FATAL_ERROR:
-		  case ResultState::SUCCESSFUL:
-		     Fail(false);
-		     break;
-		  }
-	       }
+
+	       QueueBack = Queue;
 	    }
 	    break;
 	 }
